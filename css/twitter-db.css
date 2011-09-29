@@ -1,0 +1,50 @@
+div.topbar div.fill div.container{
+	color: #e6e6e6;
+}
+h3 a.tweet-screen-name{
+	color: black;
+}
+div.tweet-text{
+	color: black;
+	font-size: 15px;
+}
+h3 small a.tweet-screen-name,
+h3 small a.tweetscreen-name:hover,
+a.tweet-timestamp,
+a.tweet-timestamp:hover,
+span.tweet-source a,
+span.tweet-source a:hover{
+	color: #BFBFBF;
+}
+span.retweet-icon{
+    	background: url(icons.png) no-repeat -81px 0;
+	width: 14px;
+	height: 15px;
+	margin: 0 6px -1px 2px;
+	display: inline-block;
+}
+span.tweet-actions a i, span.favorite-action-icon, span.retweet-action-icon, span.reply-action-icon{
+    	background: url(icons.png);
+	width: 14px;
+	height: 15px;
+	margin: 0 3px -1px 0;
+	display: inline-block;
+}
+span.tweet-actions a.favorite-action i{
+    	background-position: -34px 0;
+}
+span.tweet-actions a.favorite-action:hover i{
+    	background-position: -50px 0;
+}
+span.tweet-actions a.retweet-action i{
+    	background-position: -81px 0;
+}
+span.tweet-actions a.retweet-action:hover i{
+    	background-position: -97px 0;
+}
+span.tweet-actions a.reply-action i{
+    	background-position: -1px 0;
+}
+span.tweet-actions a.reply-action:hover i{
+    	background-position: -17px 0;
+}
