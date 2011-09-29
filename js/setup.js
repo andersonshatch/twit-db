@@ -4,7 +4,7 @@ $(document).ready(function() {
 		function(event){
 			$.ajax({
 				type: 'POST',
-				url: 'setuphelper.php?action=checkdb',
+				url: 'lib/setuphelper.php?action=checkdb',
 				data: $("form#database-settings").serialize(),
 				success: function(data){databaseSuccess(data);},
 				error: function(xhr){databaseFailure(xhr);}
@@ -16,10 +16,10 @@ $(document).ready(function() {
 	$("form#twitter-app-settings").submit(
 		function(event){
 			$(this).children().find("input#twitter-verify").attr("value", "Processing...");
-			var callbackURL = window.location.href.replace("/setup.php", "/setuphelper.php?action=signin");
+			var callbackURL = window.location.href.replace("/setup.php", "/lib/setuphelper.php?action=signin");
 			$.ajax({
 				type: 'POST',
-				url: 'setuphelper.php?action=checktwitter',
+				url: 'lib/setuphelper.php?action=checktwitter',
 				data: $("form#twitter-app-settings").serialize() + "&oauth_callback=" + encodeURIComponent(callbackURL),
 				success: function(data){twitterSuccess(data);},
 				error: function(xhr){twitterFailure(xhr);}
@@ -33,7 +33,7 @@ $(document).ready(function() {
 
 			$.ajax({
 				type: 'POST',
-				url: 'setuphelper.php?action=submit-all',
+				url: 'lib/setuphelper.php?action=submit-all',
 				data: data,
 				success: function(data){
 					$("div#output-box-row").html(data);

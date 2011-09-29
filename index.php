@@ -40,9 +40,9 @@ if(is_readable('config.php')){
 
 <?php
 
-include 'Timesince.php';
-require_once 'linkify_tweet.php';
-require_once 'buildQuery.php';
+include 'lib/Timesince.php';
+require_once 'lib/linkify_tweet.php';
+require_once 'lib/buildQuery.php';
 
 $mysqli = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
 $mysqli->set_charset("utf8");

@@ -41,7 +41,7 @@ foreach($requests as $request){
 	$lastIDQueryString = "SELECT id FROM `{$request['tableName']}` ORDER BY id DESC LIMIT 1";
 	$lastIDQuery = $mysqli->query($lastIDQueryString);
 	if(!$lastIDQuery){
-		require_once 'createtables.php';
+		require_once 'lib/createtables.php';
 		echo "Creating table {$request['tableName']}\n";
 		if(! createTimelineTable($mysqli, $request['tableName']) ){
 			echo "ERROR: Couldn't create table {$request['tableName']}\n";
@@ -64,7 +64,7 @@ echo "In total added {$GLOBALS['totalTweetsAdded']} ".getSingularOrPlural("tweet
 echo "Used {$GLOBALS['requestCount']} ".getSingularOrPlural("request", $GLOBALS['requestCount']).".\n";
 
 function getTimelineAndStore($twitterObj, $mysqli, $requestObj){
-	require_once 'storestatusesandusers.php';
+	require_once 'lib/storestatusesandusers.php';
 	$failCount = 0;
 	$maxRetries = 10;
 	$tweetsAdded = 0;
