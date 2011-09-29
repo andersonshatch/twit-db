@@ -20,7 +20,7 @@ header('Cache-Control: no-cache, max-age=0');
 <div class="container">
 	<div class="content">
 		<div class="page-header">
-			<h1>Twi-DB setup</h1>
+			<h1>Twit-DB setup</h1>
 		</div>
 		<?php 
 		if(file_exists("config.php")){
