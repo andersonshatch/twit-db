@@ -79,7 +79,7 @@ switch($_GET['action']){
 }
 
 function includeTwitterAsyncFiles(){
-	$dependencies = array('twitter-async/EpiCurl.php', 'twitter-async/EpiOAuth.php', 'twitter-async/EpiTwitter.php');
+	$dependencies = array('../twitter-async/EpiCurl.php', '../twitter-async/EpiOAuth.php', '../twitter-async/EpiTwitter.php');
 	foreach($dependencies as $file){
 		if(! (include $file) ){
 			header ('HTTP/1.1 500 Internal Server Error.');
