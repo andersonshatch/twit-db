@@ -94,7 +94,7 @@ function generateBanner($class, $message){
 }
 
 function dependencyBanner($fileName){
-	return generateBanner("error", "Couldn't find $file. Run <code>git submodule --init</code> in this directory to fix.");
+	return generateBanner("error", "Couldn't find $fileName. Run <code>git submodule --init</code> in this directory to fix.");
 }
 
 function createConfigFile(){
