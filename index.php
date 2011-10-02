@@ -115,7 +115,7 @@ echo <<<HTML
 			
 				<blockquote class="tweet-metadata">
 					<small>
-						<a href="https://twitter.com/#!/{$row['screen_name']}/status/{$row['id']}" class="tweet-timestamp" target="_blank" title="{$createdat->format('G:i M dS \'y')}">
+						<a href="https://twitter.com/#!/{$row['screen_name']}/status/{$row['id']}" class="tweet-timestamp" target="_blank" title="{$createdat->format('G:i M jS \'y')}">
 							$timestamp ago 
 						</a>
 						<span class="tweet-source">
