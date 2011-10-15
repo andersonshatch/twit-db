@@ -7,7 +7,7 @@
  * @param string $urlEntities JSON from tweet's entities
  * @return string Tweet with wrapped usernames, hashtags and urls.
  */
-function linkify_tweet($text, $entitiesJSON){
+function linkify_tweet($text, $entitiesJSON = null){
 	if($entitiesJSON == null && file_exists('twitter-text-php/lib/Twitter/Autolink.php')){
 		//backward compatibility for my database where I didn't initially store entities
 		include_once 'twitter-text-php/lib/Twitter/Autolink.php';
@@ -35,7 +35,7 @@ function linkify_tweet($text, $entitiesJSON){
 
 			$media_url = "";
 			$class = $urlClass;
-			$href = "";
+
 			switch($type){
 				case "media":
 					$media_url = array_key_exists('HTTPS', $_SERVER) ?
@@ -45,9 +45,17 @@ function linkify_tweet($text, $entitiesJSON){
 					//fall through to the url case as a picture is mostly just a url for this purpose
 				case "urls":
 					$class.=$urlClass;
-					$url = empty($value->expanded_url) ? $value->url : $value->expanded_url;
-					$display = isset($value->display_url) ? $value->display_url : str_replace('http://', '', $url);
-					$href = "<a class=\"$class\" rel=\"$urlRel\" target=\"$urlTarget\" href=\"$value->url\" title=\"$url\" $media_url>$display</a>";
+					$title = empty($value->expanded_url) ? $value->url : $value->expanded_url;
+					$display = isset($value->display_url) ? $value->display_url : str_replace('http://', '', $title);
+					$location = $value->url;
+
+					//add http to protocol-less links
+					if(strpos($title, 'http') === false)
+						$title = 'http://'.$title;
+					if(strpos($location, 'http') === false)
+						$location = 'http://'.$location;
+					
+					$href = "<a class=\"$class\" rel=\"$urlRel\" target=\"$urlTarget\" href=\"$location\" title=\"$title\" $media_url>$display</a>";
 					break;
 				case "hashtags":
 					$href = "<a class=\"$hashtagClass\" rel=\"$urlRel\" target=\"$urlTarget\" href=\"http://search.twitter.com/search?q=%23$value->text\">#$value->text</a>";
