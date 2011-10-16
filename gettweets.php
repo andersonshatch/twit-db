@@ -58,6 +58,7 @@ foreach($requests as $request){
 	echo "Added $tweetsAdded ".getSingularOrPlural("tweet", $tweetsAdded)." to {$request['tableName']}.\n";
 }
 
+$mysqli->close();
 $countEnd = ($GLOBALS['totalTweetsAdded'] == 1) ? "tweet.\n" : "tweets.\n";
 $requestEnd =($GLOBALS['requestCount'] == 1) ? "request.\n" : "requests.\n"; 
 echo "In total added {$GLOBALS['totalTweetsAdded']} ".getSingularOrPlural("tweet", $GLOBALS['totalTweetsAdded']).".\n";
