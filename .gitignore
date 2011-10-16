@@ -1,2 +1,2 @@
-config.php
-config-test.php
+config*
+.htaccess
