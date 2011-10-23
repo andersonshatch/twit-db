@@ -102,7 +102,8 @@ function createConfigFile(){
 	foreach($_POST as $key => $val){
 		$_POST[$key] = addslashes($val);
 	}
-	$otherUsers = implode(",", array_unique(array_filter(array_map('trim', explode(",", urldecode($_POST['other-users'])))))); //remove duplicates, whitespace and empty items
+	require_once 'additional_users.php';
+    $otherUsers = create_users_string(create_users_array($_POST['other-users']));
 	$mentions = "";
 	if(array_key_exists('mentions-timeline', $_POST) && $_POST['mentions-timeline'] == 'on')
 		$mentions = "define('MENTIONS_TIMELINE', 'true');";

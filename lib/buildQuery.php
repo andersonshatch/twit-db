@@ -3,7 +3,8 @@ function buildQuery($array, $mysqli){
 	$table = 'home';
 	if( !empty($array) ){
 		if(array_key_exists("username", $array)){
-			$userTables = array_unique(array_filter(array_map('trim', explode(",", ADDITIONAL_USERS))));
+			require_once 'additional_users.php';
+			$userTables = create_users_array(ADDITIONAL_USERS);
 			if(in_array($_POST['username'], $userTables)){
 				$table = "@{$_POST['username']}";
 			}
