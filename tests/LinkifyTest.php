@@ -2,7 +2,7 @@
 
 require_once '../lib/linkify_tweet.php';
 
-class linkify_test extends PHPUnit_Framework_TestCase{
+class LinkifyTest extends PHPUnit_Framework_TestCase{
 
 	public function testTweetWithJustText(){
 		$testText = 'blah blah tweet without any usernames or hashtags or links';
