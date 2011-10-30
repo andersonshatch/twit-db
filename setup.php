@@ -45,12 +45,12 @@ header('Cache-Control: no-cache, max-age=0');
 				    <fieldset>
 					    <div class="clearfix">
 						    <label for="host">Database Host</label>
-						    <input type="text" name="db_host" id="db_host">
+						    <input type="text" name="db_host" id="db_host" autocapitalize="none">
 						    <span class="help-inline">Typically localhost</span>
 					    </div>
 					    <div class="clearfix">
 						    <label for="username">Database Username</label>
-						    <input type="text" name="db_uname" id="db_uname">
+						    <input type="text" name="db_uname" id="db_uname" autocapitalize="none">
 					    </div>
 					    <div class="clearfix">
 						    <label for="password">Database Password</label>
@@ -58,7 +58,7 @@ header('Cache-Control: no-cache, max-age=0');
 					    </div>
 					    <div class="clearfix">
 						    <label for="name">Database Name</label>
-						    <input type="text" name="db_name" id="db_name">
+						    <input type="text" name="db_name" id="db_name" autocapitalize="none">
 						    <span class="help-inline">Name of the database you created</span>
 					    </div>
 					    <input type="submit" class="btn primary pull-right" id="database-verify" value="Verify">
