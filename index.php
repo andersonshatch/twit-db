@@ -96,7 +96,7 @@ $createdat = date_create_from_format('Y-m-d H:i:s', $row['created_at']);
 $timestamp = Timesince($createdat->format('U'));
 echo <<<HTML
 	<div class="row tweet" data-item-id="{$row['id']}">
-		<div class="span16 columns">
+		<div class="row span16 columns">
 			<div class="span1 columns tweet-image">
 				<br />
 				<a class="user-profile-link" href="https://twitter.com/{$row['screen_name']}">

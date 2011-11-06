@@ -94,7 +94,7 @@ header('Cache-Control: no-cache, max-age=0');
 			</div>
 			</form>
 		</div>
-		<div class="row offset3" id="twitter-feedback" style="display: none;">
+		<div class="offset3" id="twitter-feedback" style="display: none;">
 		</div>
 		<div class="row offset3" id="twitter-user-row" style="display: none;">
 			<div class="span4">
@@ -160,7 +160,7 @@ header('Cache-Control: no-cache, max-age=0');
 				<form>
 			</div>
 		</div>
-		<div class="row offset3" id="output-box-row" style="display: none;">
+		<div class="offset3" id="output-box-row" style="display: none;">
 		</div>
 	</div><!--content-->
 </div><!--container-->
