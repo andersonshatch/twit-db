@@ -6,7 +6,7 @@ header('Cache-Control: no-cache, max-age=0');
 <head>
 <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
 <title>Twit-DB setup</title>
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script type="text/javascript" src="js/setup.js"></script>
 </head>
 <body>

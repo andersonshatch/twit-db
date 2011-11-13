@@ -15,7 +15,7 @@ if(is_readable('config.php')){
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>Twit-DB search</title>
 <script type="text/javascript" src="//platform.twitter.com/anywhere.js?id=<?php echo TWITTER_CONSUMER_KEY; ?>&amp;v=1"></script>
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script type="text/javascript" src="js/lazyload.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap-twipsy.js"></script>
 <script type="text/javascript" src="js/main.js"></script>

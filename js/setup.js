@@ -50,8 +50,8 @@ $(document).ready(function() {
 
 });
 
-$("a#signin-button").live('click', function(event){popupSigninWindow(event)});
-$("a#signin-button").live('touchstart', function(event){popupSigninWindow(event)});
+$(document).on('click', 'a#signin-button', function(event){popupSigninWindow(event)});
+$(document).on('touchstart', 'a#signin-button', function(event){popupSigninWindow(event)});
 
 function popupSigninWindow(event){
 			var url = $("a#signin-button").attr('data-url');
