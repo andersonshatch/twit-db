@@ -1,5 +1,8 @@
 <?php
 
+if(in_array('--quiet', $argv))
+	define('QUIET', true);
+
 $GLOBALS['totalTweetsAdded'] = 0;
 $GLOBALS['responseTweetsAdded'] = 0;
 $GLOBALS['requestCount'] = 0;
@@ -38,7 +41,7 @@ foreach($requests as $request){
 	$lastIDQuery = $mysqli->query($lastIDQueryString);
 	if(!$lastIDQuery){
 		require_once 'lib/createtables.php';
-		echo "Creating table {$request['tableName']}\n";
+		output("Creating table {$request['tableName']}\n");
 		if(! createTimelineTable($mysqli, $request['tableName']) ){
 			echo "ERROR: Couldn't create table {$request['tableName']}\n";
 			continue; //go to next request
@@ -51,14 +54,14 @@ foreach($requests as $request){
 	$tweetsAdded = $GLOBALS['totalTweetsAdded'];
 	getTimelineAndStore($twitterObj, $mysqli, $request);
 	$tweetsAdded = $GLOBALS['totalTweetsAdded'] - $tweetsAdded;
-	echo "Added $tweetsAdded ".getSingularOrPlural("tweet", $tweetsAdded)." to {$request['tableName']}.\n";
+	output("Added $tweetsAdded ".getSingularOrPlural("tweet", $tweetsAdded)." to {$request['tableName']}.\n");
 }
 
 $mysqli->close();
 $countEnd = ($GLOBALS['totalTweetsAdded'] == 1) ? "tweet.\n" : "tweets.\n";
 $requestEnd =($GLOBALS['requestCount'] == 1) ? "request.\n" : "requests.\n"; 
-echo "In total added {$GLOBALS['totalTweetsAdded']} ".getSingularOrPlural("tweet", $GLOBALS['totalTweetsAdded']).".\n";
-echo "Used {$GLOBALS['requestCount']} ".getSingularOrPlural("request", $GLOBALS['requestCount']).".\n";
+output("In total added {$GLOBALS['totalTweetsAdded']} ".getSingularOrPlural("tweet", $GLOBALS['totalTweetsAdded']).".\n");
+output("Used {$GLOBALS['requestCount']} ".getSingularOrPlural("request", $GLOBALS['requestCount']).".\n");
 
 function getTimelineAndStore($twitterObj, $mysqli, $requestObj){
 	require_once 'lib/storestatusesandusers.php';
@@ -92,9 +95,8 @@ function getTimelineAndStore($twitterObj, $mysqli, $requestObj){
 				echo "FAILED getting tweets for {$requestObj['tableName']}, $failCount times. Moving on.\n";
 				return;
 			}
-			echo "WARNING: got ".get_class($e)." whilst updating {$requestObj['tableName']}.\n";
+			output("WARNING: got ".get_class($e)." whilst updating {$requestObj['tableName']}.\n");
 			sleep(2 * $failCount - 1);
-			//echo $e->getMessage();
 		}
 	}
 	$GLOBALS['totalTweetsAdded'] += $tweetsAdded;
@@ -105,6 +107,11 @@ function getSingularOrPlural($string, $number){
 		return $string;
 	else
 		return $string."s";
+}
+
+function output($text){
+    if(!defined('QUIET') || QUIET === false)
+	echo $text;
 }
 
 ?>
