@@ -7,7 +7,10 @@ $GLOBALS['totalTweetsAdded'] = 0;
 $GLOBALS['responseTweetsAdded'] = 0;
 $GLOBALS['requestCount'] = 0;
 
-require_once 'config.php';
+if(is_readable('config.php'))
+	require_once 'config.php';
+else
+	die("ERROR: Config file (config.php) doesn't exist. Visit setup.php in a browser to create it.\n");
 require_once 'twitter-async/EpiCurl.php';
 require_once 'twitter-async/EpiOAuth.php';
 require_once 'twitter-async/EpiTwitter.php';
