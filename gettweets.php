@@ -15,7 +15,7 @@ require_once 'twitter-async/EpiCurl.php';
 require_once 'twitter-async/EpiOAuth.php';
 require_once 'twitter-async/EpiTwitter.php';
 
-$mysqli = @new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME) or die("Could not connect to MySQL");
+$mysqli = @new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
 if($mysqli->connect_error)
     die("Could not connect to MySQL. {$mysqli->connect_error}\n");
 $mysqli->set_charset("utf8");
