@@ -44,20 +44,20 @@ header('Cache-Control: no-cache, max-age=0');
 				<form class="form-stacked" id="database-settings">
 				    <fieldset>
 					    <div class="clearfix">
-						    <label for="host">Database Host</label>
+						    <label for="db_host">Database Host</label>
 						    <input type="text" name="db_host" id="db_host" autocapitalize="none">
 						    <span class="help-inline">Typically localhost</span>
 					    </div>
 					    <div class="clearfix">
-						    <label for="username">Database Username</label>
+						    <label for="db_uname">Database Username</label>
 						    <input type="text" name="db_uname" id="db_uname" autocapitalize="none">
 					    </div>
 					    <div class="clearfix">
-						    <label for="password">Database Password</label>
+						    <label for="db_pass">Database Password</label>
 						    <input type="password" name="db_pass" id="db_pass">
 					    </div>
 					    <div class="clearfix">
-						    <label for="name">Database Name</label>
+						    <label for="db_name">Database Name</label>
 						    <input type="text" name="db_name" id="db_name" autocapitalize="none">
 						    <span class="help-inline">Name of the database you created</span>
 					    </div>
