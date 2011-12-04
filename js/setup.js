@@ -13,12 +13,12 @@ $(document).ready(function() {
 		}
 	);		
 
-	$("form#database-settings").submit(
+	$("#database-settings").submit(
 		function(event){
 			$.ajax({
 				type: 'POST',
 				url: 'lib/setuphelper.php?action=checkdb',
-				data: $("form#database-settings").serialize(),
+				data: $("#database-settings").serialize(),
 				success: function(data){databaseSuccess(data);},
 				error: function(xhr){databaseFailure(xhr);}
 			});
@@ -26,21 +26,21 @@ $(document).ready(function() {
 		}
 	);
 
-	$("form#twitter-app-settings").submit(
+	$("#twitter-app-settings").submit(
 		function(event){
-			$(this).children().find("input#twitter-verify").attr("value", "Processing...");
+			$(this).children().find("#twitter-verify").attr("value", "Processing...");
 			var callbackURL = window.location.href.replace("/setup.php", "/lib/setuphelper.php?action=signin");
 			$.ajax({
 				type: 'POST',
 				url: 'lib/setuphelper.php?action=checktwitter',
-				data: $("form#twitter-app-settings").serialize() + "&oauth_callback=" + encodeURIComponent(callbackURL),
+				data: $("#twitter-app-settings").serialize() + "&oauth_callback=" + encodeURIComponent(callbackURL),
 				success: function(data){twitterSuccess(data);},
 				error: function(xhr){twitterFailure(xhr);}
 			});
 			event.preventDefault();
 		}
 	);
-	$("input#submit-all").click(
+	$("#submit-all").click(
 		function(event){
 			var data = $("form").serialize();
 
@@ -73,19 +73,19 @@ function popupSigninWindow(event){
 }
 
 function setUserCredentials(token, secret, screen_name){
-	$("input#user-token").attr("value", token);
-	$("input#user-secret").attr("value", secret);
-	$("input#user-secret").after('<span class="help-inline" id="screen_name">'+screen_name+'</span>');
-	$("a#signin-button").slideUp('fast');
-	$("div#timeline-settings").fadeIn('fast');
+	$("#user-token").attr("value", token);
+	$("#user-secret").attr("value", secret);
+	$("#user-secret").after('<span class="help-inline" id="screen_name">'+screen_name+'</span>');
+	$("#signin-button").slideUp('fast');
+	$("#timeline-settings").fadeIn('fast');
 }
 
 function twitterSuccess(data){
-	$("div#twitter-feedback").slideUp('fast');
-	$("span#signin-placeholder").html(data);
-	$("div#twitter-user-row").fadeIn('fast');
-	$("form#twitter-app-settings input").attr("readonly", "readonly");
-	var button = $("input#twitter-verify");
+	$("#twitter-feedback").slideUp('fast');
+	$("#signin-placeholder").html(data);
+	$("#twitter-user-row").fadeIn('fast');
+	$("#twitter-app-settings input").attr("readonly", "readonly");
+	var button = $("#twitter-verify");
 	button.attr("disabled", "disabled");
 	button.attr('value', 'Completed');
 	button.removeClass("primary");
@@ -93,38 +93,38 @@ function twitterSuccess(data){
 }
 
 function twitterFailure(xhr){
-	$("div#twitter-feedback").slideUp('fast',
+	$("#twitter-feedback").slideUp('fast',
 			function(){
 				$(this).html(xhr.responseText);
 				$(this).slideDown('fast');
-				$("input#twitter-verify").attr('value', 'Retry');
+				$("#twitter-verify").attr('value', 'Retry');
 			}
 	);
 }
 
 
 function databaseSuccess(data){
-	$("div#database-feedback").slideUp('fast',
+	$("#database-feedback").slideUp('fast',
 			function(){
 				$(this).html(data);
 				$(this).slideDown('fast');
 			}
 	);
 	$("#twitter-form-row").fadeIn();
-	$("form#database-settings input").attr("readonly", "readonly");
-	$("input#database-verify").attr("disabled", "disabled");
-	var button = $("input#database-verify");
+	$("#database-settings input").attr("readonly", "readonly");
+	$("#database-verify").attr("disabled", "disabled");
+	var button = $("#database-verify");
 	button.attr('value', 'Connected');
 	button.removeClass("primary");
 	button.addClass("success");
-	$("input#consumer-key").focus();
+	$("#consumer-key").focus();
 }
 function databaseFailure(xhr){
-	$("div#database-feedback").slideUp('fast', 
+	$("#database-feedback").slideUp('fast', 
 			function(){
 				$(this).html(xhr.responseText);
 				$(this).slideDown('fast');
 			}
 	);
-	$("input#database-verify").attr('value', 'Retry');
+	$("#database-verify").attr('value', 'Retry');
 }
