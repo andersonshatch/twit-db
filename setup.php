@@ -32,7 +32,32 @@ header('Cache-Control: no-cache, max-age=0');
 				echo "<div class=\"alert-message error\">Error: Config file already exists, but isn't readable. Make it readable and then click <a href=\"index.php\">here</a>.</div>";
 			}
 		}
-		?>
+		if( !ini_get('date.timezone') ) { ?>
+		    <div class="row offset3" id="timezone-row">
+			    <div class="span4">
+				<h3>PHP Settings</h3>
+					<p>
+					Select your timezone.
+					</p>
+			    </div>
+			    <div class="span4">
+			    	<form class="form-stacked" id="timezone-settings">
+						<fieldset>
+							<label for="timezone">Timezone</label>
+							<select class="span4" name="timezone" id="timezone">
+								<option></option>
+								<?php
+									$timezones = DateTimeZone::listIdentifiers();
+									foreach($timezones as $timezone){
+										echo "<option>$timezone</option>";
+									}
+								?>
+							</select>
+						</fieldset>
+					</form>
+			    </div>
+		    </div>
+		<?php }	?>
 		<div class="row offset3" id="database-form-row">
 			<div class="span4">
 			<h3>MySQL Settings </h3>

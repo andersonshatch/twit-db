@@ -107,10 +107,13 @@ function createConfigFile(){
 	$mentions = "";
 	if(array_key_exists('mentions-timeline', $_POST) && $_POST['mentions-timeline'] == 'on')
 		$mentions = "define('MENTIONS_TIMELINE', 'true');";
+	$timezone = "";
+	if(array_key_exists('timezone', $_POST) && $_POST['timezone'] != '')
+		$timezone = "\n\tdate_default_timezone_set('{$_POST['timezone']}');\n";
 
 	$output = <<<MARK
 <?php
-
+	$timezone
 	define('DB_HOST', '{$_POST['db_host']}');
 	define('DB_USERNAME', '{$_POST['db_uname']}');
 	define('DB_PASSWORD', '{$_POST['db_pass']}');

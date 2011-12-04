@@ -1,5 +1,18 @@
 $(document).ready(function() {
 
+	if( $("#timezone-row").length > 0 ){
+		$("#database-form-row").hide();
+	}
+	
+	$("#timezone").change(
+		function(){
+			if( $(this).prop("selectedIndex") != 0  && $("#timezone option:first").val() == '' ){
+				$("#timezone option:first").remove();
+				$("#database-form-row").fadeIn();
+			}
+		}
+	);		
+
 	$("form#database-settings").submit(
 		function(event){
 			$.ajax({
