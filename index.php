@@ -19,6 +19,7 @@ if(is_readable('config.php')){
 <script type="text/javascript" src="js/lazyload.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap-twipsy.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/timeago.js"></script>
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 </head>
 <body>
@@ -115,7 +116,7 @@ echo <<<HTML
 			
 				<blockquote class="tweet-metadata">
 					<small>
-						<a href="https://twitter.com/#!/{$row['screen_name']}/status/{$row['id']}" class="tweet-timestamp" target="_blank" title="{$createdat->format('G:i M jS \'y')}">
+						<a href="https://twitter.com/#!/{$row['screen_name']}/status/{$row['id']}" class="tweet-timestamp" target="_blank" title="{$createdat->format('G:i M jS \'y')}" data-timestamp="{$createdat->format('c')}">
 							$timestamp ago 
 						</a>
 						<span class="tweet-source">

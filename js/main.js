@@ -9,10 +9,10 @@ $(document).ready(function() {
 	);
 	
 	$("img").lazyload({placeholder: 'css/bird_48_grey.png'});
-	$("a.tweet-timestamp").twipsy({
+	$(".tweet-timestamp").twipsy({
 		live: true,
 		placement: "below"
-	});
+	}).timeago();
 }	
 );
 
