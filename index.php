@@ -24,20 +24,20 @@ if(is_readable('config.php')){
 </head>
 <body>
 
-<div class="topbar">
-	<div class="fill">
+<div class="navbar navbar-fixed">
+	<div class="navbar-inner">
 		<div class="container">
-			<h3><a href="#" style="margin-left: -22px;">Twit-DB</a></h3>
-			<form id="search-form" action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST">
-				<input id="search-text" class="" name="text" value="<?php if(array_key_exists("text", $_POST)) echo htmlentities($_POST['text']); ?>" placeholder="Text" />
-				( <input id="search-username" class=""  name="username" value="<?php if(array_key_exists("username", $_POST)) echo htmlentities($_POST['username']); ?>" placeholder="Username <?php if( defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" />
+			<a class="brand" href="#" style="margin-left: -22px;">Twit-DB</a></h3>
+			<form id="search-form" class="form-search navbar-search" action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST">
+				<input id="search-text" class="search-query" name="text" value="<?php if(array_key_exists("text", $_POST)) echo htmlentities($_POST['text']); ?>" placeholder="Text" />
+				( <input id="search-username" class="search-query"  name="username" value="<?php if(array_key_exists("username", $_POST)) echo htmlentities($_POST['username']); ?>" placeholder="Username <?php if( defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" />
 				Retweets <input id="search-retweets" class="" name="retweets" type="checkbox" <?php if(array_key_exists("retweets", $_POST) && $_POST['retweets'] = 'on') echo 'checked="checked"'; ?> /> )
-				<input id="search-limit" class="" name="limit" value="<?php if(array_key_exists("limit", $_POST)) echo htmlentities($_POST['limit']); ?>" placeholder="Limit" />
-				<input type="submit" value="Submit" />
+				<input id="search-limit" class="search-query" name="limit" value="<?php if(array_key_exists("limit", $_POST)) echo htmlentities($_POST['limit']); ?>" placeholder="Limit" />
+				<input class="search-query" type="submit" value="Submit" />
 			</form>
 		</div><!-- container -->
-	</div><!-- fill -->
-</div><!-- topbar -->
+	</div><!-- navbar-inner -->
+</div><!-- navbar -->
 
 <?php
 
