@@ -97,14 +97,14 @@ $createdat = date_create_from_format('Y-m-d H:i:s', $row['created_at']);
 $timestamp = Timesince($createdat->format('U'));
 echo <<<HTML
 	<div class="row tweet" data-item-id="{$row['id']}">
-		<div class="row span16 columns">
+		<div class="row span12 columns">
 			<div class="span1 columns tweet-image">
 				<br />
 				<a class="user-profile-link" href="https://twitter.com/{$row['screen_name']}">
 					<img width="48" height="48" class="user-profile-link" alt="{$row['screen_name']}'s avatar" original={$row['profile_image_url']}>
 				</a>
 			</div>
-			<div class="span14 columns tweet-content">
+			<div class="span10 columns tweet-content">
 				<div class="tweet-names">
 					<h3><a class="tweet-screen-name user-profile-link" href="https://twitter.com/{$row['screen_name']}">{$row['screen_name']}</a>
 					<small class="tweet-full-name">{$row['name']}$tweetMeta</small>
