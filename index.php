@@ -19,7 +19,7 @@ if(is_readable('config.php')){
 <script type="text/javascript" src="bootstrap/js/bootstrap-twipsy.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/timeago.js"></script>
-<script type="text/javascript" src="js/jquery.mustache.js"></script>
+<script type="text/javascript" src="js/mustache.js"></script>
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 </head>
 <body>
