@@ -27,7 +27,7 @@ if(is_readable('config.php')){
 	<div class="fill">
 		<div class="container">
 			<h3><a href="#" style="margin-left: -22px;">Twit-DB</a></h3>
-			<form id="search-form" action="" method="POST">
+			<form id="search-form" method="POST">
 				<input id="search-text" class="" name="text" value="" placeholder="Text" />
 				( <input id="search-username" class=""  name="username" value="" placeholder="Username <?php if( defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" />
 				Retweets <input id="search-retweets" class="" name="retweets" type="checkbox" /> )
@@ -44,6 +44,7 @@ if(is_readable('config.php')){
 </div>
 <div id="stream">
 </div>
+<a href="#" id="loadMore" class="btn large span16" style="display: none">Load More</a>
 <script type="text/javascript">
 twttr.anywhere(function (T) {
 	T(".username, .tweet-screen-name, .icons > em > a").hovercards({ linkify: false, expanded: true });
