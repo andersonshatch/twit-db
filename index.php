@@ -31,7 +31,6 @@ if(is_readable('config.php')){
 				<input id="search-text" class="" name="text" value="" placeholder="Text" />
 				( <input id="search-username" class=""  name="username" value="" placeholder="Username <?php if( defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" />
 				Retweets <input id="search-retweets" class="" name="retweets" type="checkbox" /> )
-				<input id="search-limit" class="" name="limit" value="" placeholder="Limit" />
 				<input type="submit" value="Submit" />
 			</form>
 		</div><!-- container -->
