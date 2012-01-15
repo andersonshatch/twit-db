@@ -1,47 +1,53 @@
 <?php
-function buildQuery($array, $mysqli){
+function buildQuery($array, $mysqli, $count = false){
 	$table = 'home';
 	if( !empty($array) ){
-		if(array_key_exists("username", $array)){
+		if(array_key_exists('username', $array)){
 			require_once 'additional_users.php';
 			$userTables = create_users_array(ADDITIONAL_USERS);
-			if(in_array($_POST['username'], $userTables)){
-				$table = "@{$_POST['username']}";
+			if(in_array($array['username'], $userTables)){
+				$table = "@{$array['username']}";
 			}
-			if( defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true" && $_POST['username'] == '@me' ){
+			if( defined('MENTIONS_TIMELINE') && MENTIONS_TIMELINE == "true" && $array['username'] == '@me' ){
 				$table = "mentions";
 			}
 		}
 	}
-	$queryString = "SELECT * from `$table` NATURAL JOIN `users`";
-	$and = false;
+	$queryString = "SELECT ";
+	if($count)
+		$queryString .= "COUNT(1) ";
+	else
+		$queryString .= "id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url ";
+	$queryString .= "FROM `$table` NATURAL JOIN `users`";
 
+	$conditionals = array();
 	if( !empty($array) ){
-		if( array_key_exists("username", $array) && $array['username'] != '' && ($array['username'] != '@me' || !defined("MENTIONS_TIMELINE")) ){
-			$uIDQuery = $mysqli->query("SET @uID = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('".$mysqli->real_escape_string($array['username'])."'))");
-			$GLOBALS['queryCount']++;
-			if( array_key_exists("retweets", $array) && $array['retweets'] = 'on' ){
-				(!$and) ? $queryString.=" WHERE (user_id = @uID OR retweeted_by_user_id = @uID)" : $queryString.=" AND (user_id = @uID OR retweeted_by_user_id = @uID)";
+		if( array_key_exists('username', $array) && $array['username'] != '' && ($array['username'] != '@me' || !defined('MENTIONS_TIMELINE')) ){
+			$uIdQuery = $mysqli->query("SET @uID = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('".$mysqli->real_escape_string($array['username'])."'))");
+			if( array_key_exists('retweets', $array) && $array['retweets'] == 'on'){
+				$conditionals[] = "(user_id = @uID OR retweeted_by_user_id = @uID)";
 			}else{
-				(!$and) ? $queryString.=" WHERE user_id = @uID" : $queryString.=" AND user_id = @uID";
+				$conditionals[] = "user_id = @uID";
 			}
-			$and = true;
 		}
-		if( array_key_exists("text", $array) && $array['text'] != '' ){
-			$text = $array['text'];
-			(!$and) ? $queryString.=" WHERE MATCH(`text`) AGAINST('".mysqli_real_escape_string($mysqli, $text)."' IN BOOLEAN MODE)" : $queryString.=" AND MATCH(`text`) AGAINST('".mysqli_real_escape_string($mysqli, $text)."' IN BOOLEAN MODE)";
-			$and = true;
+		if( array_key_exists('text', $array) && $array['text'] != '' ){
+			$conditionals[] = "MATCH(`text`) AGAINST('".$mysqli->real_escape_string($array['text'])."' IN BOOLEAN MODE)";
 		}
-
-		$queryString .= " ORDER BY id DESC";
-
-		if( array_key_exists("limit", $array) && $array['limit'] != '' ){
-			$queryString.=" LIMIT ".mysqli_real_escape_string($mysqli, $array['limit']);
+		if( array_key_exists('max_id', $array) && $array['max_id'] != '' ){
+			$conditionals[] = "id < ".$mysqli->real_escape_string($array['max_id']);
 		}
 	}
-	else{
-		$queryString.=" ORDER BY id DESC LIMIT 20";
+
+	$keyword = " WHERE ";
+	foreach($conditionals as $condition){
+		$queryString .= $keyword.array_shift($conditionals);
+		$keyword = " AND ";
 	}
+
+	if(!$count)
+		$queryString .= " ORDER BY id DESC LIMIT 40";
+
 	return $queryString;
+
 }
 ?>
