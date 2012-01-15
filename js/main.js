@@ -56,6 +56,7 @@ $(document).ready(function() {
 
 
 	$("#search-form").submit(function() {
+		$(document.body).animate({scrollTop: 0}, 10);
 		moreToLoad = true;
 		getTweets("#stream", false);
 		return false;
