@@ -18,7 +18,7 @@ $(document).ready(function() {
 	tweetTemplate = $("#tweet-template").html();
 	loading = false;
 	moreToLoad = true;
-
+	
 	getTweets = function(renderLocation, append) {
 		var formData = $("#search-form").serialize();
 		if(append && $("div.tweet").length > 0)
@@ -65,14 +65,10 @@ $(document).ready(function() {
 	});
 
 	$("#loadMore").click(function() {
-			getTweets("#stream", true);
-			return false;
-	});
-
-	$("#loadMore").click(function() {
 		getTweets("#stream", true);
 		return false;
 	});
+
 	didScroll = false;
 	$(window).scroll(function() {
 		didScroll = true;
@@ -85,7 +81,7 @@ $(document).ready(function() {
 				getTweets("#stream", true);
 			}
 		}
-	});
+	}, 250);
 
 }	
 );
