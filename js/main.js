@@ -18,6 +18,7 @@ $(document).ready(function() {
 	tweetTemplate = $("#tweet-template").html();
 	loading = false;
 	moreToLoad = true;
+	
 	getTweets = function(renderLocation, append) {
 		var formData = $("#search-form").serialize();
 		if(append && $("div.tweet").length > 0)
@@ -54,6 +55,7 @@ $(document).ready(function() {
 		}
 	}
 
+	getTweets("#stream", false);
 
 	$("#search-form").submit(function() {
 		$(document.body).animate({scrollTop: 0}, 10);
@@ -61,18 +63,24 @@ $(document).ready(function() {
 		getTweets("#stream", false);
 		return false;
 	});
-	getTweets("#stream", false);
 
 	$("#loadMore").click(function() {
-			getTweets("#stream", true);
-			return false;
+		getTweets("#stream", true);
+		return false;
+	});
+	didScroll = false;
+	$(window).scroll(function() {
+		didScroll = true;
 	});
 
-	$(window).scroll(function() {
+	setInterval(function() {
+		if(didScroll){
+			didScroll = false;
 			if ( ($(document).height() - $(window).height()) - $(window).scrollTop() <= 300){
 				getTweets("#stream", true);
 			}
-	});
+		}
+	}, 250);
 
 }	
 );
