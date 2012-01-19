@@ -15,7 +15,7 @@ if(is_readable('config.php')){
 <title>Twit-DB search</title>
 <script type="text/javascript" src="//platform.twitter.com/anywhere.js?id=<?php echo TWITTER_CONSUMER_KEY; ?>&amp;v=1"></script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
-<script type="text/javascript" src="bootstrap/js/bootstrap-twipsy.js"></script>
+<script type="text/javascript" src="bootstrap/js/bootstrap-tooltip.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/timeago.js"></script>
 <script type="text/javascript" src="js/mustache.js"></script>

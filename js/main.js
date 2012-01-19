@@ -10,7 +10,7 @@ $(document).ready(function() {
 		}, '.tweet'
 	);
 	
-	$(".tweet-timestamp").twipsy({
+	$(".tweet-timestamp").tooltip({
 		live: true,
 		placement: "below"
 	});
