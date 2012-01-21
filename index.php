@@ -43,7 +43,7 @@ if(is_readable('config.php')){
 </div>
 <div id="stream">
 </div>
-<a href="#" id="loadMore" class="btn large span16" style="display: none">Load More</a>
+<a href="#" id="loadMore" class="btn large span12" style="display: none">Load More</a>
 <script type="text/javascript">
 twttr.anywhere(function (T) {
 	T(".username, .tweet-screen-name, .icons > em > a").hovercards({ linkify: false, expanded: true });
@@ -54,14 +54,14 @@ twttr.anywhere(function (T) {
 <script type="text/mustache-template" id="tweet-template">
 {{#tweets}}
 <div class="row tweet" data-item-id="{{id}}">
-	<div class="row span16 columns">
+	<div class="row span12 columns">
 		<div class="span1 columns tweet-image">
 			<br />
 			<a class="user-profile-link" href="https://twitter.com/{{screen_name}}">
 				<img width="48" height="48" class="user-profile-link" alt="{{screen_name}}'s avatar" src="{{profile_image_url}}">
 			</a>
 		</div>
-		<div class="span14 columns tweet-content">
+		<div class="span10 columns tweet-content">
 			<div class="tweet-names">
 				<h3>
 					<a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{screen_name}}">{{screen_name}}</a>
