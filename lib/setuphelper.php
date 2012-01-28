@@ -13,13 +13,13 @@ switch($_GET['action']){
 		if($mysqli->connect_error){
 			//ERROR//
 			header('HTTP/1.1 403 Forbidden');
-			echo generateBanner("error", "Connection failed. Check Credentials. ({$mysqli->connect_error})");
+			echo generateBanner("alert-error", "Connection failed. Check Credentials. ({$mysqli->connect_error})");
 			exit;
 		}
 		if(!$mysqli->select_db($_POST['db_name'])){
 			//ERROR//
 			header('HTTP/1.1 403 Forbidden');
-			echo generateBanner("warning", "Failed selecting database '<i>{$_POST['db_name']}</i>'. Connected ok, does database exist?");
+			echo generateBanner("alert-warning", "Failed selecting database '<i>{$_POST['db_name']}</i>'. Connected ok, does database exist?");
 			$mysqli->close();
 			exit;
 		}
@@ -38,7 +38,7 @@ switch($_GET['action']){
 			$_SESSION['consumer_secret'] = TWITTER_CONSUMER_SECRET;
 		}catch(EpiOAuthUnauthorizedException $e){
 			header('HTTP/1.1 403 Forbidden');
-			echo generateBanner("error", "Couldn't get authorize link, check app credentials and retry");
+			echo generateBanner("alert-error", "Couldn't get authorize link, check app credentials and retry");
 			exit;
 		}
 		echo "<a data-url=\"$authURL\" target=\"_blank\" id=\"signin-button\"><img src=\"css/sign-in-with-twitter-d.png\" /></a>";
@@ -59,7 +59,7 @@ switch($_GET['action']){
 			}catch(EpiTwitterException $e){
 				if($failCount++ > 2){
 					header('HTTP/1.1 403 Forbidden');
-					echo generateBanner("error", $e->getMessage());
+					echo generateBanner("alert-error", $e->getMessage());
 					exit;
 				}
 				continue;
@@ -90,7 +90,7 @@ function includeTwitterAsyncFiles(){
 }
 
 function generateBanner($class, $message){
-	return "<div class=\"alert-message $class\"><p>$message</p></div>";
+	return "<div class=\"alert $class\"><p>$message</p></div>";
 }
 
 function dependencyBanner($fileName){
@@ -133,14 +133,14 @@ MARK;
 
 	if( !is_writable('config.php') && !(!file_exists('config.php') && is_writeable('.')) ){
 		header('HTTP/1.1 403 Forbidden');
-		echo generateBanner("warning", "Can't write to config.php, copy the contents of the text box below and save it as config.php");
+		echo generateBanner("alert-warning", "Can't write to config.php, copy the contents of the text box below and save it as config.php");
 		echo "<textarea id=\"config-output\" class=\"xxlarge\" rows=\"17\" wrap=\"off\">$output</textarea>";
 		exit;
 	}
 	$handle = fopen('config.php', 'w');
 	fwrite($handle, $output);
 	fclose($handle);
-	echo generateBanner("success", "Config file written successfully. Schedule gettweets.php to run automatically, and use index.php to search.");
+	echo generateBanner("alert-success", "Config file written successfully. Schedule gettweets.php to run automatically, and use index.php to search.");
 
 }
 

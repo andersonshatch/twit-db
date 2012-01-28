@@ -26,10 +26,10 @@ header('Cache-Control: no-cache, max-age=0');
 		if(file_exists("config.php")){
 			if(is_readable("config.php")){
 				//exists and readable
-				echo "<div class=\"alert-message warning\">Warning: Config file already exists, completing setup will replace it with new settings.</div>";
+				echo "<div class=\"alert alert-warning\">Warning: Config file already exists, completing setup will replace it with new settings.</div>";
 			}else{
 				//exists, not readable
-				echo "<div class=\"alert-message error\">Error: Config file already exists, but isn't readable. Make it readable and then click <a href=\"index.php\">here</a>.</div>";
+				echo "<div class=\"alert alert-error\">Error: Config file already exists, but isn't readable. Make it readable and then click <a href=\"index.php\">here</a>.</div>";
 			}
 		}
 		if( !ini_get('date.timezone') ) { ?>
