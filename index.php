@@ -10,6 +10,7 @@ if(is_readable('config.php')){
 <html>
 <head>
 <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+<link rel="stylesheet" href="bootstrap/bootstrap-responsive.min.css" />
 <link rel="stylesheet" href="css/twitter-db.css" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>Twit-DB search</title>
