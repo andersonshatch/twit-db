@@ -30,7 +30,7 @@ if(is_readable('config.php')){
 			<form id="search-form" class="form-search navbar-search" method="POST">
 				<input id="search-text" class="search-query" name="text" value="" placeholder="Text" />
 				( <input id="search-username" class="search-query"  name="username" value="" placeholder="Username <?php if( defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" />
-				Retweets <input id="search-retweets" class="" name="retweets" type="checkbox" /> )
+				Retweets <input id="search-retweets" class="" name="retweets" type="checkbox" checked /> )
 				<input class="search-query" type="submit" value="Submit" />
 			</form>
 		</div><!-- container -->
