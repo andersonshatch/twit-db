@@ -9,8 +9,8 @@ if(is_readable('config.php')){
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
-<link rel="stylesheet" href="bootstrap/bootstrap-responsive.min.css" />
+<link rel="stylesheet" href="bootstrap/docs/assets/css/bootstrap.css" />
+<link rel="stylesheet" href="bootstrap/docs/assets/css/bootstrap-responsive.css" />
 <link rel="stylesheet" href="css/twitter-db.css" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>Twit-DB search</title>
@@ -38,7 +38,7 @@ if(is_readable('config.php')){
 	</div><!-- navbar-inner -->
 </div><!-- navbar -->
 <div id="container" class="container">
-<div class="content" style="padding-top: 60px;">
+<div class="content">
 <div class="page-header">
 	<span id="tweet-count"></span>
 </div>
