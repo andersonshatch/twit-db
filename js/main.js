@@ -10,9 +10,9 @@ $(document).ready(function() {
 		}, '.tweet'
 	);
 	
-	$(".tweet-timestamp").tooltip({
-		live: true,
-		placement: "below"
+	$("#stream").tooltip({
+		selector: ".tweet-timestamp",
+		placement: "bottom"
 	});
 
 	tweetTemplate = $("#tweet-template").html();
