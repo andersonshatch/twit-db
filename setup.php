@@ -4,14 +4,14 @@ header('Cache-Control: no-cache, max-age=0');
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+<link rel="stylesheet" href="bootstrap/docs/assets/css/bootstrap.css" />
 <title>Twit-DB setup</title>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script type="text/javascript" src="js/setup.js"></script>
 </head>
 <body>
 <?php
-	if( !file_exists('bootstrap/bootstrap.min.css') ){
+	if( !file_exists('bootstrap/') ){
 			echo "Bootstrap files are not present. Please run <code>git submodule update --init</code> from this directory to retrieve them, and then refresh.";
 			echo "</body></html>";
 			exit;
