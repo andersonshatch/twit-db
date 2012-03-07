@@ -18,6 +18,15 @@ function buildQuery($array, $mysqli, $count = false){
 		$queryString .= "COUNT(1) ";
 	else
 		$queryString .= "id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url ";
+
+	$textCondition = "";
+	if( array_key_exists('text', $array) && $array['text'] != '' ){
+		$textCondition = "MATCH(`text`) AGAINST('".$mysqli->real_escape_string($array['text'])."' IN BOOLEAN MODE)";
+		if(!$count) {
+			$queryString .= ", ".$textCondition." as relevance ";
+		}
+	}
+
 	$queryString .= "FROM `$table` NATURAL JOIN `users`";
 
 	$conditionals = array();
@@ -30,11 +39,17 @@ function buildQuery($array, $mysqli, $count = false){
 				$conditionals[] = "user_id = @uID";
 			}
 		}
-		if( array_key_exists('text', $array) && $array['text'] != '' ){
-			$conditionals[] = "MATCH(`text`) AGAINST('".$mysqli->real_escape_string($array['text'])."' IN BOOLEAN MODE)";
+		if( $textCondition ){
+			$conditionals[] = $textCondition;
 		}
+
 		if( array_key_exists('max_id', $array) && $array['max_id'] != '' ){
-			$conditionals[] = "id < ".$mysqli->real_escape_string($array['max_id']);
+			if( $textCondition && array_key_exists('relevance', $array) && $array['relevance'] != '' ){
+				$relevance = $mysqli->real_escape_string($array['relevance']);
+				$conditionals[] = "(($textCondition = $relevance AND id < ".$mysqli->real_escape_string($array['max_id']).") OR $textCondition < $relevance)";
+			}else{
+				$conditionals[] = "id < ".$mysqli->real_escape_string($array['max_id']);
+			}
 		}
 	}
 
@@ -44,10 +59,16 @@ function buildQuery($array, $mysqli, $count = false){
 		$keyword = " AND ";
 	}
 
-	if(!$count)
-		$queryString .= " ORDER BY id DESC LIMIT 40";
+	if(!$count) {
+		if($textCondition){
+			$queryString .= " ORDER BY relevance DESC, id DESC LIMIT 40";		
+		}else{
+			$queryString .= " ORDER BY id DESC LIMIT 40";
+		}
+	}
 
 	return $queryString;
 
 }
+
 ?>
