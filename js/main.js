@@ -21,8 +21,12 @@ $(document).ready(function() {
 	
 	getTweets = function(renderLocation, append) {
 		var formData = $("#search-form").serialize();
-		if(append && $("div.tweet").length > 0)
-			formData = formData + "&max_id=" + $("div.tweet:last").attr("data-item-id");
+		if(append && $("div.tweet").length > 0) {
+			var lastTweet = $("div.tweet:last");
+			formData = formData + "&max_id=" + $(lastTweet).attr("data-item-id");
+			if($(lastTweet).data("relevance-value"))
+				formData = formData + "&relevance=" + $(lastTweet).data("relevance-value");
+		}
 		if(!loading && moreToLoad){
 			loading = true;
 			$.ajax("json.php",

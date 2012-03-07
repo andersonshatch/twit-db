@@ -55,7 +55,7 @@ twttr.anywhere(function (T) {
 </div><!--container-->
 <script type="text/mustache-template" id="tweet-template">
 {{#tweets}}
-<div class="row tweet" data-item-id="{{id}}">
+<div class="row tweet" data-item-id="{{id}}"{{#relevance}}data-relevance-value="{{relevance}}"{{/relevance}}>
 	<div class="row span12 columns">
 		<div class="span1 columns tweet-image">
 			<br />
