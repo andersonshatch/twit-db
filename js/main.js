@@ -10,9 +10,9 @@ $(document).ready(function() {
 		}, '.tweet'
 	);
 	
-	$(".tweet-timestamp").twipsy({
-		live: true,
-		placement: "below"
+	$("#stream").tooltip({
+		selector: ".tweet-timestamp",
+		placement: "bottom"
 	});
 
 	tweetTemplate = $("#tweet-template").html();
@@ -72,6 +72,7 @@ $(document).ready(function() {
 		getTweets("#stream", true);
 		return false;
 	});
+
 	didScroll = false;
 	$(window).scroll(function() {
 		didScroll = true;
