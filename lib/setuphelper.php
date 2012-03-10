@@ -134,7 +134,7 @@ MARK;
 	if( !is_writable('config.php') && !(!file_exists('config.php') && is_writeable('.')) ){
 		header('HTTP/1.1 403 Forbidden');
 		echo generateBanner("alert-warning", "Can't write to config.php, copy the contents of the text box below and save it as config.php");
-		echo "<textarea id=\"config-output\" class=\"xxlarge\" rows=\"17\" wrap=\"off\">$output</textarea>";
+		echo "<textarea id=\"config-output\" class=\"span12\" rows=\"17\" wrap=\"off\">$output</textarea>";
 		exit;
 	}
 	$handle = fopen('config.php', 'w');

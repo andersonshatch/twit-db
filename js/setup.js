@@ -75,7 +75,7 @@ function popupSigninWindow(event){
 function setUserCredentials(token, secret, screen_name){
 	$("#user-token").attr("value", token);
 	$("#user-secret").attr("value", secret);
-	$("#user-secret").after('<span class="help-inline" id="screen_name">'+screen_name+'</span>');
+	$("#user-secret").after('<p class="help-block" id="screen_name">'+screen_name+'</p>');
 	$("#signin-button").slideUp('fast');
 	$("#timeline-settings").fadeIn('fast');
 }
