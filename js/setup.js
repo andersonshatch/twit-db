@@ -15,6 +15,7 @@ $(document).ready(function() {
 
 	$("#database-settings").submit(
 		function(event){
+			$(this).children().find("#database-verify").attr("disabled", "disabled");
 			$.ajax({
 				type: 'POST',
 				url: 'lib/setuphelper.php?action=checkdb',
@@ -126,5 +127,6 @@ function databaseFailure(xhr){
 				$(this).slideDown('fast');
 			}
 	);
-	$("#database-verify").attr('value', 'Retry');
+	$("#database-verify").attr('value', 'Retry')
+		.removeAttr("disabled");
 }
