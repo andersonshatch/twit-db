@@ -68,9 +68,9 @@ $(document).on('click', 'a#signin-button', function(event){popupSigninWindow(eve
 $(document).on('touchstart', 'a#signin-button', function(event){popupSigninWindow(event)});
 
 function popupSigninWindow(event){
-			var url = $("a#signin-button").attr('data-url');
-			window.open(url, 'auth', 'width=500, height=600, scrollbars=yes');				
-			event.preventDefault();
+	var url = $("a#signin-button").attr('data-url');
+	window.open(url, 'auth', 'width=500, height=600, scrollbars=yes');				
+	event.preventDefault();
 }
 
 function setUserCredentials(token, secret, screen_name){
@@ -86,11 +86,10 @@ function twitterSuccess(data){
 	$("#signin-placeholder").html(data);
 	$("#twitter-user-row").fadeIn('fast');
 	$("#twitter-app-settings input").attr("readonly", "readonly");
-	var button = $("#twitter-verify");
-	button.attr("disabled", "disabled");
-	button.attr('value', 'Completed');
-	button.removeClass("primary");
-	button.addClass("success");
+	$("#twitter-verify").attr("disabled", "disabled")
+		.attr('value', 'Completed')
+		.removeClass("btn-primary")
+		.addClass("btn-success");
 }
 
 function twitterFailure(xhr){
@@ -114,10 +113,9 @@ function databaseSuccess(data){
 	$("#twitter-form-row").fadeIn();
 	$("#database-settings input").attr("readonly", "readonly");
 	$("#database-verify").attr("disabled", "disabled");
-	var button = $("#database-verify");
-	button.attr('value', 'Connected');
-	button.removeClass("primary");
-	button.addClass("success");
+	$("#database-verify").attr('value', 'Connected')
+		.removeClass("btn-primary")
+		.addClass("btn-success");
 	$("#consumer-key").focus();
 }
 function databaseFailure(xhr){
