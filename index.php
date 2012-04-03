@@ -1,4 +1,5 @@
 <?php 
+chdir(dirname(__FILE__));
 if(is_readable('config.php')) {
 	require_once 'config.php';
 } else {

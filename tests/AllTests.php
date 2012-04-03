@@ -1,5 +1,6 @@
 <?php
 
+chdir(dirname(__FILE__));
 require_once 'AdditionalUserTest.php';
 require_once 'LinkifyTest.php';
 

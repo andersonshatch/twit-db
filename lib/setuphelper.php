@@ -79,6 +79,7 @@ switch($_GET['action']) {
 }
 
 function includeTwitterAsyncFiles() {
+	chdir(dirname(__FILE__));
 	$dependencies = array('../twitter-async/EpiCurl.php', '../twitter-async/EpiOAuth.php', '../twitter-async/EpiTwitter.php');
 	foreach($dependencies as $file) {
 		if(!(include $file)) {

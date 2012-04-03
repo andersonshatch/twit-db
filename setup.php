@@ -1,5 +1,6 @@
 <?php
 header('Cache-Control: no-cache, max-age=0');
+chdir(dirname(__FILE__));
 ?>
 <!DOCTYPE html>
 <html>
