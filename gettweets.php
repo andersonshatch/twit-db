@@ -32,23 +32,23 @@ $userEndpoint = "/statuses/user_timeline.json";
 $timelineParams = array("count" => 120, "include_rts" => "true", "page" => 1, "include_entities" => "true");
 
 $requests[] = array("endpoint" => $homeEndpoint, "tableName" => "home", "params" => $timelineParams);
-if( defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true" ){
+if(defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") {
 	$requests[] = array("endpoint" => $mentionsEndpoint, "tableName" => "mentions", "params" => $timelineParams);
 }
-foreach($additionalUsers as $user){
+foreach($additionalUsers as $user) {
 	$userTimelineParam = $timelineParams;
 	$userTimelineParam['screen_name'] = $user;
 	$tableName = "@".$user;
 	$requests[] = array("endpoint" => $userEndpoint, "tableName" => $tableName, "params" => $userTimelineParam);	
 }
 
-foreach($requests as $request){
+foreach($requests as $request) {
 	$lastIDQueryString = "SELECT id FROM `{$request['tableName']}` ORDER BY id DESC LIMIT 1";
 	$lastIDQuery = $mysqli->query($lastIDQueryString);
-	if(!$lastIDQuery){
+	if(!$lastIDQuery) {
 		require_once 'lib/createtables.php';
 		output("Creating table {$request['tableName']}\n");
-		if(! createTimelineTable($mysqli, $request['tableName']) ){
+		if(!createTimelineTable($mysqli, $request['tableName'])) {
 			echo "ERROR: Couldn't create table {$request['tableName']}\n";
 			continue; //go to next request
 		}
@@ -64,40 +64,38 @@ foreach($requests as $request){
 }
 
 $mysqli->close();
-$countEnd = ($GLOBALS['totalTweetsAdded'] == 1) ? "tweet.\n" : "tweets.\n";
-$requestEnd =($GLOBALS['requestCount'] == 1) ? "request.\n" : "requests.\n"; 
 output("In total added {$GLOBALS['totalTweetsAdded']} ".getSingularOrPlural("tweet", $GLOBALS['totalTweetsAdded']).".\n");
 output("Used {$GLOBALS['requestCount']} ".getSingularOrPlural("request", $GLOBALS['requestCount']).".\n");
 
-function getTimelineAndStore($twitterObj, $mysqli, $requestObj){
+function getTimelineAndStore($twitterObj, $mysqli, $requestObj) {
 	require_once 'lib/storestatusesandusers.php';
 	$failCount = 0;
 	$maxRetries = 10;
 	$tweetsAdded = 0;
-	while(true){
-		try{
+	while(true) {
+		try {
 			$timeline = $twitterObj->get($requestObj['endpoint'], $requestObj['params']);
 			$GLOBALS['requestCount']++;
-			foreach($timeline as $tweet){
+			foreach($timeline as $tweet) {
 				storeTweet($tweet, $requestObj['tableName'], $mysqli);
 				$maxID = $tweet->id - 1;
 				$tweetsAdded++;
 			}
 			$timeline = null;	//free up some memory
-			if($tweetsAdded > 0){
+			if($tweetsAdded > 0) {
 				//added some tweets, check API again to see if there are still more (between since_id and max_id)	
 				$requestObj['params']['max_id'] = $maxID;
 				getTimelineAndStore($twitterObj, $mysqli, $requestObj);
 			}
 			break;
-		} //TODO: catch specific exceptions here. Especially rate limited.
-		catch(EpiTwitterNotFoundException $e){
-			if($failCount++ > 2){
+		} catch(EpiTwitterNotFoundException $e) {
+			//TODO: catch specific exceptions here. Especially rate limited.
+			if($failCount++ > 2) {
 				echo "ERROR: Twitter reports {$requestObj['tableName']} could not be found. Remove this username from config if it no longer exists.\n";
 				return;
 			}
-		}catch(EpiTwitterException $e){
-			if($failCount++ == $maxRetries){
+		} catch(EpiTwitterException $e) {
+			if($failCount++ == $maxRetries) {
 				echo "FAILED getting tweets for {$requestObj['tableName']}, $failCount times. Moving on.\n";
 				return;
 			}
@@ -108,16 +106,16 @@ function getTimelineAndStore($twitterObj, $mysqli, $requestObj){
 	$GLOBALS['totalTweetsAdded'] += $tweetsAdded;
 }
 
-function getSingularOrPlural($string, $number){
+function getSingularOrPlural($string, $number) {
 	if($number == 1)
 		return $string;
 	else
 		return $string."s";
 }
 
-function output($text){
+function output($text) {
     if(!defined('QUIET') || QUIET === false)
-	echo $text;
+		echo $text;	
 }
 
 ?>

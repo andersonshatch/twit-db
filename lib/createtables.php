@@ -1,6 +1,6 @@
 <?php
 
-function createTimelineTable($mysqli, $tableName){
+function createTimelineTable($mysqli, $tableName) {
 	$create = $mysqli->query("
 			CREATE TABLE `$tableName` (
 				`id` bigint(30) unsigned NOT NULL DEFAULT '0',
@@ -19,16 +19,16 @@ function createTimelineTable($mysqli, $tableName){
 				FULLTEXT KEY `index` (`text`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"
 	);
-	if( $create ){
-		 createUserTimeline($mysqli);
+	if($create) {
+		createUserTimeline($mysqli);
 		return true;
-	}else{
+	} else {
 		return false;
 	}
 
 }
 
-function createUserTimeline($mysqli){
+function createUserTimeline($mysqli) {
 	$create = $mysqli->query("
 			CREATE TABLE IF NOT EXISTS `users` (
 				`screen_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
@@ -49,9 +49,9 @@ function createUserTimeline($mysqli){
 				 FULLTEXT KEY `index` (`screen_name`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"
 	);
-	if( $create ){
+	if($create) {
 		return true;
-	}else{
+	} else {
 		return false;
 	}
 }

@@ -7,14 +7,14 @@
  * @param string $urlEntities JSON from tweet's entities
  * @return string Tweet with wrapped usernames, hashtags and urls.
  */
-function linkify_tweet($text, $entitiesJSON = null){
-	if($entitiesJSON == null && file_exists('twitter-text-php/lib/Twitter/Autolink.php')){
+function linkify_tweet($text, $entitiesJSON = null) {
+	if($entitiesJSON == null && file_exists('twitter-text-php/lib/Twitter/Autolink.php')) {
 		//backward compatibility for my database where I didn't initially store entities
 		include_once 'twitter-text-php/lib/Twitter/Autolink.php';
 		$autoLink = new Twitter_Autolink($text);
 		return $autoLink->addLinks();
 	}
-	if($entitiesJSON == null){
+	if($entitiesJSON == null) {
 		//no entities available, and twitter-text-php isn't present, return just the text.
 		return $text;
 	}
@@ -30,13 +30,13 @@ function linkify_tweet($text, $entitiesJSON = null){
 	$hashtagClass = "hashtag ";
 	$urlClass = "";
 	
-	foreach($entities as $type => $things){
-		foreach($things as $value){
+	foreach($entities as $type => $things) {
+		foreach($things as $value) {
 
 			$media_url = "";
 			$class = $urlClass;
 
-			switch($type){
+			switch($type) {
 				case "media":
 					$media_url = array_key_exists('HTTPS', $_SERVER) ?
 						"picture-url=\"$value->media_url_https\" "
@@ -71,7 +71,7 @@ function linkify_tweet($text, $entitiesJSON = null){
 	$entified_tweet = $text;
 	ksort($replacements);
 	$replacements = array_reverse($replacements, TRUE);
-	foreach($replacements as $key => $value){
+	foreach($replacements as $key => $value) {
 		$replacement = mb_substr($entified_tweet, 0, $key, 'UTF-8').$value; //replaced text upto end of replaced item
 		$post_replacement = mb_substr($entified_tweet, $key + strlen($keys[$key]), strlen($entified_tweet), 'UTF-8'); //text after replaced item
 		$entified_tweet = $replacement.$post_replacement; //replacement and rest combined.
@@ -80,9 +80,8 @@ function linkify_tweet($text, $entitiesJSON = null){
 
 }
 
-function store_replacement(&$keyStore, &$replacementStore, $indices, $replacement, $text){
-	$keyStore[$indices[0]] = mb_substr(
-		$text, $indices[0], $indices[1] - $indices[0], 'UTF-8');
+function store_replacement(&$keyStore, &$replacementStore, $indices, $replacement, $text) {
+	$keyStore[$indices[0]] = mb_substr($text, $indices[0], $indices[1] - $indices[0], 'UTF-8');
 	$replacementStore[$indices[0]] = $replacement;
 }
 

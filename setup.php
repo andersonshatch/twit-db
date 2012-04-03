@@ -11,7 +11,7 @@ header('Cache-Control: no-cache, max-age=0');
 </head>
 <body>
 <?php
-	if( !file_exists('bootstrap/') ){
+	if(!file_exists('bootstrap/')) {
 			echo "Bootstrap files are not present. Please run <code>git submodule update --init</code> from this directory to retrieve them, and then refresh.";
 			echo "</body></html>";
 			exit;
@@ -23,16 +23,16 @@ header('Cache-Control: no-cache, max-age=0');
 			<h1>Twit-DB setup</h1>
 		</div>
 		<?php 
-		if(file_exists("config.php")){
-			if(is_readable("config.php")){
+		if(file_exists("config.php")) {
+			if(is_readable("config.php")) {
 				//exists and readable
 				echo "<div class=\"alert alert-warning\">Warning: Config file already exists, completing setup will replace it with new settings.</div>";
-			}else{
+			} else {
 				//exists, not readable
 				echo "<div class=\"alert alert-error\">Error: Config file already exists, but isn't readable. Make it readable and then click <a href=\"index.php\">here</a>.</div>";
 			}
 		}
-		if( !ini_get('date.timezone') ) { ?>
+		if(!ini_get('date.timezone')) { ?>
 		    <div class="row" id="timezone-row">
 			    <div class="span4">
 				<h3>PHP Settings</h3>
@@ -48,7 +48,7 @@ header('Cache-Control: no-cache, max-age=0');
 								<option></option>
 								<?php
 									$timezones = DateTimeZone::listIdentifiers();
-									foreach($timezones as $timezone){
+									foreach($timezones as $timezone) {
 										echo "<option>$timezone</option>";
 									}
 								?>
@@ -92,9 +92,7 @@ header('Cache-Control: no-cache, max-age=0');
 			</div>
 		</div>
 		<div class="row" id="database-feedback" style="display: none;">
-		
 		</div>
-
 		<div class="row" id="twitter-form-row" style="display: none;">
 			<div class="span4">
 			<h3>Twitter App Credentials</h3>

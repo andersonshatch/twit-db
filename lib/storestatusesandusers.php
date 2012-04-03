@@ -1,6 +1,6 @@
 <?php
 
-function storeTweet($tweet, $tableName, $mysqli){
+function storeTweet($tweet, $tableName, $mysqli) {
 	$insertSQL = "
 			INSERT INTO `$tableName`(
 				id,
@@ -16,8 +16,8 @@ function storeTweet($tweet, $tableName, $mysqli){
 				entities_json
 			) VALUES
 			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-	if(! array_key_exists('tweetPreparedStatement', $GLOBALS) || $GLOBALS['tweetPreparedQueryString'] != $insertSQL ){
-	    	//if tweetPreparedStatment isn't defined, or the query string has changed, create/update it.
+	if(!array_key_exists('tweetPreparedStatement', $GLOBALS) || $GLOBALS['tweetPreparedQueryString'] != $insertSQL) {
+		//if tweetPreparedStatment isn't defined, or the query string has changed, create/update it.
 		//else, prepared query gets reused.
 		$GLOBALS['tweetPreparedStatement'] = $mysqli->prepare($insertSQL);	
 		$GLOBALS['tweetPreparedQueryString'] = $insertSQL;
@@ -25,7 +25,7 @@ function storeTweet($tweet, $tableName, $mysqli){
 	$retweetedBy = NULL;
 	$retweetedById = NULL;
 	$id = $tweet->id_str; //store id of status, not the retweeted_status.
-	if( property_exists($tweet, 'retweeted_status') ){
+	if(property_exists($tweet, 'retweeted_status')) {
 		//if tweet is a retweet,
 		//store the retweeter's information, then replace $tweet with the retweeted_status
 		addOrUpdateUser($tweet->user, $mysqli);
@@ -54,11 +54,10 @@ function storeTweet($tweet, $tableName, $mysqli){
 	);
 	$GLOBALS['tweetPreparedStatement']->execute();
 
-	
 }
 
-function addOrUpdateUser($user, $mysqli){
-	if(! array_key_exists('userPreparedStatement', $GLOBALS) ){
+function addOrUpdateUser($user, $mysqli) {
+	if(!array_key_exists('userPreparedStatement', $GLOBALS)) {
 		$GLOBALS['userPreparedStatement'] = $mysqli->prepare("
 			INSERT into `users`(
 				user_id,

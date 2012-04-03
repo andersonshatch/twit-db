@@ -1,7 +1,7 @@
 <?php 
-if(is_readable('config.php')){
+if(is_readable('config.php')) {
 	require_once 'config.php';
-}else{
+} else {
 	header('Location: setup.php');
 	exit;
 }
@@ -31,7 +31,7 @@ if(is_readable('config.php')){
 			<a class="brand" href="#" style="margin-left: -22px;">Twit-DB</a></h3>
 			<form id="search-form" class="form-search navbar-search" method="POST">
 				<input id="search-text" class="search-query" name="text" value="" placeholder="Text" />
-				( <input id="search-username" class="search-query"  name="username" value="" placeholder="Username <?php if( defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" />
+				( <input id="search-username" class="search-query"  name="username" value="" placeholder="Username <?php if(defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" />
 				Retweets <input id="search-retweets" class="" name="retweets" type="checkbox" checked /> )
 				<input class="search-query" type="submit" value="Submit" />
 			</form>

@@ -1,10 +1,10 @@
 $(document).ready(function() {
 	$("body").on(
 		{
-			mouseenter: function(){
+			mouseenter: function() {
 				$(this).children().find(".tweet-actions").css("visibility", "visible");
 			},
-			mouseleave: function(){
+			mouseleave: function() {
 				$(this).children().find(".tweet-actions").css("visibility", "hidden");
 			}
 		}, '.tweet'
@@ -27,7 +27,7 @@ $(document).ready(function() {
 			if($(lastTweet).data("relevance-value"))
 				formData = formData + "&relevance=" + $(lastTweet).data("relevance-value");
 		}
-		if(!loading && moreToLoad){
+		if(!loading && moreToLoad) {
 			loading = true;
 			$.ajax("json.php",
 				{
@@ -39,17 +39,17 @@ $(document).ready(function() {
 							$(renderLocation).html(Mustache.to_html(tweetTemplate, data));
 						$(".tweet-timestamp").timeago();
 						$("#loadMore").show();
-						if(data.tweets.length == 0){
+						if(data.tweets.length == 0) {
 							$("#loadMore").addClass("disabled");
 							$("#loadMore").html("Loaded all");
 							moreToLoad = false;
 						}
-						if(data.matchingTweets){
+						if(data.matchingTweets) {
 							var message = data.matchingTweets == 1 ? " matching tweet" : " matching tweets"; 
 							$("#tweet-count").html(data.matchingTweets + message);
 						}
 					},
-					complete: function (){ 
+					complete: function () { 
 						loading = false;
 					},
 					type: "POST",

@@ -1,22 +1,22 @@
 <?php
 
-if(!array_key_exists('action', $_GET)){
+if(!array_key_exists('action', $_GET)) {
     header('HTTP/1.1 400 Bad Request');
     exit();
 }
 
 session_start();
 
-switch($_GET['action']){
+switch($_GET['action']) {
 	case "checkdb":
 		@$mysqli = new mysqli($_POST['db_host'], $_POST['db_uname'], $_POST['db_pass']);
-		if($mysqli->connect_error){
+		if($mysqli->connect_error) {
 			//ERROR//
 			header('HTTP/1.1 403 Forbidden');
 			echo generateBanner("alert-error", "Connection failed. Check Credentials. ({$mysqli->connect_error})");
 			exit;
 		}
-		if(!$mysqli->select_db($_POST['db_name'])){
+		if(!$mysqli->select_db($_POST['db_name'])) {
 			//ERROR//
 			header('HTTP/1.1 403 Forbidden');
 			echo generateBanner("alert-warning", "Failed selecting database '<i>{$_POST['db_name']}</i>'. Connected ok, does database exist?");
@@ -31,12 +31,12 @@ switch($_GET['action']){
 		define("TWITTER_CONSUMER_KEY", $_POST['consumer-key']);
 		define("TWITTER_CONSUMER_SECRET", $_POST['consumer-secret']);
 		includeTwitterAsyncFiles();
-		try{
+		try {
 			$twitterObj = new EpiTwitter(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET);
 			$authURL = $twitterObj->getAuthorizeUrl(null, array("oauth_callback" => $_POST['oauth_callback']));
 			$_SESSION['consumer_key'] = TWITTER_CONSUMER_KEY;
 			$_SESSION['consumer_secret'] = TWITTER_CONSUMER_SECRET;
-		}catch(EpiOAuthUnauthorizedException $e){
+		} catch(EpiOAuthUnauthorizedException $e) {
 			header('HTTP/1.1 403 Forbidden');
 			echo generateBanner("alert-error", "Couldn't get authorize link, check app credentials and retry");
 			exit;
@@ -52,12 +52,12 @@ switch($_GET['action']){
 		//TODO: HANDLE EpiOAuthUnauthorizedException with setToken.
 		$twitterObj->setToken($token->oauth_token, $token->oauth_token_secret);
 		$failCount = 0;
-		while(true){
-			try{
+		while(true) {
+			try {
 				$user = $twitterObj->get('/account/verify_credentials.json');
 				break;
-			}catch(EpiTwitterException $e){
-				if($failCount++ > 2){
+			} catch(EpiTwitterException $e) {
+				if($failCount++ > 2) {
 					header('HTTP/1.1 403 Forbidden');
 					echo generateBanner("alert-error", $e->getMessage());
 					exit;
@@ -78,10 +78,10 @@ switch($_GET['action']){
 	
 }
 
-function includeTwitterAsyncFiles(){
+function includeTwitterAsyncFiles() {
 	$dependencies = array('../twitter-async/EpiCurl.php', '../twitter-async/EpiOAuth.php', '../twitter-async/EpiTwitter.php');
-	foreach($dependencies as $file){
-		if(! (include $file) ){
+	foreach($dependencies as $file) {
+		if(!(include $file)) {
 			header ('HTTP/1.1 500 Internal Server Error.');
 			echo dependencyBanner($file);
 			exit;
@@ -89,17 +89,17 @@ function includeTwitterAsyncFiles(){
 	}
 }
 
-function generateBanner($class, $message){
+function generateBanner($class, $message) {
 	return "<div class=\"alert $class\"><p>$message</p></div>";
 }
 
-function dependencyBanner($fileName){
+function dependencyBanner($fileName) {
 	return generateBanner("error", "Couldn't find $fileName. Run <code>git submodule --init</code> in this directory to fix.");
 }
 
-function createConfigFile(){
+function createConfigFile() {
 
-	foreach($_POST as $key => $val){
+	foreach($_POST as $key => $val) {
 		$_POST[$key] = addslashes($val);
 	}
 	require_once 'additional_users.php';
@@ -131,7 +131,7 @@ function createConfigFile(){
 
 MARK;
 
-	if( !is_writable('config.php') && !(!file_exists('config.php') && is_writeable('.')) ){
+	if(!is_writable('config.php') && !(!file_exists('config.php') && is_writeable('.'))) {
 		header('HTTP/1.1 403 Forbidden');
 		echo generateBanner("alert-warning", "Can't write to config.php, copy the contents of the text box below and save it as config.php");
 		echo "<textarea id=\"config-output\" class=\"span12\" rows=\"17\" wrap=\"off\">$output</textarea>";
