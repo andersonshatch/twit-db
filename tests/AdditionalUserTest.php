@@ -1,10 +1,11 @@
 <?php
 
+chdir(dirname(__FILE__));
 require_once '../lib/additional_users.php';
 
-class AdditionalUserTest extends PHPUnit_Framework_TestCase{
+class AdditionalUserTest extends PHPUnit_Framework_TestCase {
 	
-	public function testEmptyUserList(){
+	public function testEmptyUserList() {
 		$input = '';
 		$uArray = create_users_array($input);
 		$uString = create_users_string($uArray);
@@ -13,7 +14,7 @@ class AdditionalUserTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('', $uString);
 	}
 
-	public function testSingleUser(){
+	public function testSingleUser() {
 		$input = 'andersonshatch';
 		$uArray = create_users_array($input);
 		$uString = create_users_string($uArray);
@@ -22,7 +23,7 @@ class AdditionalUserTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($input, $uString);
 	}
 
-	public function testValidList(){
+	public function testValidList() {
 		$input = 'andersonshatch,babbanator,twitter';
 		$uArray = create_users_array($input);
 		$uString = create_users_string($uArray);
@@ -31,7 +32,7 @@ class AdditionalUserTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($input, $uString);
 	}
 
-	public function testSpaceRemoval(){
+	public function testSpaceRemoval() {
 		$input = '  andersonshatch  , babbanator,   twitter       ';
 		$expected = 'andersonshatch,babbanator,twitter';
 		$uArray = create_users_array($input);
@@ -41,7 +42,7 @@ class AdditionalUserTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expected, $uString);
 	}
 
-	public function testDuplicateRemoval(){
+	public function testDuplicateRemoval() {
 		$input = 'andersonshatch, andersonshatch, twitter, andersonshatch';
 		$expected = 'andersonshatch,twitter';
 		$uArray = create_users_array($input);
@@ -51,7 +52,7 @@ class AdditionalUserTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expected, $uString);
 	}
 
-	public function testEmptyRemoval(){
+	public function testEmptyRemoval() {
 		$input = ',andersonshatch,,babbanator, ,,';
 		$expected = 'andersonshatch,babbanator';
 		$uArray = create_users_array($input);
@@ -61,7 +62,7 @@ class AdditionalUserTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expected, $uString);
 	}
 
-	public function testAllValidationCombined(){
+	public function testAllValidationCombined() {
 		$input = ' ,,andersonshatch   , andersonshatch, babbanator,twitter';
 		$expected = 'andersonshatch,babbanator,twitter';
 		$uArray = create_users_array($input);
