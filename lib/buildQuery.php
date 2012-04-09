@@ -3,7 +3,7 @@ function buildQuery($array, $mysqli, $count = false) {
 	$table = 'home';
 	if(existsAndNotBlank('username', $array)) {
 		require_once 'additional_users.php';
-		$userTables = create_users_array(ADDITIONAL_USERS);
+		$userTables = defined('ADDITIONAL_USERS') ? create_users_array(ADDITIONAL_USERS) : array();
 		if(in_array($array['username'], $userTables)) {
 			$table = "@{$array['username']}";
 		}
@@ -13,29 +13,29 @@ function buildQuery($array, $mysqli, $count = false) {
 	}
 	$queryString = "SELECT ";
 	if($count) {
-		$queryString .= "COUNT(1) ";
+		$queryString .= "COUNT(1)";
 	} else {
-		$queryString .= "id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url ";
+		$queryString .= "id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url";
 	}
 
 	$textCondition = "";
 	if(existsAndNotBlank('text', $array)) {
 		$textCondition = "MATCH(`text`) AGAINST('".$mysqli->real_escape_string($array['text'])."' IN BOOLEAN MODE)";
 		if(!$count) {
-			$queryString .= ", $textCondition as relevance ";
+			$queryString .= ", $textCondition as relevance";
 		}
 	}
 
-	$queryString .= "FROM `$table` NATURAL JOIN `users`";
+	$queryString .= " FROM `$table` NATURAL JOIN `users`";
 
 	$conditionals = array();
 	if(!empty($array)) {
 		if(existsAndNotBlank('username', $array) && ($array['username'] != '@me' || !defined('MENTIONS_TIMELINE'))) {
-			$uIdQuery = $mysqli->query("SET @uID = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('".$mysqli->real_escape_string($array['username'])."'))");
-			if( array_key_exists('retweets', $array) && $array['retweets'] == 'on') {
-				$conditionals[] = "(user_id = @uID OR retweeted_by_user_id = @uID)";
+			$uIdQueryString = "(SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('".$mysqli->real_escape_string($array['username'])."'))";
+			if(array_key_exists('retweets', $array) && $array['retweets'] == 'on') {
+				$conditionals[] = "(user_id = $uIdQueryString OR retweeted_by_user_id = $uIdQueryString)";
 			} else {
-				$conditionals[] = "user_id = @uID";
+				$conditionals[] = "user_id = $uIdQueryString";
 			}
 		}
 		if($textCondition) {
