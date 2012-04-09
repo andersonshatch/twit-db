@@ -5,5 +5,5 @@ php:
   - 5.3
   - 5.4
 before_script:
-  - mysql -e "create database twitdb_test; create user 'test' identified by 'password'; grant all privileges on twitdb_test.* to 'test';"
+  - mysql -u root -e "create database twitdb_test; create user 'test' identified by 'password'; grant all privileges on twitdb_test.* to 'test';"
 script: phpunit tests/AllTests.php
