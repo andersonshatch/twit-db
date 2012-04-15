@@ -79,13 +79,20 @@ $(document).ready(function() {
 	});
 
 	setInterval(function() {
-		if(didScroll){
+		if(didScroll) {
 			didScroll = false;
-			if ( ($(document).height() - $(window).height()) - $(window).scrollTop() <= 300){
+			if(($(document).height() - $(window).height()) - $(window).scrollTop() <= 300) {
 				getTweets("#stream", true);
 			}
 		}
 	}, 250);
+
+	$("#logo").click(function() {
+		var form = $("#search-form");
+		form[0].reset();
+		form.trigger("submit");
+		return false;
+	});
 
 }	
 );
