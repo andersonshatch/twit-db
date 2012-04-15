@@ -129,6 +129,27 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 		$expected = "SELECT COUNT(1) FROM `@lavamunky` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky'))) AND MATCH(`text`) AGAINST('twitter' IN BOOLEAN MODE)";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky", "text" => "twitter", "retweets" => "on"), self::$mysqli, true));
 	}
+
+	public function testAtMentionsQueryWithMentionsDisabledQueryBuild() {
+		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `home` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('@me')) ORDER BY id DESC LIMIT 40";
+		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli));
+	}
+
+	public function testAtMentionsQueryWithMentionsDisabledCountQueryBuild() {
+		$expected = "SELECT COUNT(1) FROM `home` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('@me'))";
+		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli, true));
+	}
+
+	public function testAtMentionsQueryWithMentionsEnabledQueryBuild() {
+		define('MENTIONS_TIMELINE', true);
+		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `mentions` NATURAL JOIN `users` ORDER BY id DESC LIMIT 40";
+		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli));
+	}
+
+	public function testAtMentionsQueryWithMentionsEnabledCountQueryBuild() {
+		$expected = "SELECT COUNT(1) FROM `mentions` NATURAL JOIN `users`";
+		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli, true));
+	}
 }
 
 ?>
