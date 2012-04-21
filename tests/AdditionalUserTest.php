@@ -15,12 +15,13 @@ class AdditionalUserTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testSingleUser() {
-		$input = 'andersonshatch';
+		$input = 'Andersonshatch';
+		$expected = 'andersonshatch';
 		$uArray = create_users_array($input);
 		$uString = create_users_string($uArray);
 
 		$this->assertTrue(count($uArray) == 1);
-		$this->assertEquals($input, $uString);
+		$this->assertEquals($expected, $uString);
 	}
 
 	public function testValidList() {
@@ -63,7 +64,7 @@ class AdditionalUserTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testAllValidationCombined() {
-		$input = ' ,,andersonshatch   , andersonshatch, babbanator,twitter';
+		$input = ' ,,andersonshatch   , andersonshatch, BABBanator,twitter';
 		$expected = 'andersonshatch,babbanator,twitter';
 		$uArray = create_users_array($input);
 		$uString = create_users_string($uArray);
