@@ -4,8 +4,8 @@ function buildQuery($array, $mysqli, $count = false) {
 	if(existsAndNotBlank('username', $array)) {
 		require_once 'additional_users.php';
 		$userTables = defined('ADDITIONAL_USERS') ? create_users_array(ADDITIONAL_USERS) : array();
-		if(in_array($array['username'], $userTables)) {
-			$table = "@{$array['username']}";
+		if(in_array(strtolower($array['username']), $userTables)) {
+			$table = "@".strtolower($array['username']);
 		}
 		if(defined('MENTIONS_TIMELINE') && MENTIONS_TIMELINE == "true" && $array['username'] == '@me') {
 			$table = "mentions";
@@ -31,7 +31,7 @@ function buildQuery($array, $mysqli, $count = false) {
 	$conditionals = array();
 	if(!empty($array)) {
 		if(existsAndNotBlank('username', $array) && ($array['username'] != '@me' || !defined('MENTIONS_TIMELINE'))) {
-			$uIdQueryString = "(SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('".$mysqli->real_escape_string($array['username'])."'))";
+			$uIdQueryString = "(SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('".$mysqli->real_escape_string(strtolower($array['username']))."'))";
 			if(array_key_exists('retweets', $array) && $array['retweets'] == 'on') {
 				$conditionals[] = "(user_id = $uIdQueryString OR retweeted_by_user_id = $uIdQueryString)";
 			} else {

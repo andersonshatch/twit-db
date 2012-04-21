@@ -68,11 +68,11 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 
 	public function testUsernameWithRetweetsInAdditionalUsersCountQueryBuild() {
 		$expected = "SELECT COUNT(1) FROM `@lavamunky` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')))";
-		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky", "retweets" => "on"), self::$mysqli, true));
+		$this->assertEquals($expected, buildQuery(array("username" => "Lavamunky", "retweets" => "on"), self::$mysqli, true));
 	}
 	public function testUsernameOnlyQueryQueryBuild() {
 		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `home` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('babbanator')) ORDER BY id DESC LIMIT 40";
-		$this->assertEquals($expected, buildQuery(array("username" => "babbanator"), self::$mysqli));
+		$this->assertEquals($expected, buildQuery(array("username" => "BABBanator"), self::$mysqli));
 	}
 
 	public function testUsernameOnlyQueryCountQueryBuild() {
