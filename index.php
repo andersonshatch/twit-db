@@ -26,7 +26,7 @@ if(is_readable('config.php')) {
 </head>
 <body>
 
-<div class="navbar navbar-fixed">
+<div class="navbar navbar-fixed-top">
 	<div class="navbar-inner">
 		<div class="container">
 			<a id="logo" class="brand" href="#" style="margin-left: -22px;">Twit-DB</a></h3>

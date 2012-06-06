@@ -87,7 +87,7 @@ chdir(dirname(__FILE__));
 						    <input type="text" name="db_name" id="db_name" autocapitalize="none">
 						    <p class="help-block">Name of the database you created</p>
 					    </div>
-					    <input type="submit" class="btn-primary pull-right" id="database-verify" value="Verify">
+					    <input type="submit" class="btn btn-primary pull-right" id="database-verify" value="Verify">
 				    </fieldset>
 				</form>
 			</div>
@@ -113,7 +113,7 @@ chdir(dirname(__FILE__));
 					    <label for="consumer-secret">Consumer Secret</label>
 					    <input type="text" name="consumer-secret" id="consumer-secret">
 				    </div>
-				    <input type="submit" class="btn-primary pull-right" id="twitter-verify" value="Verify">
+				    <input type="submit" class="btn btn-primary pull-right" id="twitter-verify" value="Verify">
 				</fieldset>
 			</div>
 			</form>
@@ -175,7 +175,7 @@ chdir(dirname(__FILE__));
 							Each user in this list will be saved to a seperate table and will only be searchable when specifing the user explictly. As many tweets as possible will be retrieved for each user. (Only most recent 3200 tweets if user has more.)
 						</p>
 						</div>
-						<input type="submit" class="btn pull-right" id="submit-all" value="Save">
+						<input type="submit" class="btn btn-primary pull-right" id="submit-all" value="Save">
 					</fieldset>
 				<form>
 			</div>
