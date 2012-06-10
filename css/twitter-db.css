@@ -30,6 +30,9 @@ span.tweet-actions a i, span.favorite-action-icon, span.retweet-action-icon, spa
 	margin: 0 3px -1px 0;
 	display: inline-block;
 }
+.page-header{
+	margin-top: 60px;
+}
 span.tweet-actions a.favorite-action i{
     	background-position: -34px 0;
 }
