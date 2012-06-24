@@ -16,8 +16,23 @@ $(document).ready(function() {
 	});
 
 	tweetTemplate = $("#tweet-template").html();
+	countSpan = $("#tweet-count");
 	loading = false;
 	moreToLoad = true;
+
+	getResultCount = function(formData) {
+		$(countSpan).html('… matching tweets');
+		$.ajax("json.php?count-only=true",
+			{
+				data: formData,
+				success: function(data) {
+					$(countSpan).html(data.matchingTweets + (data.matchingTweets == 1 ? " matching tweet" : " matching tweets"));
+				},
+				type: "POST",
+				cache: true
+			}
+		);
+	};
 	
 	getTweets = function(renderLocation, append) {
 		var formData = $("#search-form").serialize();
@@ -44,10 +59,6 @@ $(document).ready(function() {
 							$("#loadMore").html("Loaded all");
 							moreToLoad = false;
 						}
-						if(data.matchingTweets) {
-							var message = data.matchingTweets == 1 ? " matching tweet" : " matching tweets"; 
-							$("#tweet-count").html(data.matchingTweets + message);
-						}
 					},
 					complete: function () { 
 						loading = false;
@@ -56,6 +67,8 @@ $(document).ready(function() {
 					cache: true
 				}
 			);
+			if(!append)
+				getResultCount(formData);
 		}
 	}
 
