@@ -17,6 +17,7 @@ $(document).ready(function() {
 
 	tweetTemplate = $("#tweet-template").html();
 	countSpan = $("#tweet-count");
+	searchForm = $("#search-form");
 	loading = false;
 	moreToLoad = true;
 
@@ -26,7 +27,8 @@ $(document).ready(function() {
 			{
 				data: formData,
 				success: function(data) {
-					$(countSpan).html(data.matchingTweets + (data.matchingTweets == 1 ? " matching tweet" : " matching tweets"));
+					if($(searchForm).serialize() == formData)
+						$(countSpan).html(data.matchingTweets + (data.matchingTweets == 1 ? " matching tweet" : " matching tweets"));
 				},
 				type: "POST",
 				cache: true
@@ -35,7 +37,7 @@ $(document).ready(function() {
 	};
 	
 	getTweets = function(renderLocation, append) {
-		var formData = $("#search-form").serialize();
+		var formData = $(searchForm).serialize();
 		if(append && $("div.tweet").length > 0) {
 			var lastTweet = $("div.tweet:last");
 			formData = formData + "&max_id=" + $(lastTweet).attr("data-item-id");
