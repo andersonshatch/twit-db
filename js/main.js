@@ -23,14 +23,14 @@ $(document).ready(function() {
 
 	getResultCount = function(formData) {
 		$(countSpan).html('… matching tweets');
-		$.ajax("json.php?count-only=true",
+		$.ajax("api/search.php?count-only=true",
 			{
 				data: formData,
 				success: function(data) {
 					if($(searchForm).serialize() == formData)
 						$(countSpan).html(data.matchingTweets + (data.matchingTweets == 1 ? " matching tweet" : " matching tweets"));
 				},
-				type: "POST",
+				type: "GET",
 				cache: true
 			}
 		);
@@ -46,7 +46,7 @@ $(document).ready(function() {
 		}
 		if(!loading && moreToLoad) {
 			loading = true;
-			$.ajax("json.php",
+			$.ajax("api/search.php",
 				{
 					data: formData,
 					success: function(data) {
@@ -65,7 +65,7 @@ $(document).ready(function() {
 					complete: function () { 
 						loading = false;
 					},
-					type: "POST",
+					type: "GET",
 					cache: true
 				}
 			);

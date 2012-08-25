@@ -8,7 +8,7 @@
  * @return string Tweet with wrapped usernames, hashtags and urls.
  */
 function linkify_tweet($text, $entitiesJSON = null) {
-	if($entitiesJSON == null && file_exists('twitter-text-php/lib/Twitter/Autolink.php')) {
+	if($entitiesJSON == null && chdir(dirname(__FILE__)) && file_exists('twitter-text-php/lib/Twitter/Autolink.php')) {
 		//backward compatibility for my database where I didn't initially store entities
 		include_once 'twitter-text-php/lib/Twitter/Autolink.php';
 		$autoLink = new Twitter_Autolink($text);

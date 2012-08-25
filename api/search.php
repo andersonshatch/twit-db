@@ -1,24 +1,23 @@
 <?php
 
-require_once('config.php');
-require_once('lib/buildQuery.php');
-require_once('lib/linkify_tweet.php');
+require_once('../config.php');
+require_once('../lib/buildQuery.php');
+require_once('../lib/linkify_tweet.php');
 
 $mysqli = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
 $mysqli->set_charset("utf8");
-
 
 header('Content-Type: application/json; charset=utf-8');
 
 $results = array();
 
 if(array_key_exists("count-only", $_GET)) {
-	$rowCountQuery = $mysqli->query($countQuery = buildQuery($_POST, $mysqli, true));
+	$rowCountQuery = $mysqli->query($countQuery = buildQuery($_GET, $mysqli, true));
 	$rowCountRow = $rowCountQuery->fetch_row();
 	$results["matchingTweets"] = number_format($rowCountRow[0]);
 	$results["countQuery"] = $countQuery;
 } else {
-	$query = $mysqli->query($queryString = buildQuery($_POST, $mysqli));
+	$query = $mysqli->query($queryString = buildQuery($_GET, $mysqli));
 	$tweets = $query->fetch_all(MYSQLI_ASSOC);
 
 	foreach($tweets as &$tweet) {
