@@ -1,15 +1,18 @@
 div.navbar div.navbar-inner div.container{
 	color: #e6e6e6;
 }
-h3 a.tweet-screen-name{
+h4 a.tweet-full-name{
 	color: black;
 }
 div.tweet-text{
 	color: black;
 	font-size: 15px;
 }
-h3 small a.tweet-screen-name,
-h3 small a.tweetscreen-name:hover,
+blockquote small{
+	font-size: 13px;
+}
+h4 small a.tweet-screen-name,
+h4 small a.tweetscreen-name:hover,
 a.tweet-timestamp,
 a.tweet-timestamp:hover,
 span.tweet-source a,

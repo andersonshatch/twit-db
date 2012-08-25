@@ -66,15 +66,15 @@ twttr.anywhere(function (T) {
 		</div>
 		<div class="span10 columns tweet-content">
 			<div class="tweet-names">
-				<h3>
-					<a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{screen_name}}">{{screen_name}}</a>
-					<small class="tweet-full-name">
-						{{name}}
+				<h4>
+					<a class="tweet-full-name user-profile-link" href="https://twitter.com/{{screen_name}}">{{name}}</a>
+					<small class="tweet-screen-name">
+						<a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{screen_name}}">@{{screen_name}}</a>
 						{{#retweeted_by_user_id}}
-							<span class="retweet-icon"></span>by <a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{retweeted_by_screen_name}}">{{retweeted_by_screen_name}}</a>
+							<span class="retweet-icon"></span>by <a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{retweeted_by_screen_name}}">@{{retweeted_by_screen_name}}</a>
 						{{/retweeted_by_user_id}}
 					</small>
-				</h3>
+				</h4>
 			</div>
 			<div class="tweet-text">
 				{{{text}}}
