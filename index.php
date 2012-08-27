@@ -50,6 +50,7 @@ if(is_readable('config.php')) {
 <script type="text/javascript">
 twttr.anywhere(function (T) {
 	T(".username, .tweet-screen-name, .icons > em > a").hovercards({ linkify: false, expanded: true });
+	T(".tweet-full-name").hovercards({username: function(element) {return $(element).data('screen-name')}, expanded: true});
 });
 </script>
 </div><!--content-->
@@ -67,7 +68,7 @@ twttr.anywhere(function (T) {
 		<div class="span10 columns tweet-content">
 			<div class="tweet-names">
 				<h4>
-					<a class="tweet-full-name user-profile-link" href="https://twitter.com/{{screen_name}}">{{name}}</a>
+					<a class="tweet-full-name user-profile-link" href="https://twitter.com/{{screen_name}}" data-screen-name="{{screen_name}}">{{name}}</a>
 					<small class="tweet-screen-name">
 						<a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{screen_name}}">@{{screen_name}}</a>
 						{{#retweeted_by_user_id}}
