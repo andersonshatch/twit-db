@@ -21,6 +21,7 @@ if($mysqli->connect_error)
     die("Could not connect to MySQL. {$mysqli->connect_error}\n");
 $mysqli->set_charset("utf8");
 $twitterObj = new EpiTwitter(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_USER_TOKEN, TWITTER_USER_SECRET);
+$twitterObj->useApiVersion(1.1);
 
 require_once 'lib/additional_users.php';
 $additionalUsers = create_users_array(ADDITIONAL_USERS);
