@@ -16,6 +16,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 
 	public function assertPreConditions() {
 		if(self::$mysqli->connect_error) {
+			echo self::$mysqli->connect_error."\n";
 			$this->markTestSkipped('Could not connect to MySQL, skipping build query tests');
 		}
 	}
