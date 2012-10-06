@@ -19,6 +19,7 @@ if(is_readable('config.php')) {
 <script type="text/javascript" src="//platform.twitter.com/anywhere.js?id=<?php echo TWITTER_CONSUMER_KEY; ?>&amp;v=1"></script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap-tooltip.js"></script>
+<script type="text/javascript" src="bootstrap/js/bootstrap-typeahead.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/timeago.js"></script>
 <script type="text/javascript" src="js/mustache.js"></script>
@@ -32,7 +33,7 @@ if(is_readable('config.php')) {
 			<a id="logo" class="brand" href="#" style="margin-left: -22px;">Twit-DB</a></h3>
 			<form id="search-form" class="form-search navbar-search" method="POST">
 				<input id="search-text" class="search-query" name="text" value="" placeholder="Text" />
-				( <input id="search-username" class="search-query"  name="username" value="" placeholder="Username <?php if(defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" />
+				( <input id="search-username" class="search-query"  name="username" value="" placeholder="Username <?php if(defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" autocomplete="off" />
 				Retweets <input id="search-retweets" class="" name="retweets" type="checkbox" checked /> )
 				<input class="search-query" type="submit" value="Submit" />
 			</form>

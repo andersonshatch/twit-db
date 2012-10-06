@@ -15,6 +15,50 @@ $(document).ready(function() {
 		placement: "bottom"
 	});
 
+	$("#search-username").typeahead({
+		source: function(input, process) {
+			$.getJSON("api/users.php", "q=" + input, process);
+		},
+		valueKey: 'screenName',
+		matcher: function(item) {
+			return ~item.screenName.toLowerCase().indexOf(this.query.toLowerCase()) || ~item.name.toLowerCase().indexOf(this.query.toLowerCase());
+		},
+		sorter: function (items) {
+			var beginswith = [],
+			caseSensitive = [],
+			caseInsensitive = [],
+			item;
+
+			while (item = items.shift()) {
+				if (!item.screenName.toLowerCase().indexOf(this.query.toLowerCase()) || !item.name.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item)
+				else if (~item.screenName.indexOf(this.query) || ~item.name.indexOf(this.query)) caseSensitive.push(item)
+				else caseInsensitive.push(item)
+			}
+
+			return beginswith.concat(caseSensitive, caseInsensitive);
+		},
+		highlighter: function (item) {
+			var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
+			return item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+					return '<strong>' + match + '</strong>'
+				}) + '<br />@' + item.screenName.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+					return '<strong>' + match + '</strong>';
+				});
+		}
+	});
+
+	$.fn.typeahead.Constructor.prototype.render = function(items) {
+		//override just to allow using screenName as display value (until more configurable)
+		var that = this;
+		items = $(items).map(function (i, item) {
+			i = $(that.options.item).attr('data-value', item.screenName);
+			i.find('a').html(that.highlighter(item));
+			return i[0];
+		});
+		this.$menu.html(items);
+		return this;
+	};
+
 	tweetTemplate = $("#tweet-template").html();
 	countSpan = $("#tweet-count");
 	searchForm = $("#search-form");
