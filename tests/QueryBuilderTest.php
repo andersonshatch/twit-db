@@ -11,10 +11,13 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	public static function setUpBeforeClass() {
 		@self::$mysqli = new mysqli('127.0.0.1', 'test', 'password', 'twitdb_test');
 
+		define('ADDITIONAL_USERS', 'lavamunky');
+	}
+
+	public function assertPreConditions() {
 		if(self::$mysqli->connect_error) {
 			$this->markTestSkipped('Could not connect to MySQL, skipping build query tests');
 		}
-		define('ADDITIONAL_USERS', 'lavamunky');
 	}
 
 	public static function tearDownAfterClass() {
