@@ -14,7 +14,7 @@ if(is_readable('config.php')) {
 <link rel="stylesheet" href="bootstrap/docs/assets/css/bootstrap-responsive.css" />
 <link rel="stylesheet" href="css/twitter-db.css" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Twit-DB search</title>
 <script type="text/javascript" src="//platform.twitter.com/anywhere.js?id=<?php echo TWITTER_CONSUMER_KEY; ?>&amp;v=1"></script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
@@ -30,7 +30,7 @@ if(is_readable('config.php')) {
 <div class="navbar navbar-fixed-top navbar-inverse">
 	<div class="navbar-inner">
 		<div class="container">
-			<a id="logo" class="brand" href="#" style="margin-left: -22px;">Twit-DB</a></h3>
+			<a id="logo" class="brand" href="#">Twit-DB</a></h3>
 			<form id="search-form" class="form-search navbar-search" method="POST">
 				<input id="search-text" class="search-query" name="text" value="" placeholder="Text" />
 				( <input id="search-username" class="search-query"  name="username" value="" placeholder="Username <?php if(defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" autocomplete="off" />
