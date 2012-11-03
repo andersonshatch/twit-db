@@ -52,6 +52,10 @@ function buildQuery($array, $mysqli, $count = false) {
 		}
 	}
 
+	if(array_key_exists('exclude_replies', $array) && $array['exclude_replies'] == 'on') {
+		$conditionals[] = "text NOT LIKE '@%'";
+	}
+
 	$keyword = " WHERE ";
 	foreach($conditionals as $condition) {
 		$queryString .= $keyword.array_shift($conditionals);

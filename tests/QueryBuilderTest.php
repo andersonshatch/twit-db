@@ -154,6 +154,16 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 		$expected = "SELECT COUNT(1) FROM `mentions` NATURAL JOIN `users`";
 		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli, true));
 	}
+
+	public function testExcludeRepliesQueryBuild() {
+		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `home` NATURAL JOIN `users` WHERE text NOT LIKE '@%' ORDER BY id DESC LIMIT 40";
+		$this->assertEquals($expected, buildQuery(array("exclude_replies" => "on"), self::$mysqli));
+	}
+
+	public function testExcludeRepliesWithTextSearchQueryBuild() {
+		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url, MATCH(`text`) AGAINST('Fringe' IN BOOLEAN MODE) as relevance FROM `home` NATURAL JOIN `users` WHERE MATCH(`text`) AGAINST('Fringe' IN BOOLEAN MODE) AND text NOT LIKE '@%' ORDER BY relevance DESC, id DESC LIMIT 40";
+		$this->assertEquals($expected, buildQuery(array("text" => "Fringe", "exclude_replies" => "on"), self::$mysqli));
+	}
 }
 
 ?>
