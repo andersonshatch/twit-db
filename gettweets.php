@@ -30,7 +30,7 @@ $homeEndpoint = "/statuses/home_timeline.json";
 $mentionsEndpoint = "/statuses/mentions.json";
 $userEndpoint = "/statuses/user_timeline.json";
 
-$timelineParams = array("count" => 120, "include_rts" => "true", "page" => 1, "include_entities" => "true");
+$timelineParams = array("count" => 180, "include_rts" => "true", "page" => 1, "include_entities" => "true");
 
 $requests[] = array("endpoint" => $homeEndpoint, "tableName" => "home", "params" => $timelineParams);
 if(defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") {
