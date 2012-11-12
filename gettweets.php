@@ -27,7 +27,7 @@ require_once 'lib/additional_users.php';
 $additionalUsers = create_users_array(ADDITIONAL_USERS);
 
 $homeEndpoint = "/statuses/home_timeline.json";
-$mentionsEndpoint = "/statuses/mentions.json";
+$mentionsEndpoint = "/statuses/mentions_timeline.json";
 $userEndpoint = "/statuses/user_timeline.json";
 
 $timelineParams = array("count" => 180, "include_rts" => "true", "page" => 1, "include_entities" => "true");
