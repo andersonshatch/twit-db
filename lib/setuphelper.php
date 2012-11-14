@@ -9,6 +9,11 @@ session_start();
 
 switch($_GET['action']) {
 	case "checkdb":
+		if(!extension_loaded('mysqli')) {
+			header('HTTP/1.1 500 Internal Server Error.');
+			echo generateBanner("alert-error", "PHP mysqli extension not loaded. Install/include it.");
+			exit;
+		}
 		@$mysqli = new mysqli($_POST['db_host'], $_POST['db_uname'], $_POST['db_pass']);
 		if($mysqli->connect_error) {
 			//ERROR//

@@ -9,12 +9,18 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	private static $mysqli;
 
 	public static function setUpBeforeClass() {
-		@self::$mysqli = new mysqli('127.0.0.1', 'test', 'password', 'twitdb_test');
+		self::$mysqli = false;
+		if(extension_loaded('mysqli'))
+			@self::$mysqli = new mysqli('127.0.0.1', 'test', 'password', 'twitdb_test');
 
 		define('ADDITIONAL_USERS', 'lavamunky');
 	}
 
 	public function assertPreConditions() {
+		if(!self::$mysqli) {
+			$this->markTestSkipped('No mysqli extension');
+		}
+
 		if(self::$mysqli->connect_error) {
 			echo self::$mysqli->connect_error."\n";
 			$this->markTestSkipped('Could not connect to MySQL, skipping build query tests');
@@ -22,7 +28,8 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public static function tearDownAfterClass() {
-		@self::$mysqli->close();
+		if(self::$mysqli)
+			@self::$mysqli->close();
 	}
 
 	public function testBasicQueryBuild() {
