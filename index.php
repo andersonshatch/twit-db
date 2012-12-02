@@ -16,7 +16,6 @@ if(is_readable('config.php')) {
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Twit-DB search</title>
-<script type="text/javascript" src="//platform.twitter.com/anywhere.js?id=<?php echo TWITTER_CONSUMER_KEY; ?>&amp;v=1"></script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap-tooltip.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap-typeahead.js"></script>
@@ -48,12 +47,6 @@ if(is_readable('config.php')) {
 <div id="stream">
 </div>
 <a href="#" id="loadMore" class="btn large span12" style="display: none">Load More</a>
-<script type="text/javascript">
-twttr.anywhere(function (T) {
-	T(".username, .tweet-screen-name, .icons > em > a").hovercards({ linkify: false, expanded: true });
-	T(".tweet-full-name").hovercards({username: function(element) {return $(element).data('screen-name')}, expanded: true});
-});
-</script>
 </div><!--content-->
 </div><!--container-->
 <script type="text/mustache-template" id="tweet-template">
