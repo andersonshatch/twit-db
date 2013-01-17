@@ -95,9 +95,9 @@ $(document).ready(function() {
 					data: formData,
 					success: function(data) {
 						if(append)
-							$(renderLocation).append(Mustache.to_html(tweetTemplate, data));
+							$(renderLocation).append(Mustache.render(tweetTemplate, data));
 						else
-							$(renderLocation).html(Mustache.to_html(tweetTemplate, data));
+							$(renderLocation).html(Mustache.render(tweetTemplate, data));
 						$(".tweet-timestamp").timeago();
 						$("#loadMore").show();
 						if(data.tweets.length == 0) {

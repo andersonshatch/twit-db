@@ -22,7 +22,7 @@ if(is_readable('config.php')) {
 <script type="text/javascript" src="bootstrap/js/bootstrap-typeahead.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/timeago.js"></script>
-<script type="text/javascript" src="js/mustache.js"></script>
+<script type="text/javascript" src="js/mustache.min.js"></script>
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 </head>
 <body>
