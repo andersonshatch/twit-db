@@ -84,6 +84,11 @@ switch($_GET['action']) {
 }
 
 function includeTwitterAsyncFiles() {
+	if(!extension_loaded("curl")) {
+		header ('HTTP/1.1 500 Internal Server Error.');
+		echo generateBanner("alert-error", "PHP curl extension not loaded. Install/include it.");
+		exit;
+	}
 	chdir(dirname(__FILE__));
 	$dependencies = array('../twitter-async/EpiCurl.php', '../twitter-async/EpiOAuth.php', '../twitter-async/EpiTwitter.php');
 	foreach($dependencies as $file) {

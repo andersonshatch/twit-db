@@ -19,6 +19,9 @@ require_once 'twitter-async/EpiTwitter.php';
 if(!extension_loaded('mysqli'))
 	die("ERROR: Mysqli extension not loaded. Cannot proceed.\n");
 
+if(!extension_loaded('curl'))
+	die("ERROR: Curl extension not loaded. Cannot proceed.\n");
+
 $mysqli = @new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
 if($mysqli->connect_error)
     die("Could not connect to MySQL. {$mysqli->connect_error}\n");
