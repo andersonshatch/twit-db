@@ -59,7 +59,7 @@ $(document).ready(function() {
 		return this;
 	};
 
-	tweetTemplate = $("#tweet-template").html();
+	tweetTemplate = Mustache.compile($("#tweet-template").html());
 	countSpan = $("#tweet-count");
 	searchForm = $("#search-form");
 	loading = false;
@@ -95,9 +95,9 @@ $(document).ready(function() {
 					data: formData,
 					success: function(data) {
 						if(append)
-							$(renderLocation).append(Mustache.render(tweetTemplate, data));
+							$(renderLocation).append(tweetTemplate(data));
 						else
-							$(renderLocation).html(Mustache.render(tweetTemplate, data));
+							$(renderLocation).html(tweetTemplate(data));
 						$(".tweet-timestamp").timeago();
 						$("#loadMore").show();
 						if(data.tweets.length == 0) {
