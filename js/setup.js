@@ -29,7 +29,7 @@ $(document).ready(function() {
 
 	$("#twitter-app-settings").submit(
 		function(event) {
-			$(this).children().find("#twitter-verify").attr("value", "Processing...");
+			$(this).children().find("#twitter-verify").val("Processing...");
 			var callbackURL = window.location.href.replace("/setup.php", "/lib/setuphelper.php?action=signin");
 			$.ajax({
 				type: 'POST',
@@ -41,6 +41,7 @@ $(document).ready(function() {
 			event.preventDefault();
 		}
 	);
+
 	$("#submit-all").click(
 		function(event) {
 			var data = $("form").serialize();
@@ -50,12 +51,12 @@ $(document).ready(function() {
 				url: 'lib/setuphelper.php?action=submit-all',
 				data: data,
 				success: function(data) {
-					$("div#output-box-row").html(data);
-					$("div#output-box-row").fadeIn('fast');
+					$("div#output-box-row").html(data)
+						.fadeIn('fast');
 				},
 				error: function(xhr) {
-					$("div#output-box-row").html(xhr.responseText);
-					$("div#output-box-row").fadeIn('fast');
+					$("div#output-box-row").html(xhr.responseText)
+						.fadeIn('fast');
 				}
 			});
 			event.preventDefault();
@@ -64,19 +65,20 @@ $(document).ready(function() {
 
 });
 
-$(document).on('click', 'a#signin-button', function(event){popupSigninWindow(event)});
-$(document).on('touchstart', 'a#signin-button', function(event){popupSigninWindow(event)});
+$(document).on('click touchend', 'a#signin-button', function(event) {
+	popupSigninWindow(event);
+});
 
 function popupSigninWindow(event) {
-	var url = $("a#signin-button").attr('data-url');
+	var url = $("a#signin-button").data('url');
 	window.open(url, 'auth', 'width=500, height=600, scrollbars=yes');				
 	event.preventDefault();
 }
 
 function setUserCredentials(token, secret, screen_name) {
-	$("#user-token").attr("value", token);
-	$("#user-secret").attr("value", secret);
-	$("#user-secret").after('<p class="help-block" id="screen_name">'+screen_name+'</p>');
+	$("#user-token").val(token);
+	$("#user-secret").val(secret)
+		.after('<p class="help-block" id="screen_name">'+screen_name+'</p>');
 	$("#other-users").val(screen_name);
 	$("#signin-button").slideUp('fast');
 	$("#timeline-settings").fadeIn('fast');
@@ -88,7 +90,7 @@ function twitterSuccess(data) {
 	$("#twitter-user-row").fadeIn('fast');
 	$("#twitter-app-settings input").attr("readonly", "readonly");
 	$("#twitter-verify").attr("disabled", "disabled")
-		.attr('value', 'Completed')
+		.val('Completed')
 		.removeClass("btn-primary")
 		.addClass("btn-success");
 }
@@ -98,11 +100,10 @@ function twitterFailure(xhr) {
 			function() {
 				$(this).html(xhr.responseText);
 				$(this).slideDown('fast');
-				$("#twitter-verify").attr('value', 'Retry');
+				$("#twitter-verify").val('Retry');
 			}
 	);
 }
-
 
 function databaseSuccess(data) {
 	$("#database-feedback").slideUp('fast',
@@ -113,12 +114,13 @@ function databaseSuccess(data) {
 	);
 	$("#twitter-form-row").fadeIn();
 	$("#database-settings input").attr("readonly", "readonly");
-	$("#database-verify").attr("disabled", "disabled");
-	$("#database-verify").attr('value', 'Connected')
+	$("#database-verify").attr("disabled", "disabled")
+		.val('Connected')
 		.removeClass("btn-primary")
 		.addClass("btn-success");
 	$("#consumer-key").focus();
 }
+
 function databaseFailure(xhr) {
 	$("#database-feedback").slideUp('fast', 
 			function() {
