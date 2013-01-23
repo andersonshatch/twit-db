@@ -77,6 +77,7 @@ function setUserCredentials(token, secret, screen_name) {
 	$("#user-token").attr("value", token);
 	$("#user-secret").attr("value", secret);
 	$("#user-secret").after('<p class="help-block" id="screen_name">'+screen_name+'</p>');
+	$("#other-users").val(screen_name);
 	$("#signin-button").slideUp('fast');
 	$("#timeline-settings").fadeIn('fast');
 }
