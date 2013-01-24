@@ -44,6 +44,9 @@ $(document).ready(function() {
 				}) + '<br />@' + item.screenName.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
 					return '<strong>' + match + '</strong>';
 				});
+		},
+		updater: function (item) {
+			return item || this.$element.val();
 		}
 	});
 
