@@ -92,8 +92,11 @@ function addOrUpdateUser($user, $mysqli) {
 		);
 	}
 
-	$createdat = new DateTime($user->created_at);
-	$createdat = $createdat->format('Y-m-d H:i:s');
+	$createdAt = null;
+	if (property_exists($user, "created_at")) {
+		$createdAt = new DateTime($user->created_at);
+		$createdAt = $createdAt->format('Y-m-d H:i:s');
+	}
 	$GLOBALS['userPreparedStatement']->bind_param('sssssssssssss',
 		$user->id_str,
 		$user->description,
@@ -105,7 +108,7 @@ function addOrUpdateUser($user, $mysqli) {
 		$user->statuses_count,
 		$user->url,
 		$user->profile_image_url,
-		$createdat,
+		$createdAt,
 		$user->verified,
 		$user->protected
 	);
