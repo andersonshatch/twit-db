@@ -38,6 +38,7 @@ switch($_GET['action']) {
 		includeTwitterAsyncFiles();
 		try {
 			$twitterObj = new EpiTwitter(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET);
+			$twitterObj->useApiVersion(1.1);
 			$authURL = $twitterObj->getAuthorizeUrl(null, array("oauth_callback" => $_POST['oauth_callback']));
 			$_SESSION['consumer_key'] = TWITTER_CONSUMER_KEY;
 			$_SESSION['consumer_secret'] = TWITTER_CONSUMER_SECRET;
@@ -52,6 +53,7 @@ switch($_GET['action']) {
 	case "signin":
 		includeTwitterAsyncFiles();
 		$twitterObj = new EpiTwitter($_SESSION['consumer_key'], $_SESSION['consumer_secret']);
+		$twitterObj->useApiVersion(1.1);
 		$twitterObj->setToken($_GET['oauth_token']);
 		$token = $twitterObj->getAccessToken(array('oauth_verifier' => $_GET['oauth_verifier']));
 		//TODO: HANDLE EpiOAuthUnauthorizedException with setToken.
