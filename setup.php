@@ -115,8 +115,8 @@ chdir(dirname(__FILE__));
 				    </div>
 				    <input type="submit" class="btn btn-primary pull-right" id="twitter-verify" value="Verify">
 				</fieldset>
-			</div>
 			</form>
+			</div>
 		</div>
 		<div class="" id="twitter-feedback" style="display: none;">
 		</div>
@@ -177,7 +177,7 @@ chdir(dirname(__FILE__));
 						</div>
 						<input type="submit" class="btn btn-primary pull-right" id="submit-all" value="Save">
 					</fieldset>
-				<form>
+				</form>
 			</div>
 		</div>
 		<div class="" id="output-box-row" style="display: none;">
