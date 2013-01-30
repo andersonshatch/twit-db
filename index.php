@@ -30,7 +30,7 @@ if(is_readable('config.php')) {
 <div class="navbar navbar-fixed-top navbar-inverse">
 	<div class="navbar-inner">
 		<div class="container">
-			<a id="logo" class="brand" href="#">Twit-DB</a></h3>
+			<a id="logo" class="brand" href="#">Twit-DB</a>
 			<form id="search-form" class="form-search navbar-search" method="POST">
 				<input id="search-text" class="search-query" name="text" value="" placeholder="Text" />
 				( <input id="search-username" class="search-query"  name="username" value="" placeholder="Username <?php if(defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") echo "(@me for mentions)";?>" autocomplete="off" />
