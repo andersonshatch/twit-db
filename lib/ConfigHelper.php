@@ -6,21 +6,21 @@ class ConfigHelper {
 		if(is_readable($configPath)) {
 			require_once $configPath;
 		} else if (!file_exists($configPath)) {
-			die("ERROR: Config file (config.php) doesn't exist. Visit setup.php in a browser to create it.\n");
+			exit("ERROR: Config file (config.php) doesn't exist. Visit setup.php in a browser to create it.\n");
 		} else {
-			die("ERROR: Config file (config.php) is not readable.");
+			exit("ERROR: Config file (config.php) is not readable.");
 		}
 	}
 
 	static function getDatabaseConnection() {
 		if(!extension_loaded("mysqli")) {
-			die("ERROR: Mysqli extension not loaded. Cannot proceed.\n");
+			exit("ERROR: Mysqli extension not loaded. Cannot proceed.\n");
 		}
 
 		$mysqli = @new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
 		if($mysqli->connect_error) {
-			die("ERROR: Could not connect to MySQL. {$mysqli->connect_error}\n");
+			exit("ERROR: Could not connect to MySQL. {$mysqli->connect_error}\n");
 		}
 
 		$mysqli->set_charset("utf8");
@@ -30,7 +30,7 @@ class ConfigHelper {
 
 	static function getTwitterObject() {
 		if(!extension_loaded("curl")) {
-			die("ERROR: Curl extension not loaded. Cannot proceed.\n");
+			exit("ERROR: Curl extension not loaded. Cannot proceed.\n");
 		}
 
 		$here = dirname(__FILE__);
