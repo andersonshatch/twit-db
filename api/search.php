@@ -1,11 +1,12 @@
 <?php
 
-require_once('../config.php');
+require_once("../lib/ConfigHelper.php");
+
+ConfigHelper::requireConfig("../config.php");
+$mysqli = ConfigHelper::getDatabaseConnection();
+
 require_once('../lib/buildQuery.php');
 require_once('../lib/linkify_tweet.php');
-
-$mysqli = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
-$mysqli->set_charset("utf8");
 
 header('Content-Type: application/json; charset=utf-8');
 

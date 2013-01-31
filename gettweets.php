@@ -8,26 +8,10 @@ $GLOBALS['responseTweetsAdded'] = 0;
 $GLOBALS['requestCount'] = 0;
 
 chdir(dirname(__FILE__));
-if(is_readable('config.php'))
-	require_once 'config.php';
-else
-	die("ERROR: Config file (config.php) doesn't exist. Visit setup.php in a browser to create it.\n");
-require_once 'twitter-async/EpiCurl.php';
-require_once 'twitter-async/EpiOAuth.php';
-require_once 'twitter-async/EpiTwitter.php';
-
-if(!extension_loaded('mysqli'))
-	die("ERROR: Mysqli extension not loaded. Cannot proceed.\n");
-
-if(!extension_loaded('curl'))
-	die("ERROR: Curl extension not loaded. Cannot proceed.\n");
-
-$mysqli = @new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
-if($mysqli->connect_error)
-    die("Could not connect to MySQL. {$mysqli->connect_error}\n");
-$mysqli->set_charset("utf8");
-$twitterObj = new EpiTwitter(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_USER_TOKEN, TWITTER_USER_SECRET);
-$twitterObj->useApiVersion(1.1);
+require_once("lib/ConfigHelper.php");
+ConfigHelper::requireConfig("config.php");
+$mysqli = ConfigHelper::getDatabaseConnection();
+$twitterObj = ConfigHelper::getTwitterObject();
 
 require_once 'lib/additional_users.php';
 $additionalUsers = create_users_array(ADDITIONAL_USERS);

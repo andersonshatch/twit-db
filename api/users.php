@@ -1,6 +1,8 @@
 <?php
 
-require_once('../config.php');
+require_once("../lib/ConfigHelper.php");
+ConfigHelper::requireConfig("../config.php");
+
 header('Content-Type: application/json; charset=utf-8');
 
 if(!array_key_exists('q', $_GET)) {
@@ -9,8 +11,7 @@ if(!array_key_exists('q', $_GET)) {
 	exit;
 }
 
-$mysqli = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
-$mysqli->set_charset("utf8");
+$mysqli = ConfigHelper::getDatabaseConnection();
 
 $sql = "SELECT screen_name AS screenName, name, profile_image_url AS imageUrl FROM users WHERE screen_name LIKE '".$mysqli->real_escape_string($_GET['q'])."%' OR name LIKE '%".$mysqli->real_escape_string($_GET['q'])."%' LIMIT 8";
 $query = $mysqli->query($sql);
