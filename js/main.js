@@ -67,6 +67,7 @@ $(document).ready(function() {
 	searchForm = $("#search-form");
 	loading = false;
 	moreToLoad = true;
+	nextPageParams = null;
 
 	getResultCount = function(formData) {
 		$(countSpan).html('… matching tweets');
@@ -84,15 +85,9 @@ $(document).ready(function() {
 	};
 	
 	getTweets = function(renderLocation, append) {
-		var formData = $(searchForm).serialize();
-		if(append && $("div.tweet").length > 0) {
-			var lastTweet = $("div.tweet:last");
-			formData = formData + "&max_id=" + $(lastTweet).attr("data-item-id");
-			if($(lastTweet).data("relevance-value"))
-				formData = formData + "&relevance=" + $(lastTweet).data("relevance-value");
-		}
 		if(!loading && moreToLoad) {
 			loading = true;
+			var formData = append ? nextPageParams : $(searchForm).serialize();
 			$.ajax("api/search.php",
 				{
 					data: formData,
@@ -107,6 +102,9 @@ $(document).ready(function() {
 							$("#loadMore").addClass("disabled");
 							$("#loadMore").html("Loaded all");
 							moreToLoad = false;
+						}
+						if(data.nextPage) {
+							nextPageParams = data.nextPage;
 						}
 					},
 					complete: function () { 

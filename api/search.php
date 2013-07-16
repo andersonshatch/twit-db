@@ -28,8 +28,22 @@ if(array_key_exists("count-only", $_GET)) {
 		$tweet['text'] = linkify_tweet($tweet['text'], $tweet['entities_json']);
 	}
 
+	$nextPage = null;
+
+	if($count = count($tweets) > 0) {
+		$lastTweet = $tweets[count($tweets) - 1];
+		$params = array("max_id" => $lastTweet["id"]);
+
+		if(array_key_exists('relevance', $tweet)) {
+			$params["relevance"] = $lastTweet["relevance"];
+		}
+
+		$nextPage = http_build_query(array_merge($_GET, $params));
+	}
+
 	$results["tweets"] = $tweets;
 	$results["queryString"] = $queryString;
+	$results["nextPage"] = $nextPage;
 }
 
 $output = json_encode($results);
