@@ -102,6 +102,7 @@ $(document).ready(function() {
 							$("#loadMore").addClass("disabled");
 							$("#loadMore").html("Loaded all");
 							moreToLoad = false;
+							nextPageParams = null;
 						}
 						if(data.nextPage) {
 							nextPageParams = data.nextPage;
