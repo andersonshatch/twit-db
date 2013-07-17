@@ -21,11 +21,15 @@ if(array_key_exists("count-only", $_GET)) {
 	$query = $mysqli->query($queryString = buildQuery($_GET, $mysqli));
 	$tweets = $query->fetch_all(MYSQLI_ASSOC);
 
+	$disableLinkification = array_key_exists('disable-linkification', $_GET) ? $_GET["disable-linkification"] == "true" : false;
+
 	foreach($tweets as &$tweet) {
 		$createdAt = date_create_from_format('Y-m-d H:i:s', $tweet['created_at']);
 		$tweet['datetime'] = $createdAt->format('c');
 		$tweet['timestamp_title'] = $createdAt->format('G:i M jS \'y');
-		$tweet['text'] = linkify_tweet($tweet['text'], $tweet['entities_json']);
+		if(!$disableLinkification) {
+			$tweet['text'] = linkify_tweet($tweet['text'], $tweet['entities_json']);
+		}
 	}
 
 	$nextPage = null;
