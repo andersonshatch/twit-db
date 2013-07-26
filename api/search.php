@@ -29,13 +29,14 @@ if(array_key_exists("count-only", $_GET)) {
 		$tweet['timestamp_title'] = $createdAt->format('G:i M jS \'y');
 		if(!$disableLinkification) {
 			$tweet['text'] = linkify_tweet($tweet['text'], $tweet['entities_json']);
+			unset($tweet['entities_json']);
 		}
 	}
 
 	$nextPage = null;
 
-	if($count = count($tweets) > 0) {
-		$lastTweet = $tweets[count($tweets) - 1];
+	if(($count = count($tweets)) > 0) {
+		$lastTweet = $tweets[$count - 1];
 		$params = array("max_id" => $lastTweet["id"]);
 
 		if(array_key_exists('relevance', $tweet)) {
