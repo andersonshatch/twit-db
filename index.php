@@ -10,15 +10,13 @@ if(is_readable('config.php')) {
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="bootstrap/docs/assets/css/bootstrap.css" />
-<link rel="stylesheet" href="bootstrap/docs/assets/css/bootstrap-responsive.css" />
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" />
 <link rel="stylesheet" href="css/twitter-db.css" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Twit-DB search</title>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
-<script type="text/javascript" src="bootstrap/js/bootstrap-tooltip.js"></script>
-<script type="text/javascript" src="bootstrap/js/bootstrap-typeahead.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/timeago.js"></script>
 <script type="text/javascript" src="js/mustache.min.js"></script>

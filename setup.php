@@ -5,7 +5,7 @@ chdir(dirname(__FILE__));
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="bootstrap/docs/assets/css/bootstrap.css" />
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" />
 <title>Twit-DB setup</title>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script type="text/javascript" src="js/setup.js"></script>
