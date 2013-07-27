@@ -15,7 +15,7 @@ $(document).ready(function() {
 		placement: "bottom"
 	});
 
-	$("#search-username").typeahead({
+	/*$("#search-username").typeahead({
 		source: function(input, process) {
 			$.getJSON("api/users.php", "q=" + input, process);
 		},
@@ -60,7 +60,7 @@ $(document).ready(function() {
 		});
 		this.$menu.html(items);
 		return this;
-	};
+	};*/
 
 	tweetTemplate = Mustache.compile($("#tweet-template").html());
 	countSpan = $("#tweet-count");
