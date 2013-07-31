@@ -12,7 +12,7 @@ chdir(dirname(__FILE__));
 </head>
 <body>
 <?php
-	if(!file_exists('bootstrap/')) {
+	if(!file_exists('bootstrap/docs/')) {
 			echo "Bootstrap files are not present. Please run <code>git submodule update --init</code> from this directory to retrieve them, and then refresh.";
 			echo "</body></html>";
 			exit;
