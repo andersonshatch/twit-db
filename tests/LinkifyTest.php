@@ -67,4 +67,12 @@ class LinkifyTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals($expected, linkify_tweet($testText, $testEntities));
 	}
+
+	public function testTweetWithDollarSymbolEntity() {
+		$testText = 'ssh you@friendscomputer \'write friend &lt;&lt;&lt;"You want to have lunch? -- $USER"\' # Be sure nobody else sees private communication.';
+		$testEntities = '{"hashtags":[],"symbols":[{"text":"USER","indices":[78,83]}],"urls":[],"user_mentions":[]}';
+		$expected = 'ssh you@friendscomputer \'write friend &lt;&lt;&lt;"You want to have lunch? -- $USER"\' # Be sure nobody else sees private communication.';
+
+		$this->assertEquals($expected, linkify_tweet($testText, $testEntities));
+	}
 }

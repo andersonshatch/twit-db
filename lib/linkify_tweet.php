@@ -63,7 +63,12 @@ function linkify_tweet($text, $entitiesJSON = null) {
 				case "user_mentions":
 					$href = "@<a class=\"$usernameClass\" rel=\"$urlRel\" target=\"$urlTarget\" href=\"https://twitter.com/$value->screen_name\">$value->screen_name</a>";
 					break;
-
+				case "symbols":
+					$href = "\$$value->text";
+					break;
+				default:
+					$href = $value->text;
+					break;
 			}
 			store_replacement($keys, $replacements, $value->indices, $href, $text);
 		}
