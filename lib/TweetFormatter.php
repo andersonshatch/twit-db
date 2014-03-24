@@ -20,6 +20,9 @@ class TweetFormatter {
 		if($linkify) {
 			$tweet['text'] = linkify_tweet($tweet['text'], $tweet['entities_json']);
 			unset($tweet['entities_json']);
+		} else {
+			$tweet['entities'] = json_decode($tweet['entities_json']);
+			unset($tweet['entities_json']);
 		}
 
 		return $tweet;
