@@ -30,7 +30,7 @@ if(array_key_exists("count-only", $_GET)) {
 		$lastTweet = $tweets[$count - 1];
 		$params = array("max_id" => $lastTweet["id"]);
 
-		if(array_key_exists('relevance', $tweet)) {
+		if(array_key_exists('relevance', $lastTweet)) {
 			$params["relevance"] = $lastTweet["relevance"];
 		}
 
