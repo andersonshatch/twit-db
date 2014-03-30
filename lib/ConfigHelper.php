@@ -58,7 +58,7 @@ class ConfigHelper {
 	}
 
 	private static function checkTables($mysqli) {
-		$tables = array("home", "users");
+		$tables = array("home", "users", "mentions");
 
 		$additionalUsers = self::getAdditionalUsers();
 
