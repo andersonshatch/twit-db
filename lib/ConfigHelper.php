@@ -89,7 +89,8 @@ class ConfigHelper {
 						CHANGE `location`          `location`          VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
 						CHANGE `name`              `name`              VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 						CHANGE `url`               `url`               VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
-						CHANGE `profile_image_url` `profile_image_url` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin";
+						CHANGE `profile_image_url` `profile_image_url` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+						COLLATE utf8mb4_bin";
 			} else {
 				$changeCollationSQL = "ALTER TABLE `$tableName` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin";
 			}
