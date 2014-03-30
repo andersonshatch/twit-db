@@ -23,7 +23,9 @@ class ConfigHelper {
 			exit("ERROR: Could not connect to MySQL. {$mysqli->connect_error}\n");
 		}
 
-		$mysqli->set_charset("utf8mb4");
+		if(!@$mysqli->set_charset("utf8mb4") || $mysqli->error) {
+			exit("ERROR: Could not select utf8mb4 charset. {$mysqli->error}. See https://github.com/andersonshatch/twit-db/issues/7\n");
+		}
 
 		return $mysqli;
 	}
