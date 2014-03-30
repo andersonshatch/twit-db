@@ -35,7 +35,7 @@ function createUserTimeline($mysqli) {
 				`user_id` bigint(20) unsigned NOT NULL,
 				`description` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
 				`location` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-				`name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+				`name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
 				`followers_count` int(10) DEFAULT NULL,
 				`friends_count` int(10) DEFAULT NULL,
 				`statuses_count` int(10) DEFAULT NULL,
