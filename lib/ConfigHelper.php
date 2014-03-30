@@ -99,7 +99,7 @@ class ConfigHelper {
 			$mysqli->query($changeCollationSQL);
 			$end = microtime(true);
 			$time = $end - $start;
-			echo "Done: {$mysqli->info}. Took $time seconds. ({$mysqli->error})\n";
+			echo "-> Done: {$mysqli->info}. Took $time seconds. ({$mysqli->error})\n";
 		}
 	}
 }
