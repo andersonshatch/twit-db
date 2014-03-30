@@ -54,7 +54,7 @@ class ConfigHelper {
 		$here = dirname(__FILE__);
 		require_once "$here/additional_users.php";
 
-		return create_users_array(ADDITIONAL_USERS);
+		return defined('ADDITIONAL_USERS') ? create_users_array(ADDITIONAL_USERS) : array();
 	}
 
 	private static function checkTables($mysqli) {

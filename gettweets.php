@@ -14,7 +14,7 @@ $mysqli = ConfigHelper::getDatabaseConnection();
 $twitterObj = ConfigHelper::getTwitterObject();
 
 require_once 'lib/additional_users.php';
-$additionalUsers = create_users_array(ADDITIONAL_USERS);
+$additionalUsers = ConfigHelper::getAdditionalUsers();
 
 $homeEndpoint = "/statuses/home_timeline.json";
 $mentionsEndpoint = "/statuses/mentions_timeline.json";
