@@ -90,7 +90,7 @@ function getTimelineAndStore($twitterObj, $mysqli, $requestObj) {
 				echo "FAILED getting tweets for {$requestObj['tableName']}, $failCount times. Moving on.\n";
 				return;
 			}
-			output("WARNING: got ".get_class($e)." whilst updating {$requestObj['tableName']}.\n");
+			output("WARNING: got ".get_class($e)." whilst updating {$requestObj['tableName']}. ({$e->getMessage()})\n");
 			sleep(2 * $failCount - 1);
 		}
 	}
