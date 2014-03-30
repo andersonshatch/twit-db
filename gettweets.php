@@ -10,7 +10,7 @@ $GLOBALS['requestCount'] = 0;
 chdir(dirname(__FILE__));
 require_once("lib/ConfigHelper.php");
 ConfigHelper::requireConfig("config.php");
-$mysqli = ConfigHelper::getDatabaseConnection();
+$mysqli = ConfigHelper::getDatabaseConnection(true);
 $twitterObj = ConfigHelper::getTwitterObject();
 
 require_once 'lib/additional_users.php';

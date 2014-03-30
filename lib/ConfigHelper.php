@@ -12,7 +12,7 @@ class ConfigHelper {
 		}
 	}
 
-	static function getDatabaseConnection() {
+	static function getDatabaseConnection($migrate = false) {
 		if(!extension_loaded("mysqli")) {
 			exit("ERROR: Mysqli extension not loaded. Cannot proceed.\n");
 		}
@@ -27,7 +27,9 @@ class ConfigHelper {
 			exit("ERROR: Could not select utf8mb4 charset. {$mysqli->error}. See https://github.com/andersonshatch/twit-db/issues/7\n");
 		}
 
-		self::checkTables($mysqli);
+		if ($migrate) {
+			self::migrateTables($mysqli);
+		}
 
 		return $mysqli;
 	}
@@ -57,7 +59,7 @@ class ConfigHelper {
 		return defined('ADDITIONAL_USERS') ? create_users_array(ADDITIONAL_USERS) : array();
 	}
 
-	private static function checkTables($mysqli) {
+	private static function migrateTables($mysqli) {
 		$tables = array("home", "users", "mentions");
 
 		$additionalUsers = self::getAdditionalUsers();
