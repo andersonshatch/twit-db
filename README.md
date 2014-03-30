@@ -2,7 +2,7 @@
 [![Build Status](https://secure.travis-ci.org/andersonshatch/twit-db.png)](http://travis-ci.org/andersonshatch/twit-db)
 ####Requirements
 - PHP version 5.3 and above
-- MySQL version 4.1 and above  
+- MySQL version 5.5.3 and above  
 
 (Automatically determined, only tested on the current PHP & MySQL versions)
 

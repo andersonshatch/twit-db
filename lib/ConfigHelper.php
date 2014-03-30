@@ -23,7 +23,7 @@ class ConfigHelper {
 			exit("ERROR: Could not connect to MySQL. {$mysqli->connect_error}\n");
 		}
 
-		$mysqli->set_charset("utf8");
+		$mysqli->set_charset("utf8mb4");
 
 		return $mysqli;
 	}
