@@ -17,6 +17,8 @@ class Conversation {
 	public function getConversation() {
 		$table = 'home';
 		do {
+			$this->idsToLookup[] = $this->id;
+			$this->fetchInReplyTo($this->id, $table);
 			$this->id = $this->getInReplyToStatusId($table);
 			if ($this->id) {
 				$this->idsToLookup[] = $this->id;
