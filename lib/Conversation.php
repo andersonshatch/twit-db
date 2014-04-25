@@ -18,12 +18,8 @@ class Conversation {
 		$table = 'home';
 		do {
 			$this->idsToLookup[] = $this->id;
-			$this->fetchInReplyTo($this->id, $table);
+			$this->fetchInReplyTo(array($this->id), $table);
 			$this->id = $this->getInReplyToStatusId($table);
-			if ($this->id) {
-				$this->idsToLookup[] = $this->id;
-				$this->fetchInReplyTo($this->id, $table);
-			}
 		} while(!is_null($this->id));
 
 		if (!empty($this->idsToLookup)) {
@@ -53,14 +49,27 @@ class Conversation {
 		return $result ? $result[0] : null;
 	}
 
-	private function fetchInReplyTo($id, $table) {
-		$qs = "SELECT id FROM $table WHERE in_reply_to_status_id = $id";
+	private function fetchInReplyTo($ids, $table, $recurse = true) {
+		if (empty($ids)) {
+			return;
+		}
+
+		$idsCsv = implode($ids, ", ");
+		$qs = "SELECT id FROM $table WHERE in_reply_to_status_id IN ($idsCsv)";
 		$this->queries[] = $qs;
 		$query = $this->mysqli->query($qs);
-		$result = $query ? $query->fetch_row() : null;
-		if ($result && !in_array($result[0], $this->idsToLookup)) {
-			$this->idsToLookup[] = $result[0];
-			$this->fetchInReplyTo($result[0], $table);
+		$result = $query ? $query->fetch_all() : null;
+		$results = array();
+		if ($result) {
+			foreach ($result as $row) {
+				if (!in_array($row[0], $this->idsToLookup)) {
+					$this->idsToLookup[] = $row[0];
+					if ($recurse) {
+						$results[] = $row[0];
+					}
+				}
+			}
+			$this->fetchInReplyTo($results, $table);
 		}
 	}
 }
