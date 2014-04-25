@@ -52,17 +52,23 @@ class ConfigHelper {
 
 	}
 
-	static function getAdditionalUsers() {
+	static function getAdditionalUsers($includeReadOnlyTables = false) {
 		$here = dirname(__FILE__);
 		require_once "$here/additional_users.php";
 
-		return defined('ADDITIONAL_USERS') ? create_users_array(ADDITIONAL_USERS) : array();
+		$results = defined('ADDITIONAL_USERS') ? create_users_array(ADDITIONAL_USERS) : array();
+
+		if ($includeReadOnlyTables && defined('ADDITIONAL_READ_ONLY_USERS')) {
+			$results = array_unique(array_merge($results, create_users_array(ADDITIONAL_READ_ONLY_USERS)));
+		}
+
+		return $results;
 	}
 
 	private static function migrateTables($mysqli) {
 		$tables = array("home", "users", "mentions");
 
-		$additionalUsers = self::getAdditionalUsers();
+		$additionalUsers = self::getAdditionalUsers(true);
 
 		foreach($additionalUsers as $user) {
 			$tables[] = "@$user";

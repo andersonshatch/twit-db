@@ -5,7 +5,7 @@ function buildQuery($array, $mysqli, $count = false) {
 	if(existsAndNotBlank('username', $array)) {
 		require_once 'additional_users.php';
 		require_once 'ConfigHelper.php';
-		$userTables = ConfigHelper::getAdditionalUsers();
+		$userTables = ConfigHelper::getAdditionalUsers(true);
 		if(in_array(strtolower($array['username']), $userTables)) {
 			$table = "@".strtolower($array['username']);
 		}
