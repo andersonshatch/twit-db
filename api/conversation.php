@@ -9,9 +9,6 @@ ConfigHelper::requireConfig('../config.php');
 
 header('Content-Type: application/json; charset=utf-8');
 
-/*TODO: determine table name (if username in additional_users) */
-$table = 'home';
-
 if(!array_key_exists('id', $_GET)) {
 	header('HTTP/1.1 400 Bad Request');
 	echo json_encode(array());
