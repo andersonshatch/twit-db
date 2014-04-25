@@ -70,7 +70,7 @@ class ConfigHelper {
 
 		$collationSQL = "SELECT table_name
                 FROM information_schema.tables
-                WHERE table_collation <> 'utf8mb4_bin'
+                WHERE table_collation <> 'utf8mb4_unicode_ci'
                 AND table_schema = '".DB_NAME."'
 				AND table_name in (".implode(",", array_map(function($string) { return "'$string'";}, $tables)).")";
 
@@ -84,18 +84,7 @@ class ConfigHelper {
 			$tableName = $table[0];
 			echo "Modifying collation of $tableName\n";
 
-			if ($tableName == "users") {
-				$changeCollationSQL = "ALTER TABLE `users`
-						CHANGE `screen_name`       `screen_name`       VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-						CHANGE `description`       `description`       VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
-						CHANGE `location`          `location`          VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
-						CHANGE `name`              `name`              VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-						CHANGE `url`               `url`               VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
-						CHANGE `profile_image_url` `profile_image_url` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
-						COLLATE utf8mb4_bin";
-			} else {
-				$changeCollationSQL = "ALTER TABLE `$tableName` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin";
-			}
+			$changeCollationSQL = "ALTER TABLE `$tableName` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
 
 			$start = microtime(true);
 			$mysqli->query($changeCollationSQL);

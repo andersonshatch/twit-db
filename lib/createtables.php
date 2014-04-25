@@ -17,7 +17,7 @@ function createTimelineTable($mysqli, $tableName) {
 				PRIMARY KEY (`id`),
 				KEY `user_id_index` (`user_id`),
 				FULLTEXT KEY `index` (`text`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;"
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	);
 	if($create) {
 		createUserTimeline($mysqli);
@@ -31,11 +31,11 @@ function createTimelineTable($mysqli, $tableName) {
 function createUserTimeline($mysqli) {
 	$create = $mysqli->query("
 			CREATE TABLE IF NOT EXISTS `users` (
-				`screen_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+				`screen_name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
 				`user_id` bigint(20) unsigned NOT NULL,
 				`description` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
 				`location` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-				`name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+				`name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
 				`followers_count` int(10) DEFAULT NULL,
 				`friends_count` int(10) DEFAULT NULL,
 				`statuses_count` int(10) DEFAULT NULL,
@@ -47,7 +47,7 @@ function createUserTimeline($mysqli) {
 				`protected` tinyint(1) NOT NULL DEFAULT '0',
 				 PRIMARY KEY (`user_id`),
 				 FULLTEXT KEY `index` (`screen_name`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;"
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	);
 	if($create) {
 		return true;
