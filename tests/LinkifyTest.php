@@ -31,7 +31,7 @@ class LinkifyTest extends PHPUnit_Framework_TestCase {
 	public function testTweetWithAHashtag() {
 		$testText = 'Clean install time. #Lion';
 		$testEntities = '{"urls":[],"hashtags":[{"indices":[20,25],"text":"Lion"}],"user_mentions":[]}';
-		$expected = 'Clean install time. <a class="hashtag " rel="external nofollow" target="_blank" href="http://search.twitter.com/search?q=%23Lion">#Lion</a>';
+		$expected = 'Clean install time. <a class="hashtag " rel="external nofollow" target="_blank" href="https://twitter.com/search?q=%23Lion">#Lion</a>';
 
 		$this->assertEquals($expected, linkify_tweet($testText, $testEntities));
 	}
@@ -47,7 +47,7 @@ class LinkifyTest extends PHPUnit_Framework_TestCase {
 	public function testTweetWithLinkHashtagMentionAndTwitterPhoto() {
 		$testText = 'Test tweet with a link http://t.co/Nwx2Jy1 a hashtag #test a mention @andersonshatch and a twitter picture http://t.co/leZZfjt';
 		$testEntities = '{"media":[{"type":"photo","id_str":"124981658553290753","media_url_https":"https:\/\/p.twimg.com\/AbwGKAGCEAEAuUC.jpg","display_url":"pic.twitter.com\/leZZfjt","indices":[107,126],"expanded_url":"http:\/\/twitter.com\/kklaven\/status\/124981658549096449\/photo\/1","sizes":{"small":{"h":510,"w":340,"resize":"fit"},"medium":{"h":900,"w":600,"resize":"fit"},"large":{"h":960,"w":640,"resize":"fit"},"thumb":{"h":150,"w":150,"resize":"crop"}},"id":124981658553290753,"url":"http:\/\/t.co\/leZZfjt","media_url":"http:\/\/p.twimg.com\/AbwGKAGCEAEAuUC.jpg"}],"urls":[{"display_url":"google.com","expanded_url":"http:\/\/google.com","indices":[23,42],"url":"http:\/\/t.co\/Nwx2Jy1"}],"hashtags":[{"indices":[53,58],"text":"test"}],"user_mentions":[{"name":"Josh Anderson","id_str":"15135087","indices":[69,84],"screen_name":"andersonshatch","id":15135087}]}';
-		$expected = 'Test tweet with a link <a class="" rel="external nofollow" target="_blank" href="http://t.co/Nwx2Jy1" title="http://google.com" >google.com</a> a hashtag <a class="hashtag " rel="external nofollow" target="_blank" href="http://search.twitter.com/search?q=%23test">#test</a> a mention @<a class="username " rel="external nofollow" target="_blank" href="https://twitter.com/andersonshatch">andersonshatch</a> and a twitter picture <a class="twitter-picture " rel="external nofollow" target="_blank" href="http://t.co/leZZfjt" title="http://twitter.com/kklaven/status/124981658549096449/photo/1" picture-url="http://p.twimg.com/AbwGKAGCEAEAuUC.jpg" >pic.twitter.com/leZZfjt</a>';
+		$expected = 'Test tweet with a link <a class="" rel="external nofollow" target="_blank" href="http://t.co/Nwx2Jy1" title="http://google.com" >google.com</a> a hashtag <a class="hashtag " rel="external nofollow" target="_blank" href="https://twitter.com/search?q=%23test">#test</a> a mention @<a class="username " rel="external nofollow" target="_blank" href="https://twitter.com/andersonshatch">andersonshatch</a> and a twitter picture <a class="twitter-picture " rel="external nofollow" target="_blank" href="http://t.co/leZZfjt" title="http://twitter.com/kklaven/status/124981658549096449/photo/1" picture-url="http://p.twimg.com/AbwGKAGCEAEAuUC.jpg" >pic.twitter.com/leZZfjt</a>';
 
 		$this->assertEquals($expected, linkify_tweet($testText, $testEntities));
 	}

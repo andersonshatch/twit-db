@@ -58,7 +58,7 @@ function linkify_tweet($text, $entitiesJSON = null) {
 					$href = "<a class=\"$class\" rel=\"$urlRel\" target=\"$urlTarget\" href=\"$location\" title=\"$title\" $media_url>$display</a>";
 					break;
 				case "hashtags":
-					$href = "<a class=\"$hashtagClass\" rel=\"$urlRel\" target=\"$urlTarget\" href=\"http://search.twitter.com/search?q=%23$value->text\">#$value->text</a>";
+					$href = "<a class=\"$hashtagClass\" rel=\"$urlRel\" target=\"$urlTarget\" href=\"https://twitter.com/search?q=%23$value->text\">#$value->text</a>";
 					break;
 				case "user_mentions":
 					$href = "@<a class=\"$usernameClass\" rel=\"$urlRel\" target=\"$urlTarget\" href=\"https://twitter.com/$value->screen_name\">$value->screen_name</a>";
