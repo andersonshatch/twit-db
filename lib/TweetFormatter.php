@@ -4,6 +4,8 @@ chdir(dirname(__FILE__));
 require_once('linkify_tweet.php');
 
 class TweetFormatter {
+	private static $localDateTimeZone;
+	private static $utcDateTimeZone;
 
 	public static function formatTweets(&$tweets, $linkify = true) {
 		foreach($tweets as &$tweet) {
@@ -14,7 +16,13 @@ class TweetFormatter {
 	}
 
 	public static function formatTweet(&$tweet, $linkify = true) {
-		$createdAt = date_create_from_format('Y-m-d H:i:s', $tweet['created_at']);
+		if(self::$localDateTimeZone == null || self::$utcDateTimeZone == null) {
+			self::$localDateTimeZone = new DateTimeZone(date_default_timezone_get());
+			self::$utcDateTimeZone = new DateTimeZone('utc');
+		}
+
+		$createdAt = DateTime::createFromFormat('Y-m-d H:i:s', $tweet['created_at'], self::$utcDateTimeZone);
+		$createdAt->setTimezone(self::$localDateTimeZone);
 		$tweet['datetime'] = $createdAt->format('c');
 		$tweet['timestamp_title'] = $createdAt->format('G:i M jS \'y');
 		if($linkify) {
