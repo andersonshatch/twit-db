@@ -39,7 +39,13 @@ function storeTweet($tweet, $tableName, $mysqli) {
 	addOrUpdateUser($tweet->user, $mysqli);
 	$createdat = new DateTime($tweet->created_at);
 	$createdat = $createdat->format('Y-m-d H:i:s');
-	$entities = json_encode($tweet->entities);
+
+	$entities = $tweet->entities;
+	if(property_exists($tweet, 'extended_entities')) {
+		$entities = array_merge((array)$entities, (array)$tweet->extended_entities);
+	}
+	$entities = json_encode($entities);
+
 	$GLOBALS['tweetPreparedStatement']->bind_param('sssssssssss',
 		$id,
 		$createdat,
