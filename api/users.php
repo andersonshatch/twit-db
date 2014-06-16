@@ -18,4 +18,6 @@ $query = $mysqli->query($sql);
 
 echo json_encode($query->fetch_all(MYSQLI_ASSOC));
 
+$mysqli->close();
+
 ?>

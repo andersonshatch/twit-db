@@ -42,6 +42,8 @@ if(array_key_exists("count-only", $_GET)) {
 	$results["nextPage"] = $nextPage;
 }
 
+$mysqli->close();
+
 $output = json_encode($results);
 ob_start('ob_gzhandler');
 
