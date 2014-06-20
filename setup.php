@@ -98,7 +98,7 @@ chdir(dirname(__FILE__));
 			<div class="span4">
 			<h3>Twitter App Credentials</h3>
 				<p>
-				Create a twitter app at <a href="https://dev.twitter.com/apps/new" target="_blank">dev.twitter.com</a> if you don't already have one.<br />
+				Create a twitter app at <a href="https://apps.twitter.com/" target="_blank">apps.twitter.com</a> if you don't already have one.<br />
 				The app should have at least <b>Read and Write</b> access.
 				</p>
 			</div>
