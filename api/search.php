@@ -45,7 +45,6 @@ if(array_key_exists("count-only", $_GET)) {
 $mysqli->close();
 
 $output = json_encode($results);
-ob_start('ob_gzhandler');
 
 if(array_key_exists('callback', $_GET) && $_GET['callback'] != '') {
 	echo "{$_GET['callback']}($output)"; 
