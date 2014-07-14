@@ -20,8 +20,6 @@ $results = $conversation->getConversation();
 
 TweetFormatter::formatTweets($results, !(array_key_exists('disable-linkification', $_GET) && $_GET['disable-linkification'] == "true") );
 
-ob_start('ob_gzhandler');
-
 echo json_encode(array("tweets" => $results, "queries" => $conversation->getQueries()));
 
 ?>
