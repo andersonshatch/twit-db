@@ -114,7 +114,7 @@ function addOrUpdateUser($user, $mysqli) {
 		$user->friends_count,
 		$user->statuses_count,
 		$user->url,
-		$user->profile_image_url,
+		$user->profile_image_url_https,
 		$createdAt,
 		$user->verified,
 		$user->protected
