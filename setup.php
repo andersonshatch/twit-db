@@ -148,7 +148,8 @@ chdir(dirname(__FILE__));
 			<div class="span4">
 				<h3>Timeline Settings</h3>
 				<p>
-				Select the timelines you want to be saved by this tool, and optionally list any additional accounts to store.
+				Select the timelines you want to be saved by this tool, and optionally list any additional accounts/lists to store.
+				If you want to store lists, enter them in the form username/list-name, e.g.: twitter/engineering
 				</p>
 			</div>
 			<div class="span4">
@@ -171,8 +172,8 @@ chdir(dirname(__FILE__));
 							<input type="text" name="other-users" id="other-users">
 							<p>
 							Enter a comma seperated list of users to save in addition to the selected timelines. (Optional)<br/>
-							e.g. <code><i>bs,bbcnews,twitter</i></code><br />
-							Each user in this list will be saved to a seperate table and will only be searchable when specifing the user explictly. As many tweets as possible will be retrieved for each user. (Only most recent 3200 tweets if user has more.)
+							e.g. <code><i>bs,bbcnews,twitter,roosterteeth/staff</i></code><br />
+							Each user/list in here will be saved to a seperate table and will only be searchable when specifing the user/list name explictly. As many tweets as possible will be retrieved for each user/list. (Only most recent ~3200 tweets for users, ~800 for lists)
 						</p>
 						</div>
 						<input type="submit" class="btn btn-primary pull-right" id="submit-all" value="Save">

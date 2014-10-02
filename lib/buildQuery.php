@@ -32,7 +32,7 @@ function buildQuery($array, $mysqli, $count = false) {
 
 	$conditionals = array();
 	if(!empty($array)) {
-		if(existsAndNotBlank('username', $array) && ($array['username'] != '@me' || !defined('MENTIONS_TIMELINE'))) {
+		if(existsAndNotBlank('username', $array) && ($array['username'] != '@me' || !defined('MENTIONS_TIMELINE')) && strpos($table, '/') === false) {
 			$uIdQueryString = "(SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('".$mysqli->real_escape_string(strtolower($array['username']))."'))";
 			if(array_key_exists('retweets', $array) && $array['retweets'] == 'on') {
 				$conditionals[] = "(user_id = $uIdQueryString OR retweeted_by_user_id = $uIdQueryString)";
@@ -58,10 +58,8 @@ function buildQuery($array, $mysqli, $count = false) {
 		$conditionals[] = "text NOT LIKE '@%'";
 	}
 
-	$keyword = " WHERE ";
-	foreach($conditionals as $condition) {
-		$queryString .= $keyword.array_shift($conditionals);
-		$keyword = " AND ";
+	if(!empty($conditionals)) {
+		$queryString .= " WHERE ".implode(' AND ', $conditionals);
 	}
 
 	if(!$count) {

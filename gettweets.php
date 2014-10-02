@@ -17,6 +17,7 @@ require_once 'lib/additional_users.php';
 $additionalUsers = ConfigHelper::getAdditionalUsers();
 
 $homeEndpoint = "/statuses/home_timeline.json";
+$listEndpoint = "/lists/statuses.json";
 $mentionsEndpoint = "/statuses/mentions_timeline.json";
 $userEndpoint = "/statuses/user_timeline.json";
 
@@ -27,10 +28,19 @@ if(defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") {
 	$requests[] = array("endpoint" => $mentionsEndpoint, "tableName" => "mentions", "params" => $timelineParams);
 }
 foreach($additionalUsers as $user) {
+	$isList = strpos($user, "/") !== false;
 	$userTimelineParam = $timelineParams;
-	$userTimelineParam['screen_name'] = $user;
-	$tableName = "@".$user;
-	$requests[] = array("endpoint" => $userEndpoint, "tableName" => $tableName, "params" => $userTimelineParam);	
+
+	if($isList) {
+		$listIdentifierComponents = explode("/", $user);
+		$userTimelineParam['owner_screen_name'] = $listIdentifierComponents[0];
+		$userTimelineParam['slug'] = $listIdentifierComponents[1];
+	} else {
+		$userTimelineParam['screen_name'] = $user;
+	}
+
+	$tableName = "@$user";
+	$requests[] = array("endpoint" => $isList ? $listEndpoint : $userEndpoint, "tableName" => $tableName, "params" => $userTimelineParam);
 }
 
 foreach($requests as $request) {
@@ -82,7 +92,7 @@ function getTimelineAndStore($twitterObj, $mysqli, $requestObj) {
 		} catch(EpiTwitterNotFoundException $e) {
 			//TODO: catch specific exceptions here. Especially rate limited.
 			if($failCount++ > 2) {
-				echo "ERROR: Twitter reports {$requestObj['tableName']} could not be found. Remove this username from config if it no longer exists.\n";
+				echo "ERROR: Twitter reports {$requestObj['tableName']} could not be found. Remove this from config if it no longer exists.\n";
 				return;
 			}
 		} catch(EpiTwitterException $e) {
