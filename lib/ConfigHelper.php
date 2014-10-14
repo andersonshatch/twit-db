@@ -2,29 +2,38 @@
 
 class ConfigHelper {
 
-	static function requireConfig($configPath) {
+	/**
+	 * Require the config file; will exit upon failure
+	 * @param string $configPath path to the config file -- if relative, current directory is determined by the callee
+	 */
+	public static function requireConfig($configPath) {
 		if(is_readable($configPath)) {
 			require_once $configPath;
 		} else if (!file_exists($configPath)) {
-			exit("ERROR: Config file (config.php) doesn't exist. Visit setup.php in a browser to create it.\n");
+			self::exitWithError("Config file (config.php) doesn't exist. Visit setup.php in a browser to create it.");
 		} else {
-			exit("ERROR: Config file (config.php) is not readable.");
+			self::exitWithError("Config file (config.php) is not readable.");
 		}
 	}
 
+	/**
+	 * Get a configured database connection; will exit upon failure
+	 * @param boolean $allowSetup whether to setup tables -- only enable when execution will not timeout
+	 * @return mysqli $mysqli database handle
+	 */
 	public static function getDatabaseConnection($allowSetup = false) {
 		if(!extension_loaded("mysqli")) {
-			exit("ERROR: Mysqli extension not loaded. Cannot proceed.\n");
+			self::exitWithError("Mysqli extension not loaded. Cannot proceed.");
 		}
 
 		$mysqli = @new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
 		if($mysqli->connect_error) {
-			exit("ERROR: Could not connect to MySQL. {$mysqli->connect_error}\n");
+			self::exitWithError("Could not connect to MySQL. {$mysqli->connect_error}");
 		}
 
 		if(!@$mysqli->set_charset("utf8mb4") || $mysqli->error) {
-			exit("ERROR: Could not select utf8mb4 charset. {$mysqli->error}. See https://github.com/andersonshatch/twit-db/issues/7\n");
+			self::exitWithError("Could not select utf8mb4 charset. {$mysqli->error}. See https://github.com/andersonshatch/twit-db/issues/7");
 		}
 
 		if($allowSetup) {
@@ -34,9 +43,13 @@ class ConfigHelper {
 		return $mysqli;
 	}
 
-	static function getTwitterObject() {
+	/**
+	 * Get a twitter REST API client; will exit upon failure
+	 * @return EpiTwitter instance with app+user credentials from config
+	 */
+	public static function getTwitterObject() {
 		if(!extension_loaded("curl")) {
-			exit("ERROR: Curl extension not loaded. Cannot proceed.\n");
+			self::exitWithError("Curl extension not loaded. Cannot proceed.");
 		}
 
 		$here = dirname(__FILE__);
@@ -52,6 +65,11 @@ class ConfigHelper {
 
 	}
 
+	/**
+	 * Get an array of additional users from config (ADDITIONAL_USERS named constant)
+	 * @param string $includeReadOnlyTimelines whether to include users from ADDITIONAL_READ_ONLY_USERS
+	 * @return array of additional users
+	 */
 	public static function getAdditionalUsers($includeReadOnlyTimelines = false) {
 		$here = dirname(__FILE__);
 		require_once "$here/additional_users.php";
