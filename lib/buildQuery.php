@@ -1,18 +1,6 @@
 <?php
 
 function buildQuery($array, $mysqli, $count = false) {
-	$table = 'home';
-	if(existsAndNotBlank('username', $array)) {
-		require_once 'additional_users.php';
-		require_once 'ConfigHelper.php';
-		$userTables = ConfigHelper::getAdditionalUsers(true);
-		if(in_array(strtolower($array['username']), $userTables)) {
-			$table = "@".strtolower($array['username']);
-		}
-		if(defined('MENTIONS_TIMELINE') && MENTIONS_TIMELINE == "true" && $array['username'] == '@me') {
-			$table = "mentions";
-		}
-	}
 	$queryString = "SELECT ";
 	if($count) {
 		$queryString .= "COUNT(1)";
@@ -28,11 +16,11 @@ function buildQuery($array, $mysqli, $count = false) {
 		}
 	}
 
-	$queryString .= $count ? " FROM `$table`" : " FROM `$table` NATURAL JOIN `users`";
+	$queryString .= $count ? " FROM `tweets`" : " FROM `tweets` NATURAL JOIN `users`";
 
 	$conditionals = array();
 	if(!empty($array)) {
-		if(existsAndNotBlank('username', $array) && ($array['username'] != '@me' || !defined('MENTIONS_TIMELINE')) && strpos($table, '/') === false) {
+		if(existsAndNotBlank('username', $array)) {
 			$uIdQueryString = "(SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('".$mysqli->real_escape_string(strtolower($array['username']))."'))";
 			if(array_key_exists('retweets', $array) && $array['retweets'] == 'on') {
 				$conditionals[] = "(user_id = $uIdQueryString OR retweeted_by_user_id = $uIdQueryString)";
