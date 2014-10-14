@@ -173,7 +173,7 @@ chdir(dirname(__FILE__));
 							<p>
 							Enter a comma seperated list of users to save in addition to the selected timelines. (Optional)<br/>
 							e.g. <code><i>bs,bbcnews,twitter,roosterteeth/staff</i></code><br />
-							Each user/list in here will be saved to a seperate table and will only be searchable when specifing the user/list name explictly. As many tweets as possible will be retrieved for each user/list. (Only most recent ~3200 tweets for users, ~800 for lists)
+							As many tweets as possible will be retrieved for each user/list. (Only most recent ~3200 tweets for users, ~800 for lists)
 						</p>
 						</div>
 						<input type="submit" class="btn btn-primary pull-right" id="submit-all" value="Save">
