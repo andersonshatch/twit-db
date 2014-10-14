@@ -5,7 +5,6 @@ require_once "lib/ConfigHelper.php";
 ConfigHelper::requireConfig("config.php");
 $mysqli = ConfigHelper::getDatabaseConnection();
 
-require_once('lib/createtables.php');
 require_once('lib/storestatusesandusers.php');
 
 $zip = openZip($argc, $argv);
@@ -20,14 +19,6 @@ foreach($pathJson as $path) {
 	$tweetsToProcess += $path->tweet_count;
 }
 
-$tableName = "@".decodeFile($zip, "data/js/user_details.js")->screen_name;
-
-$tableExists = $mysqli->query("SELECT 1 FROM `$tableName`");
-
-if(!$tableExists) {
-	createTimelineTable($mysqli, $tableName);
-}
-
 $tweetsAdded = 0;
 $tweetsProcessed = 0;
 $userIds = array();
@@ -36,7 +27,7 @@ foreach($archivePaths as $path) {
 	$tweets = decodeFile($zip, $path);
 
 	foreach($tweets as $tweet) {
-		if(storeTweet($tweet, $tableName, $mysqli)) {
+		if(storeTweet($tweet, $mysqli)) {
 			$tweetsAdded++;
 
 			if(property_exists($tweet, "retweeted_status")) {
@@ -52,7 +43,7 @@ foreach($archivePaths as $path) {
 	output("Processing tweets ($tweetsProcessed/$tweetsToProcess)");
 }
 
-output("\nAdded $tweetsAdded new tweet".(($tweetsAdded == 1) ? "" : "s")." to $tableName\n");
+output("\nAdded $tweetsAdded new tweet".(($tweetsAdded == 1) ? "" : "s")."\n");
 
 if($tweetsAdded > 0)
 	$usersUpdated = lookupUsers(array_keys(array_flip($userIds)), $mysqli);
