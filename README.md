@@ -17,5 +17,3 @@ Then, visit the directory again where you can search through the stored tweets u
 
 ####Search Tips
 You can surround words with quotes to search for that exact combination and prefix them with ```+``` or ```-``` to ensure those words are included, or excluded as necessary.
-
-To search / display mentions (if enabled,) you must use ```@me``` in the username field.
