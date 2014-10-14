@@ -1,8 +1,8 @@
 <?php
 
-function storeTweet($tweet, $tableName, $mysqli) {
+function storeTweet($tweet, $mysqli) {
 	$insertSQL = "
-			INSERT IGNORE INTO `$tableName`(
+			INSERT IGNORE INTO `tweets`(
 				id,
 				created_at,
 				source,
@@ -16,11 +16,8 @@ function storeTweet($tweet, $tableName, $mysqli) {
 				entities_json
 			) VALUES
 			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-	if(!array_key_exists('tweetPreparedStatement', $GLOBALS) || $GLOBALS['tweetPreparedQueryString'] != $insertSQL) {
-		//if tweetPreparedStatment isn't defined, or the query string has changed, create/update it.
-		//else, prepared query gets reused.
+	if(!array_key_exists('tweetPreparedStatement', $GLOBALS)) {
 		$GLOBALS['tweetPreparedStatement'] = $mysqli->prepare($insertSQL);	
-		$GLOBALS['tweetPreparedQueryString'] = $insertSQL;
 	}
 	$retweetedBy = NULL;
 	$retweetedById = NULL;
