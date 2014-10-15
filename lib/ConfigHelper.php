@@ -216,7 +216,7 @@ class ConfigHelper {
 	 */
 	private static function createTimeline($name, $enabled, mysqli $mysqli) {
 		$maxId = self::copyTweetsFromTable($name, $mysqli);
-		$timeline = new Timeline();
+		$timeline = new Timeline($mysqli);
 		$timeline->setEnabled($enabled);
 		$timeline->setLastSeenId($maxId);
 		$timeline->setName($name);
