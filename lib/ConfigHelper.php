@@ -114,7 +114,9 @@ class ConfigHelper {
                 `entities_json` mediumtext CHARACTER SET utf8mb4,
                 PRIMARY KEY (`id`),
                 KEY `user_id_index` (`user_id`),
-                FULLTEXT KEY `index` (`text`)
+                KEY `in_reply_to_status_id_index` (`in_reply_to_status_id`),
+                KEY `retweeted_by_user_id_index` (`retweeted_by_user_id`),
+                FULLTEXT KEY `text_fulltext_index` (`text`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 		if(!$create) {
 			self::exitWithTableCreationError("tweets", $mysqli);
