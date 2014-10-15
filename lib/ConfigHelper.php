@@ -200,7 +200,7 @@ class ConfigHelper {
 		foreach($expectedTimelines as $timelineName) {
 			if(!array_key_exists($timelineName, $timelinesDict)) {
 				$timelineEnabled = !in_array(substr($timelineName, 1), $readOnlyAdditionalUsers); //disable timelines only in ADDITIONAL_READ_ONLY_USERS
-				$timelinesDict[$timelineName] = self::createTimelineWithName($timelineName, $timelineEnabled, $mysqli);
+				$timelinesDict[$timelineName] = self::createTimeline($timelineName, $timelineEnabled, $mysqli);
 			}
 		}
 
