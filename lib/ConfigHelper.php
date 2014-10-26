@@ -244,12 +244,29 @@ class ConfigHelper {
                        FROM `$tableName`";
 		$mysqli->query($migrateSQL);
 		if($mysqli->error) {
-			self::exitWithError($mysqli->error);
-		} else {
-			echo " -> Tweets copied: {$mysqli->affected_rows}\n";
+			$error = $mysqli->error;
+			$mysqli->close();
+			self::exitWithError($error);
 		}
 
-		return $mysqli->query("SELECT MAX(id) FROM `$tableName`")->fetch_row()[0];
+		echo " -> Tweets copied: {$mysqli->affected_rows}.";
+		$maxIdFromTable = $mysqli->query("SELECT MAX(id) FROM `$tableName`")->fetch_row()[0];
+
+		$newTableName = "deletable_$tableName";
+		self::renameTable($tableName, $newTableName, $mysqli);
+		echo " Renamed `$tableName` to `$newTableName`\n";
+
+		return $maxIdFromTable;
+	}
+
+	/**
+	 * Rename a table
+	 * @param string $currentTableName name of the table to be renamed
+	 * @param string $newTableName name to rename the table to
+	 * @param mysqli $mysqli database handle
+	 */
+	private static function renameTable($currentTableName, $newTableName, mysqli $mysqli) {
+		$mysqli->query("RENAME TABLE `$currentTableName` TO `$newTableName`");
 	}
 
 	/**
