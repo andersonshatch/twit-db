@@ -38,7 +38,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testBasicCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `home` NATURAL JOIN `users`";
+		$expected = "SELECT COUNT(1) FROM `home`";
 		$this->assertEquals($expected, buildQuery(array(), self::$mysqli, true));
 	}
 
@@ -53,7 +53,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testTextQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `home` NATURAL JOIN `users` WHERE MATCH(`text`) AGAINST('bazinga' IN BOOLEAN MODE)";
+		$expected = "SELECT COUNT(1) FROM `home` WHERE MATCH(`text`) AGAINST('bazinga' IN BOOLEAN MODE)";
 		$this->assertEquals($expected, buildQuery(array("text" => "bazinga"), self::$mysqli, true));
 	}
 
@@ -68,7 +68,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testUsernameWithRetweetsQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `home` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('andersonshatch')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('andersonshatch')))";
+		$expected = "SELECT COUNT(1) FROM `home` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('andersonshatch')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('andersonshatch')))";
 		$this->assertEquals($expected, buildQuery(array("username" => "andersonshatch", "retweets" => "on"), self::$mysqli, true));
 	}
 
@@ -78,7 +78,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testUsernameWithRetweetsInAdditionalUsersCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `@lavamunky` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')))";
+		$expected = "SELECT COUNT(1) FROM `@lavamunky` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')))";
 		$this->assertEquals($expected, buildQuery(array("username" => "Lavamunky", "retweets" => "on"), self::$mysqli, true));
 	}
 	public function testUsernameOnlyQueryQueryBuild() {
@@ -87,7 +87,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testUsernameOnlyQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `home` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('clarkykestrel'))";
+		$expected = "SELECT COUNT(1) FROM `home` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('clarkykestrel'))";
 		$this->assertEquals($expected, buildQuery(array("username" => "clarkykestrel"), self::$mysqli, true));
 	}
 
@@ -97,7 +97,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testUsernameOnlyQueryInAdditionalUsersCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `@lavamunky` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky'))";
+		$expected = "SELECT COUNT(1) FROM `@lavamunky` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky'))";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky"), self::$mysqli, true));
 	}
 
@@ -107,7 +107,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testTextAndUsernameQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `home` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('crittweets')) AND MATCH(`text`) AGAINST('homeland' IN BOOLEAN MODE)";
+		$expected = "SELECT COUNT(1) FROM `home` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('crittweets')) AND MATCH(`text`) AGAINST('homeland' IN BOOLEAN MODE)";
 		$this->assertEquals($expected, buildQuery(array("username" => "crittweets", "text" => "homeland"), self::$mysqli, true));
 	}
 
@@ -117,7 +117,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testTextAndUsernameQueryInAdditionalUsersCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `@lavamunky` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) AND MATCH(`text`) AGAINST('ncis' IN BOOLEAN MODE)";
+		$expected = "SELECT COUNT(1) FROM `@lavamunky` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) AND MATCH(`text`) AGAINST('ncis' IN BOOLEAN MODE)";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky", "text" => "ncis"), self::$mysqli, true));
 	}
 
@@ -127,7 +127,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testTextAndUsernameWithRetweetsQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `home` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('fuckyeahlost')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('fuckyeahlost'))) AND MATCH(`text`) AGAINST('we have to go back' IN BOOLEAN MODE)";
+		$expected = "SELECT COUNT(1) FROM `home` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('fuckyeahlost')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('fuckyeahlost'))) AND MATCH(`text`) AGAINST('we have to go back' IN BOOLEAN MODE)";
 		$this->assertEquals($expected, buildQuery(array("username" => "fuckyeahlost", "text" => "we have to go back", "retweets" => "on"), self::$mysqli, true));
 	}
 
@@ -137,7 +137,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testTextAndUseranemInAdditionalUsersWithRetweetsQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `@lavamunky` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky'))) AND MATCH(`text`) AGAINST('twitter' IN BOOLEAN MODE)";
+		$expected = "SELECT COUNT(1) FROM `@lavamunky` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky'))) AND MATCH(`text`) AGAINST('twitter' IN BOOLEAN MODE)";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky", "text" => "twitter", "retweets" => "on"), self::$mysqli, true));
 	}
 
@@ -147,7 +147,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testAtMentionsQueryWithMentionsDisabledCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `home` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('@me'))";
+		$expected = "SELECT COUNT(1) FROM `home` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('@me'))";
 		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli, true));
 	}
 
@@ -158,7 +158,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testAtMentionsQueryWithMentionsEnabledCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `mentions` NATURAL JOIN `users`";
+		$expected = "SELECT COUNT(1) FROM `mentions`";
 		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli, true));
 	}
 

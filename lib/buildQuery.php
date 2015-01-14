@@ -28,7 +28,7 @@ function buildQuery($array, $mysqli, $count = false) {
 		}
 	}
 
-	$queryString .= " FROM `$table` NATURAL JOIN `users`";
+	$queryString .= $count ? " FROM `$table`" : " FROM `$table` NATURAL JOIN `users`";
 
 	$conditionals = array();
 	if(!empty($array)) {
