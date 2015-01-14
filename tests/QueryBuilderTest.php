@@ -136,7 +136,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky", "text" => "linux", "retweets" => "on"), self::$mysqli));
 	}
 
-	public function testTextAndUseranameInAdditionalUsersWithRetweetsQueryCountQueryBuild() {
+	public function testTextAndUsernameInAdditionalUsersWithRetweetsQueryCountQueryBuild() {
 		$expected = "SELECT COUNT(1) FROM `tweets` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky'))) AND MATCH(`text`) AGAINST('twitter' IN BOOLEAN MODE)";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky", "text" => "twitter", "retweets" => "on"), self::$mysqli, true));
 	}
