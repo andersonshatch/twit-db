@@ -24,22 +24,33 @@ if(array_key_exists("count-only", $_GET)) {
 
 	TweetFormatter::formatTweets($tweets, !(array_key_exists('disable-linkification', $_GET) && $_GET['disable-linkification'] == "true") );
 
+	$previousPage = null;
 	$nextPage = null;
 
 	if(($count = count($tweets)) > 0) {
-		$lastTweet = $tweets[$count - 1];
-		$params = array("max_id" => $lastTweet["id"]);
+		$firstTweet = $tweets[0];
+		$previousPageParams = array("since_id" => $firstTweet["id"]);
 
-		if(array_key_exists('relevance', $lastTweet)) {
-			$params["relevance"] = $lastTweet["relevance"];
+		if (array_key_exists('relevance', $firstTweet)) {
+			$previousPageParams["relevance"] = $firstTweet["relevance"];
 		}
 
-		$nextPage = http_build_query(array_merge($_GET, $params));
+		$previousPage = http_build_query(array_merge($_GET, $previousPageParams));
+
+		$lastTweet = $tweets[$count - 1];
+		$nextPageParams = array("max_id" => $lastTweet["id"]);
+
+		if(array_key_exists('relevance', $lastTweet)) {
+			$nextPageParams["relevance"] = $lastTweet["relevance"];
+		}
+
+		$nextPage = http_build_query(array_merge($_GET, $nextPageParams));
 	}
 
 	$results["tweets"] = $tweets;
 	$results["queryString"] = $queryString;
 	$results["nextPage"] = $nextPage;
+	$results["previousPage"] = $previousPage;
 }
 
 $mysqli->close();

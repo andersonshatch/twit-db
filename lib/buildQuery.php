@@ -44,6 +44,15 @@ function buildQuery($array, $mysqli, $count = false) {
 			$conditionals[] = $textCondition;
 		}
 
+		if(existsAndNotBlank('since_id', $array)) {
+			if($testCondition && existsAndNotBlank('relevance', $array)) {
+				$relevance = $mysqli->real_escape_string($array['relevance']);
+				$conditionals[] = "(($textCondition = $relevance AND id > ".$mysqli->real_escape_string($array['since_id']).") OR $textCondition > $relevance)";
+			} else {
+				$conditionals[] = "id > ".$mysqli->real_escape_string($array['since_id']);
+			}
+		}
+
 		if(existsAndNotBlank('max_id', $array)) {
 			if($textCondition && existsAndNotBlank('relevance', $array)) {
 				$relevance = $mysqli->real_escape_string($array['relevance']);
