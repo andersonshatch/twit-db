@@ -1,6 +1,6 @@
 <?php
 
-function buildQuery($array, $mysqli, $count = false) {
+function buildQuery($array, $mysqli, $count = false, $sortAscending = false) {
 	$queryString = "SELECT ";
 	if($count) {
 		$queryString .= "COUNT(1)";
@@ -60,10 +60,11 @@ function buildQuery($array, $mysqli, $count = false) {
 	}
 
 	if(!$count) {
+		$sort = $sortAscending ? "ASC" : "DESC";
 		if($textCondition) {
-			$queryString .= " ORDER BY relevance DESC, id DESC LIMIT 40";		
+			$queryString .= " ORDER BY relevance $sort, id $sort LIMIT 40";
 		} else {
-			$queryString .= " ORDER BY id DESC LIMIT 40";
+			$queryString .= " ORDER BY id $sort LIMIT 40";
 		}
 	}
 
