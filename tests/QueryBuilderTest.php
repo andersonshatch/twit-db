@@ -7,6 +7,7 @@ require_once '../lib/buildQuery.php';
   */
 class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	private static $mysqli;
+	private static $defaultSelectFields = "id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url";
 
 	public static function setUpBeforeClass() {
 		self::$mysqli = false;
@@ -32,8 +33,16 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 			@self::$mysqli->close();
 	}
 
+	private static function textMatch($string) {
+		return "MATCH(`text`) AGAINST('$string' IN BOOLEAN MODE)";
+	}
+
+	private static function userMatch($string) {
+		return "MATCH(`screen_name`) AGAINST('$string')";
+	}
+
 	public function testBasicQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `tweets` NATURAL JOIN `users` ORDER BY id DESC LIMIT 40";
+		$expected = "SELECT ".self::$defaultSelectFields." FROM `tweets` NATURAL JOIN `users` ORDER BY id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array(), self::$mysqli));
 	}
 
@@ -43,132 +52,148 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testBasicContinueStreamQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `tweets` NATURAL JOIN `users` WHERE id < 187996142913585152 ORDER BY id DESC LIMIT 40";
+		$expected = "SELECT ".self::$defaultSelectFields." FROM `tweets` NATURAL JOIN `users` WHERE id < 187996142913585152 ORDER BY id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("max_id" => "187996142913585152"), self::$mysqli));
 	}
 
 	public function testTextQueryQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url, MATCH(`text`) AGAINST('bazinga' IN BOOLEAN MODE) as relevance FROM `tweets` NATURAL JOIN `users` WHERE MATCH(`text`) AGAINST('bazinga' IN BOOLEAN MODE) ORDER BY relevance DESC, id DESC LIMIT 40";
+		$textMatch = self::textMatch("bazinga");
+		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM `tweets` NATURAL JOIN `users` WHERE $textMatch ORDER BY relevance DESC, id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("text" => "bazinga"), self::$mysqli));
 	}
 
 	public function testTextQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE MATCH(`text`) AGAINST('bazinga' IN BOOLEAN MODE)";
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE ".self::textMatch("bazinga")."";
 		$this->assertEquals($expected, buildQuery(array("text" => "bazinga"), self::$mysqli, true));
 	}
 
 	public function testTextQueryContinueStreamWithRelevanceSortQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url, MATCH(`text`) AGAINST('dudes' IN BOOLEAN MODE) as relevance FROM `tweets` NATURAL JOIN `users` WHERE MATCH(`text`) AGAINST('dudes' IN BOOLEAN MODE) AND ((MATCH(`text`) AGAINST('dudes' IN BOOLEAN MODE) = 5 AND id < 29044670385) OR MATCH(`text`) AGAINST('dudes' IN BOOLEAN MODE) < 5) ORDER BY relevance DESC, id DESC LIMIT 40";
+		$textMatch = self::textMatch("dudes");
+		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM `tweets` NATURAL JOIN `users` WHERE $textMatch AND (($textMatch = 5 AND id < 29044670385) OR $textMatch < 5) ORDER BY relevance DESC, id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("text" => "dudes", "max_id" => "29044670385", "relevance" => "5"), self::$mysqli));
 	}
 
 	public function testUsernameWithRetweetsQueryQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `tweets` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('andersonshatch')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('andersonshatch'))) ORDER BY id DESC LIMIT 40";
+		$userMatch = self::userMatch("andersonshatch");
+		$expected = "SELECT ".self::$defaultSelectFields." FROM `tweets` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE $userMatch)) ORDER BY id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("username" => "andersonshatch", "retweets" => "on"), self::$mysqli));
 	}
 
 	public function testUsernameWithRetweetsQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('andersonshatch')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('andersonshatch')))";
+		$userMatch = self::userMatch("andersonshatch");
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE (user_id = (SELECT user_id FROM users WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE $userMatch))";
 		$this->assertEquals($expected, buildQuery(array("username" => "andersonshatch", "retweets" => "on"), self::$mysqli, true));
 	}
 
 	public function testUsernameWithRetweetsContinueQueryQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `tweets` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('kklaven')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('kklaven'))) AND id < 123456789 ORDER BY id DESC LIMIT 40";
+		$userMatch = self::userMatch("kklaven");
+		$expected = "SELECT ".self::$defaultSelectFields." FROM `tweets` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE $userMatch)) AND id < 123456789 ORDER BY id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("username" => "kklaven", "retweets" => "on", "max_id" => 123456789), self::$mysqli));
 	}
 
 	public function testUsernameWithRetweetsInAdditionalUsersCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')))";
+		$userMatch = self::userMatch("lavamunky");
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE (user_id = (SELECT user_id FROM users WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE $userMatch))";
 		$this->assertEquals($expected, buildQuery(array("username" => "Lavamunky", "retweets" => "on"), self::$mysqli, true));
 	}
 	public function testUsernameOnlyQueryQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('babbanator')) ORDER BY id DESC LIMIT 40";
+		$userMatch = self::userMatch("babbanator");
+		$expected = "SELECT ".self::$defaultSelectFields." FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE $userMatch) ORDER BY id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("username" => "BABBanator"), self::$mysqli));
 	}
 
 	public function testUsernameOnlyQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('clarkykestrel'))";
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("clarkykestrel").")";
 		$this->assertEquals($expected, buildQuery(array("username" => "clarkykestrel"), self::$mysqli, true));
 	}
 
 	public function testUsernameOnlyQueryInAdditionalUsersQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) ORDER BY id DESC LIMIT 40";
+		$expected = "SELECT ".self::$defaultSelectFields." FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("lavamunky").") ORDER BY id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky"), self::$mysqli));
 	}
 
 	public function testUsernameOnlyQueryInAdditionalUsersCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky'))";
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("lavamunky").")";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky"), self::$mysqli, true));
 	}
 
 	public function testTextAndUsernameQueryQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url, MATCH(`text`) AGAINST('homeland' IN BOOLEAN MODE) as relevance FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('crittweets')) AND MATCH(`text`) AGAINST('homeland' IN BOOLEAN MODE) ORDER BY relevance DESC, id DESC LIMIT 40";
+		$textMatch = self::textMatch("homeland");
+		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("crittweets").") AND $textMatch ORDER BY relevance DESC, id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("username" => "crittweets", "text" => "homeland"), self::$mysqli));
 	}
 
 	public function testTextAndUsernameQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('crittweets')) AND MATCH(`text`) AGAINST('homeland' IN BOOLEAN MODE)";
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("crittweets").") AND ".self::textMatch("homeland")."";
 		$this->assertEquals($expected, buildQuery(array("username" => "crittweets", "text" => "homeland"), self::$mysqli, true));
 	}
 
 	public function testTextAndUsernameQueryInAdditionalUsersQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url, MATCH(`text`) AGAINST('ncis' IN BOOLEAN MODE) as relevance FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) AND MATCH(`text`) AGAINST('ncis' IN BOOLEAN MODE) ORDER BY relevance DESC, id DESC LIMIT 40";
+		$textMatch = self::textMatch("ncis");
+		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("lavamunky").") AND $textMatch ORDER BY relevance DESC, id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky", "text" => "ncis"), self::$mysqli));
 	}
 
 	public function testTextAndUsernameQueryInAdditionalUsersCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) AND MATCH(`text`) AGAINST('ncis' IN BOOLEAN MODE)";
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("lavamunky").") AND ".self::textMatch("ncis")."";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky", "text" => "ncis"), self::$mysqli, true));
 	}
 
 	public function testTextAndUsernameWithRetweetsQueryQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url, MATCH(`text`) AGAINST('dharma' IN BOOLEAN MODE) as relevance FROM `tweets` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('fuckyeahlost')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('fuckyeahlost'))) AND MATCH(`text`) AGAINST('dharma' IN BOOLEAN MODE) ORDER BY relevance DESC, id DESC LIMIT 40";
+		$textMatch = self::textMatch("dharma");
+		$userMatch = self::userMatch("fuckyeahlost");
+		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM `tweets` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE $userMatch)) AND $textMatch ORDER BY relevance DESC, id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("username" => "fuckyeahlost", "text" => "dharma", "retweets" => "on"), self::$mysqli));
 	}
 
 	public function testTextAndUsernameWithRetweetsQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('fuckyeahlost')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('fuckyeahlost'))) AND MATCH(`text`) AGAINST('we have to go back' IN BOOLEAN MODE)";
+		$userMatch = self::userMatch("fuckyeahlost");
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE (user_id = (SELECT user_id FROM users WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE $userMatch)) AND MATCH(`text`) AGAINST('we have to go back' IN BOOLEAN MODE)";
 		$this->assertEquals($expected, buildQuery(array("username" => "fuckyeahlost", "text" => "we have to go back", "retweets" => "on"), self::$mysqli, true));
 	}
 
 	public function testTextAndUsernameInAdditionalUsersWithRetweetsQueryQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url, MATCH(`text`) AGAINST('linux' IN BOOLEAN MODE) as relevance FROM `tweets` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky'))) AND MATCH(`text`) AGAINST('linux' IN BOOLEAN MODE) ORDER BY relevance DESC, id DESC LIMIT 40";
+		$textMatch = self::textMatch("linux");
+		$userMatch = self::userMatch("lavamunky");
+		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM `tweets` NATURAL JOIN `users` WHERE (user_id = (SELECT user_id FROM users WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE $userMatch)) AND $textMatch ORDER BY relevance DESC, id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky", "text" => "linux", "retweets" => "on"), self::$mysqli));
 	}
 
 	public function testTextAndUsernameInAdditionalUsersWithRetweetsQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE (user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky')) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('lavamunky'))) AND MATCH(`text`) AGAINST('twitter' IN BOOLEAN MODE)";
+		$userMatch = self::userMatch("lavamunky");
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE (user_id = (SELECT user_id FROM users WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM users WHERE $userMatch)) AND ".self::textMatch("twitter")."";
 		$this->assertEquals($expected, buildQuery(array("username" => "lavamunky", "text" => "twitter", "retweets" => "on"), self::$mysqli, true));
 	}
 
 	public function testAtMentionsQueryWithMentionsDisabledQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('@me')) ORDER BY id DESC LIMIT 40";
+		$expected = "SELECT ".self::$defaultSelectFields." FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("@me").") ORDER BY id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli));
 	}
 
 	public function testAtMentionsQueryWithMentionsDisabledCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('@me'))";
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("@me").")";
 		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli, true));
 	}
 
 	public function testAtMentionsQueryWithMentionsEnabledQueryBuild() {
 		define('MENTIONS_TIMELINE', true);
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('@me')) ORDER BY id DESC LIMIT 40";
+		$expected = "SELECT ".self::$defaultSelectFields." FROM `tweets` NATURAL JOIN `users` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("@me").") ORDER BY id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli));
 	}
 
 	public function testAtMentionsQueryWithMentionsEnabledCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('@me'))";
+		$expected = "SELECT COUNT(1) FROM `tweets` WHERE user_id = (SELECT user_id FROM users WHERE ".self::userMatch("@me").")";
 		$this->assertEquals($expected, buildQuery(array("username" => "@me"), self::$mysqli, true));
 	}
 
 	public function testExcludeRepliesQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url FROM `tweets` NATURAL JOIN `users` WHERE text NOT LIKE '@%' ORDER BY id DESC LIMIT 40";
+		$expected = "SELECT ".self::$defaultSelectFields." FROM `tweets` NATURAL JOIN `users` WHERE text NOT LIKE '@%' ORDER BY id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("exclude_replies" => "on"), self::$mysqli));
 	}
 
 	public function testExcludeRepliesWithTextSearchQueryBuild() {
-		$expected = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url, MATCH(`text`) AGAINST('Fringe' IN BOOLEAN MODE) as relevance FROM `tweets` NATURAL JOIN `users` WHERE MATCH(`text`) AGAINST('Fringe' IN BOOLEAN MODE) AND text NOT LIKE '@%' ORDER BY relevance DESC, id DESC LIMIT 40";
+		$textMatch = self::textMatch("Fringe");
+		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM `tweets` NATURAL JOIN `users` WHERE $textMatch AND text NOT LIKE '@%' ORDER BY relevance DESC, id DESC LIMIT 40";
 		$this->assertEquals($expected, buildQuery(array("text" => "Fringe", "exclude_replies" => "on"), self::$mysqli));
 	}
 }
