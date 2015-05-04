@@ -11,16 +11,24 @@ require_once('../lib/TweetFormatter.php');
 
 header('Content-Type: application/json; charset=utf-8');
 
-$results = array();
+$results = [];
+
+//if since_id is set, and max_id isn't, then get the "page" before since_id
+$sortAscending = array_key_exists('since_id', $_GET) && !array_key_exists('max_id', $_GET);
 
 if(array_key_exists("count-only", $_GET)) {
-	$rowCountQuery = $mysqli->query($countQuery = buildQuery($_GET, $mysqli, true));
+	$rowCountQuery = $mysqli->query($countQuery = buildQuery($_GET, $mysqli, true, $sortAscending));
 	$rowCountRow = $rowCountQuery->fetch_row();
 	$results["matchingTweets"] = number_format($rowCountRow[0]);
 	$results["countQuery"] = $countQuery;
 } else {
-	$query = $mysqli->query($queryString = buildQuery($_GET, $mysqli));
+	$query = $mysqli->query($queryString = buildQuery($_GET, $mysqli, false, $sortAscending));
 	$tweets = $query->fetch_all(MYSQLI_ASSOC);
+
+	if($sortAscending) {
+		//reverse so tweets are always served newest to oldest
+		$tweets = array_reverse($tweets);
+	}
 
 	TweetFormatter::formatTweets($tweets, !(array_key_exists('disable-linkification', $_GET) && $_GET['disable-linkification'] == "true") );
 
