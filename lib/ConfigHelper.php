@@ -88,19 +88,19 @@ class ConfigHelper {
 	 * @param mysqli $mysqli database handle
 	 */
 	private static function setupTables(mysqli $mysqli) {
-		self::setupTweetsTable($mysqli);
-		self::setupUsersTable($mysqli);
-		self::setupTimelinesTable($mysqli);
+		self::setupTweetTable($mysqli);
+		self::setupUserTable($mysqli);
+		self::setupTimelineTable($mysqli);
 		self::setupTimelines($mysqli);
 	}
 
 	/**
-	 * Create (if non-existant) the `tweets` table; will exit upon failure
+	 * Create (if non-existant) the `tweet` table; will exit upon failure
 	 * @param mysqli $mysqli database handle
 	 */
-	private static function setupTweetsTable(mysqli $mysqli) {
+	private static function setupTweetTable(mysqli $mysqli) {
 		$create = $mysqli->query("
-            CREATE TABLE IF NOT EXISTS `tweets` (
+            CREATE TABLE IF NOT EXISTS `tweet` (
                 `id` bigint(30) unsigned NOT NULL DEFAULT '0',
                 `created_at` datetime NOT NULL,
                 `source` varchar(255) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
@@ -119,17 +119,23 @@ class ConfigHelper {
                 FULLTEXT KEY `text_fulltext_index` (`text`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 		if(!$create) {
-			self::exitWithTableCreationError("tweets", $mysqli);
+			self::exitWithTableCreationError("tweet", $mysqli);
 		}
 	}
 
 	/**
-	 * Create (if non-existant) the `users` table; will exit upon failure
+	 * Create (if non-existant) the `user` table; will exit upon failure
+	 * Rename a `users` table to `user` if there is one
 	 * @param mysqli $mysqli database handle
 	 */
-	private static function setupUsersTable(mysqli $mysqli) {
+	private static function setupUserTable(mysqli $mysqli) {
+		if(self::tableExists("users", $mysqli)) {
+			self::renameTable("users", "user", $mysqli);
+			return;
+		}
+
 		$create = $mysqli->query("
-            CREATE TABLE IF NOT EXISTS `users` (
+            CREATE TABLE IF NOT EXISTS `user` (
                 `screen_name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
                 `user_id` bigint(20) unsigned NOT NULL,
                 `description` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
@@ -148,17 +154,17 @@ class ConfigHelper {
                  FULLTEXT KEY `index` (`screen_name`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 		if(!$create) {
-			self::exitWithTableCreationError("users", $mysqli);
+			self::exitWithTableCreationError("user", $mysqli);
 		}
 	}
 
 	/**
-	 * Create (if non-existant) the `timelines` table; will exit upon failure
+	 * Create (if non-existant) the `timeline` table; will exit upon failure
 	 * @param mysqli $mysqli database handle
 	 */
-	private static function setupTimelinesTable(mysqli $mysqli) {
+	private static function setupTimelineTable(mysqli $mysqli) {
 		$create = $mysqli->query("
-			CREATE TABLE IF NOT EXISTS `timelines` (
+			CREATE TABLE IF NOT EXISTS `timeline` (
                `timeline_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
                `name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
                `last_seen_id` bigint(30) unsigned DEFAULT NULL,
@@ -167,7 +173,7 @@ class ConfigHelper {
 			   PRIMARY KEY (`timeline_id`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 		if(!$create) {
-			self::exitWithTableCreationError("timelines", $mysqli);
+			self::exitWithTableCreationError("timeline", $mysqli);
 		}
 	}
 
@@ -225,21 +231,35 @@ class ConfigHelper {
 	}
 
 	/**
+	 * See if a table exists in this database
+	 * @param string $tableName name of the table to check for
+	 * @param mysqli $mysqli database handle
+	 * @return true if a table with $tableName exists in this database
+	 */
+	private static function tableExists($tableName, mysqli $mysqli) {
+		$tableExistsSQL = "SELECT 1 FROM information_schema.tables
+						   WHERE table_schema = '".DB_NAME."'
+						   AND table_name = '".$tableName."'";
+		if(!$mysqli->query($tableExistsSQL)->fetch_all()) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Copy tweets from old-convention table to the tweets table (if one exists)
 	 * @param string $tableName name of the table to copy from
 	 * @param mysqli $mysqli database handle
 	 * @return highest ID from the migrated table
 	 */
 	private static function copyTweetsFromTable($tableName, mysqli $mysqli) {
-		$tableExistsSQL = "SELECT 1 FROM information_schema.tables
-                           WHERE table_schema = '".DB_NAME."'
-                           AND table_name = '".$tableName."'";
-		if(!$mysqli->query($tableExistsSQL)->fetch_all()) {
+		if(!self::tableExists($tableName, $mysqli)) {
 			//no old-convention table to migrate
 			return null;
 		}
-		echo "Copying tweets from `$tableName` to `tweets`\n";
-		$migrateSQL = "INSERT IGNORE INTO `tweets`
+		echo "Copying tweets from `$tableName` to `tweet`\n";
+		$migrateSQL = "INSERT IGNORE INTO `tweet`
 					   SELECT id, created_at, source, in_reply_to_status_id, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, place_url, user_id, entities_json
                        FROM `$tableName`";
 		$mysqli->query($migrateSQL);

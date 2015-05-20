@@ -16,12 +16,12 @@ function buildQuery($array, $mysqli, $count = false, $sortAscending = false) {
 		}
 	}
 
-	$queryString .= $count ? " FROM `tweets`" : " FROM `tweets` NATURAL JOIN `users`";
+	$queryString .= $count ? " FROM tweet" : " FROM tweet NATURAL JOIN user";
 
 	$conditionals = array();
 	if(!empty($array)) {
 		if(existsAndNotBlank('username', $array)) {
-			$uIdQueryString = "(SELECT user_id FROM users WHERE MATCH(`screen_name`) AGAINST('".$mysqli->real_escape_string(strtolower($array['username']))."'))";
+			$uIdQueryString = "(SELECT user_id FROM user WHERE MATCH(`screen_name`) AGAINST('".$mysqli->real_escape_string(strtolower($array['username']))."'))";
 			if(array_key_exists('retweets', $array) && $array['retweets'] == 'on') {
 				$conditionals[] = "(user_id = $uIdQueryString OR retweeted_by_user_id = $uIdQueryString)";
 			} else {

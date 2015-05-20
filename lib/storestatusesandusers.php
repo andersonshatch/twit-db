@@ -2,7 +2,7 @@
 
 function storeTweet($tweet, $mysqli) {
 	$insertSQL = "
-			INSERT IGNORE INTO `tweets`(
+			INSERT IGNORE INTO tweet (
 				id,
 				created_at,
 				source,
@@ -64,7 +64,7 @@ function storeTweet($tweet, $mysqli) {
 function addOrUpdateUser($user, $mysqli) {
 	if(!array_key_exists('userPreparedStatement', $GLOBALS)) {
 		$GLOBALS['userPreparedStatement'] = $mysqli->prepare("
-			INSERT into `users`(
+			INSERT into user (
 				user_id,
 				description,
 				location,

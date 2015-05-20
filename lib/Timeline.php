@@ -27,13 +27,13 @@ class Timeline {
 		$lastUpdatedSQLValue = $this->lastUpdated == null ? null : $this->lastUpdated->format(self::SQL_DATE_TIME_FORMAT);
 
 		if(!$this->id) {
-			$insertSQL = "INSERT INTO timelines(name, last_seen_id, enabled, last_updated) VALUES(?, ?, ?, ?)";
+			$insertSQL = "INSERT INTO timeline(name, last_seen_id, enabled, last_updated) VALUES(?, ?, ?, ?)";
 			$statement = $this->mysqli->prepare($insertSQL);
 			$statement->bind_param('ssss', $this->name, $this->lastSeenId, $this->enabled, $lastUpdatedSQLValue);
 			$statement->execute();
 			$this->id = $this->mysqli->insert_id;
 		} else {
-			$updateSQL = "UPDATE timelines SET name = ?, last_seen_id = ?, enabled = ?, last_updated = ? WHERE timeline_id = ?";
+			$updateSQL = "UPDATE timeline SET name = ?, last_seen_id = ?, enabled = ?, last_updated = ? WHERE timeline_id = ?";
 			$statement = $this->mysqli->prepare($updateSQL);
 			$statement->bind_param('sssss', $this->name, $this->lastSeenId, $this->enabled, $lastUpdatedSQLValue, $this->id);
 			$statement->execute();
@@ -41,7 +41,7 @@ class Timeline {
 	}
 
 	public static function all(mysqli $mysqli, $includeDisabled = false) {
-		$queryString = "SELECT timeline_id, name, last_seen_id, enabled, last_updated FROM timelines";
+		$queryString = "SELECT timeline_id, name, last_seen_id, enabled, last_updated FROM timeline";
 		if(!$includeDisabled) {
 			$queryString .= " WHERE enabled = 1";
 		}
@@ -173,6 +173,5 @@ class Timeline {
 
 		return $this->timelineType;
 	}
-
 
 }
