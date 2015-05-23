@@ -39,7 +39,7 @@ function getTimelineAndStore(EpiTwitter $twitterObj, mysqli $mysqli, Timeline $t
 				storeTweet($tweet, $mysqli);
 				if($tweet->id > $timeline->getLastSeenId()) {
 					$timeline->setLastSeenId($tweet->id);
-					$timeline->setLastUpdated(new DateTime());
+					$timeline->setLastUpdatedAt(new DateTime());
 					$timeline->save();
 				}
 				$maxID = $tweet->id - 1;

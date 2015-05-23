@@ -7,7 +7,7 @@ class Timeline {
 	private $id;
 	private $enabled = true;
 	private $lastSeenId;
-	private $lastUpdated;
+	private $lastUpdatedAt;
 	private $name;
 
 	//transient/computed
@@ -24,16 +24,16 @@ class Timeline {
 	}
 
 	public function save() {
-		$lastUpdatedSQLValue = $this->lastUpdated == null ? null : $this->lastUpdated->format(self::SQL_DATE_TIME_FORMAT);
+		$lastUpdatedSQLValue = $this->lastUpdatedAt == null ? null : $this->lastUpdatedAt->format(self::SQL_DATE_TIME_FORMAT);
 
 		if(!$this->id) {
-			$insertSQL = "INSERT INTO timeline(name, last_seen_id, enabled, last_updated) VALUES(?, ?, ?, ?)";
+			$insertSQL = "INSERT INTO timeline(name, last_seen_id, enabled, last_updated_at) VALUES(?, ?, ?, ?)";
 			$statement = $this->mysqli->prepare($insertSQL);
 			$statement->bind_param('ssss', $this->name, $this->lastSeenId, $this->enabled, $lastUpdatedSQLValue);
 			$statement->execute();
 			$this->id = $this->mysqli->insert_id;
 		} else {
-			$updateSQL = "UPDATE timeline SET name = ?, last_seen_id = ?, enabled = ?, last_updated = ? WHERE timeline_id = ?";
+			$updateSQL = "UPDATE timeline SET name = ?, last_seen_id = ?, enabled = ?, last_updated_at = ? WHERE timeline_id = ?";
 			$statement = $this->mysqli->prepare($updateSQL);
 			$statement->bind_param('sssss', $this->name, $this->lastSeenId, $this->enabled, $lastUpdatedSQLValue, $this->id);
 			$statement->execute();
@@ -41,7 +41,7 @@ class Timeline {
 	}
 
 	public static function all(mysqli $mysqli, $includeDisabled = false) {
-		$queryString = "SELECT timeline_id, name, last_seen_id, enabled, last_updated FROM timeline";
+		$queryString = "SELECT timeline_id, name, last_seen_id, enabled, last_updated_at FROM timeline";
 		if(!$includeDisabled) {
 			$queryString .= " WHERE enabled = 1";
 		}
@@ -89,12 +89,12 @@ class Timeline {
 		$this->lastSeenId = $lastSeenId;
 	}
 
-	public function getLastUpdated() {
-		return $this->lastUpdated;
+	public function getLastUpdatedAt() {
+		return $this->lastUpdatedAt;
 	}
 
-	public function setLastUpdated(DateTime $lastUpdated) {
-		$this->lastUpdated = $lastUpdated;
+	public function setLastUpdatedAt(DateTime $lastUpdatedAt) {
+		$this->lastUpdatedAt = $lastUpdatedAt;
 	}
 
 	public function getMaxId() {

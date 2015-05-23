@@ -169,7 +169,7 @@ class ConfigHelper {
                `name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
                `last_seen_id` bigint(30) unsigned DEFAULT NULL,
                `enabled` tinyint(1) NOT NULL DEFAULT '1',
-               `last_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+               `last_updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 			   PRIMARY KEY (`timeline_id`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 		if(!$create) {
