@@ -185,14 +185,15 @@ class ConfigHelper {
 		$here = dirname(__FILE__);
 		require_once "$here/Timeline.php";
 
-		//setup timelines from config
+		//make a map of timelines from the database
 		$timelines = Timeline::all($mysqli, true);
 		$timelinesDict = [];
 		foreach($timelines as $timeline) {
 			$timelinesDict[$timeline->getName()] = $timeline;
 		}
 
-		$expectedTimelines = ["home"];
+		//make an array of timelines we expect based on the config
+		$expectedTimelines = ["home"]; //home is never optional
 		if(defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") {
 			$expectedTimelines[] = "mentions";
 		}
@@ -204,13 +205,31 @@ class ConfigHelper {
 
 		$readOnlyAdditionalUsers = array_diff($additionalUsers, self::getAdditionalUsers()); //array of users only in ADDITIONAL_READ_ONLY_USERS
 		foreach($expectedTimelines as $timelineName) {
+			$timelineEnabled = !in_array(substr($timelineName, 1), $readOnlyAdditionalUsers); //disable timelines only in ADDITIONAL_READ_ONLY_USERS
+
 			if(!array_key_exists($timelineName, $timelinesDict)) {
-				$timelineEnabled = !in_array(substr($timelineName, 1), $readOnlyAdditionalUsers); //disable timelines only in ADDITIONAL_READ_ONLY_USERS
-				$timelinesDict[$timelineName] = self::createTimeline($timelineName, $timelineEnabled, $mysqli);
+				//new timeline from config, add to database
+				self::createTimeline($timelineName, $timelineEnabled, $mysqli);
+			} else {
+				//timeline is in config & database
+				$timeline = $timelinesDict[$timelineName];
+				if($timeline->isEnabled() != $timelineEnabled) {
+					//existing timeline that needs to be enabled or disabled
+					$timeline->setEnabled($timelineEnabled);
+					$timeline->save();
+				}
+				//remove as we've done any necessary processing
+				unset($timelinesDict[$timelineName]);
 			}
 		}
 
-		//done?
+		//anything left now exists in the database, but not in the config, so should be disabled
+		foreach($timelinesDict as $timeline) {
+			if($timeline->isEnabled()) {
+				$timeline->setEnabled(false);
+				$timeline->save();
+			}
+		}
 	}
 
 	/**
