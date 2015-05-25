@@ -60,7 +60,7 @@ class Timeline {
 	private function initWithArray(array $array) {
 		$this->id = $array['timeline_id'];
 		$this->enabled = $array['enabled'];
-		$this->lastUpdated = $array['last_updated'] == null ? null : DateTime::createFromFormat(self::SQL_DATE_TIME_FORMAT, $array['last_updated']);
+		$this->lastUpdatedAt = $array['last_updated_at'] == null ? null : DateTime::createFromFormat(self::SQL_DATE_TIME_FORMAT, $array['last_updated_at']);
 		$this->lastSeenId = $array['last_seen_id'];
 		$this->name = $array['name'];
 	}
