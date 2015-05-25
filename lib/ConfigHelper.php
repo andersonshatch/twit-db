@@ -112,6 +112,7 @@ class ConfigHelper {
                 `place_url` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
                 `user_id` bigint(30) unsigned NOT NULL,
                 `entities_json` mediumtext CHARACTER SET utf8mb4,
+                `added_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`),
                 KEY `user_id_index` (`user_id`),
                 KEY `in_reply_to_status_id_index` (`in_reply_to_status_id`),
@@ -279,7 +280,7 @@ class ConfigHelper {
 		}
 		echo "Copying tweets from `$tableName` to `tweet`\n";
 		$migrateSQL = "INSERT IGNORE INTO `tweet`
-					   SELECT id, created_at, source, in_reply_to_status_id, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, place_url, user_id, entities_json
+					   SELECT id, created_at, source, in_reply_to_status_id, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, place_url, user_id, entities_json, NULL
                        FROM `$tableName`";
 		$mysqli->query($migrateSQL);
 		if($mysqli->error) {
