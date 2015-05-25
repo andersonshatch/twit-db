@@ -67,7 +67,7 @@ class ConfigHelper {
 
 	/**
 	 * Get an array of additional users from config (ADDITIONAL_USERS named constant)
-	 * @param string $includeReadOnlyTimelines whether to include users from ADDITIONAL_READ_ONLY_USERS
+	 * @param boolean $includeReadOnlyTimelines whether to include users from ADDITIONAL_READ_ONLY_USERS
 	 * @return array of additional users
 	 */
 	public static function getAdditionalUsers($includeReadOnlyTimelines = false) {
