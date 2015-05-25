@@ -11,6 +11,7 @@ class Timeline {
 	private $name;
 
 	//transient/computed
+	private $sinceId;
 	private $maxId;
 	private $timelineType;
 
@@ -63,6 +64,7 @@ class Timeline {
 		$this->lastUpdatedAt = $array['last_updated_at'] == null ? null : DateTime::createFromFormat(self::SQL_DATE_TIME_FORMAT, $array['last_updated_at']);
 		$this->lastSeenId = $array['last_seen_id'];
 		$this->name = $array['name'];
+		$this->sinceId = $this->lastSeenId;
 	}
 
 	public function getId() {
@@ -113,6 +115,14 @@ class Timeline {
 		$this->name = $name;
 	}
 
+	public function getSinceId() {
+		return $this->sinceId;
+	}
+
+	public function setSinceId($sinceId) {
+		$this->sinceId = $sinceId;
+	}
+
 	public function getRequestEndpoint() {
 		switch($this->getTimelineType()) {
 			case TimelineType::HomeTimeline:
@@ -132,8 +142,8 @@ class Timeline {
 
 	public function getRequestParameters() {
 		$baseParams = ["count" => 180, "include_rts" => "true", "page" => 1, "include_entities" => "true"];
-		if($this->lastSeenId) {
-			$baseParams["since_id"] = $this->lastSeenId;
+		if($this->sinceId) {
+			$baseParams["since_id"] = $this->sinceId;
 		}
 		if($this->maxId) {
 			$baseParams["max_id"] = $this->maxId;
