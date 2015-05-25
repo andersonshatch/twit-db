@@ -153,7 +153,7 @@ class Timeline {
 	}
 
 	public function getTimelineType() {
-		if($this->timelineType != null) {
+		if($this->timelineType !== null) {
 			return $this->timelineType;
 		}
 		switch($this->name) {
