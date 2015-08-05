@@ -32,6 +32,10 @@ function storeTweet($tweet, $mysqli) {
 		//replace the tweet with the retweeted_status, and store (mostly) that.
 		$tweet = $tweet->retweeted_status;
 	}
+	if(property_exists($tweet, 'quoted_status')) {
+		storeTweet($tweet->quoted_status, $mysqli);
+	}
+
 	//store the author information
 	addOrUpdateUser($tweet->user, $mysqli);
 	$createdat = new DateTime($tweet->created_at);
