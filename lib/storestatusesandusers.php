@@ -1,6 +1,8 @@
 <?php
 
+require_once dirname(__file__).'/HashtagUtil.php';
 require_once dirname(__file__).'/QueryHolder.php';
+
 function storeTweet($tweet, $mysqli) {
 	$insertSQL = "
 			INSERT IGNORE INTO tweet (
@@ -41,6 +43,12 @@ function storeTweet($tweet, $mysqli) {
 	$createdat = $createdat->format('Y-m-d H:i:s');
 
 	$entities = $tweet->entities;
+
+	//needs to happen before the merge with extended entities, otherwise entities is an array
+	foreach($entities->hashtags as $hashtag) {
+		HashtagUtil::storeHashtag($hashtag, $createdat, $mysqli);
+	}
+
 	if(property_exists($tweet, 'extended_entities')) {
 		$entities = array_merge((array)$entities, (array)$tweet->extended_entities);
 	}

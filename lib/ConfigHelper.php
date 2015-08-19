@@ -92,6 +92,7 @@ class ConfigHelper {
 		self::setupUserTable($mysqli);
 		self::setupTimelineTable($mysqli);
 		self::setupTimelines($mysqli);
+		self::setupHashtagTable($mysqli);
 	}
 
 	/**
@@ -100,25 +101,25 @@ class ConfigHelper {
 	 */
 	private static function setupTweetTable(mysqli $mysqli) {
 		$create = $mysqli->query("
-            CREATE TABLE IF NOT EXISTS `tweet` (
-                `id` bigint(30) unsigned NOT NULL DEFAULT '0',
-                `created_at` datetime NOT NULL,
-                `source` varchar(255) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
-                `in_reply_to_status_id` bigint(30) unsigned DEFAULT NULL,
-                `text` varchar(255) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
-                `retweeted_by_screen_name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-                `retweeted_by_user_id` bigint(30) unsigned DEFAULT NULL,
-                `place_full_name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-                `place_url` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-                `user_id` bigint(30) unsigned NOT NULL,
-                `entities_json` mediumtext CHARACTER SET utf8mb4,
-                `added_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`),
-                KEY `user_id_index` (`user_id`),
-                KEY `in_reply_to_status_id_index` (`in_reply_to_status_id`),
-                KEY `retweeted_by_user_id_index` (`retweeted_by_user_id`),
-                FULLTEXT KEY `text_fulltext_index` (`text`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+			CREATE TABLE IF NOT EXISTS `tweet` (
+				`id` bigint(30) unsigned NOT NULL DEFAULT '0',
+				`created_at` datetime NOT NULL,
+				`source` varchar(255) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
+				`in_reply_to_status_id` bigint(30) unsigned DEFAULT NULL,
+				`text` varchar(255) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
+				`retweeted_by_screen_name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+				`retweeted_by_user_id` bigint(30) unsigned DEFAULT NULL,
+				`place_full_name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+				`place_url` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+				`user_id` bigint(30) unsigned NOT NULL,
+				`entities_json` mediumtext CHARACTER SET utf8mb4,
+				`added_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+				PRIMARY KEY (`id`),
+				KEY `user_id_index` (`user_id`),
+				KEY `in_reply_to_status_id_index` (`in_reply_to_status_id`),
+				KEY `retweeted_by_user_id_index` (`retweeted_by_user_id`),
+				FULLTEXT KEY `text_fulltext_index` (`text`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 		if(!$create) {
 			self::exitWithTableCreationError("tweet", $mysqli);
 		}
@@ -136,24 +137,24 @@ class ConfigHelper {
 		}
 
 		$create = $mysqli->query("
-            CREATE TABLE IF NOT EXISTS `user` (
-                `screen_name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
-                `user_id` bigint(20) unsigned NOT NULL,
-                `description` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-                `location` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-                `name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-                `followers_count` int(10) DEFAULT NULL,
-                `friends_count` int(10) DEFAULT NULL,
-                `statuses_count` int(10) DEFAULT NULL,
-                `url` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-                `profile_image_url` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-                `user_created_at` datetime DEFAULT NULL,
-                `last_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                `verified` tinyint(1) NOT NULL DEFAULT '0',
-                `protected` tinyint(1) NOT NULL DEFAULT '0',
-                 PRIMARY KEY (`user_id`),
-                 FULLTEXT KEY `index` (`screen_name`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+			CREATE TABLE IF NOT EXISTS `user` (
+				`screen_name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+				`user_id` bigint(20) unsigned NOT NULL,
+				`description` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+				`location` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+				`name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+				`followers_count` int(10) DEFAULT NULL,
+				`friends_count` int(10) DEFAULT NULL,
+				`statuses_count` int(10) DEFAULT NULL,
+				`url` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+				`profile_image_url` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+				`user_created_at` datetime DEFAULT NULL,
+				`last_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+				`verified` tinyint(1) NOT NULL DEFAULT '0',
+				`protected` tinyint(1) NOT NULL DEFAULT '0',
+				 PRIMARY KEY (`user_id`),
+				 FULLTEXT KEY `index` (`screen_name`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 		if(!$create) {
 			self::exitWithTableCreationError("user", $mysqli);
 		}
@@ -166,16 +167,43 @@ class ConfigHelper {
 	private static function setupTimelineTable(mysqli $mysqli) {
 		$create = $mysqli->query("
 			CREATE TABLE IF NOT EXISTS `timeline` (
-               `timeline_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-               `name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
-               `last_seen_id` bigint(30) unsigned DEFAULT NULL,
-               `enabled` tinyint(1) NOT NULL DEFAULT '1',
-               `last_updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			   `timeline_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+			   `name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+			   `last_seen_id` bigint(30) unsigned DEFAULT NULL,
+			   `enabled` tinyint(1) NOT NULL DEFAULT '1',
+			   `last_updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 			   PRIMARY KEY (`timeline_id`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 		if(!$create) {
 			self::exitWithTableCreationError("timeline", $mysqli);
 		}
+	}
+
+	/**
+	 * Create (if non-existant) the `hashtag` table; will exit upon failure
+	 * @param mysqli $mysqli database handle
+	 */
+	private static function setupHashtagTable(mysqli $mysqli) {
+		if(self::tableExists("hashtag", $mysqli)) {
+			return;
+		}
+
+		$create = $mysqli->query("
+			CREATE TABLE IF NOT EXISTS `hashtag` (
+			   `name` varchar(140) NOT NULL DEFAULT '',
+			   `first_seen` datetime NOT NULL,
+			   `last_seen` datetime NOT NULL,
+			   `usage_count` INT(11) NOT NULL DEFAULT '1',
+			   PRIMARY KEY (`name`),
+			   FULLTEXT KEY `name_fulltext_index` (`name`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+		if(!$create) {
+			self::exitWithTableCreationError("hashtag", $mysqli);
+		}
+
+		require_once dirname(__FILE__).'/HashtagUtil.php';
+		echo "Populating hashtag table...\n";
+		HashtagUtil::populateHashtagTable($mysqli);
 	}
 
 	/**
@@ -281,7 +309,7 @@ class ConfigHelper {
 		echo "Copying tweets from `$tableName` to `tweet`\n";
 		$migrateSQL = "INSERT IGNORE INTO `tweet`
 					   SELECT id, created_at, source, in_reply_to_status_id, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, place_url, user_id, entities_json, NULL
-                       FROM `$tableName`";
+					   FROM `$tableName`";
 		$mysqli->query($migrateSQL);
 		if($mysqli->error) {
 			$error = $mysqli->error;
