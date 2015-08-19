@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__file__).'/TimelineType.php';
+require_once dirname(__file__).'/QueryHolder.php';
 
 class Timeline {
 	//persisted fields
@@ -29,13 +30,13 @@ class Timeline {
 
 		if(!$this->id) {
 			$insertSQL = "INSERT INTO timeline(name, last_seen_id, enabled, last_updated_at) VALUES(?, ?, ?, ?)";
-			$statement = $this->mysqli->prepare($insertSQL);
+			$statement = QueryHolder::prepareAndHoldQuery($this->mysqli, $insertSQL);
 			$statement->bind_param('ssss', $this->name, $this->lastSeenId, $this->enabled, $lastUpdatedSQLValue);
 			$statement->execute();
 			$this->id = $this->mysqli->insert_id;
 		} else {
 			$updateSQL = "UPDATE timeline SET name = ?, last_seen_id = ?, enabled = ?, last_updated_at = ? WHERE timeline_id = ?";
-			$statement = $this->mysqli->prepare($updateSQL);
+			$statement = QueryHolder::prepareAndHoldQuery($this->mysqli, $updateSQL);
 			$statement->bind_param('sssss', $this->name, $this->lastSeenId, $this->enabled, $lastUpdatedSQLValue, $this->id);
 			$statement->execute();
 		}

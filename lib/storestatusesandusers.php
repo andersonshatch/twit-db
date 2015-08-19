@@ -1,5 +1,6 @@
 <?php
 
+require_once dirname(__file__).'/QueryHolder.php';
 function storeTweet($tweet, $mysqli) {
 	$insertSQL = "
 			INSERT IGNORE INTO tweet (
@@ -16,9 +17,7 @@ function storeTweet($tweet, $mysqli) {
 				entities_json
 			) VALUES
 			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-	if(!array_key_exists('tweetPreparedStatement', $GLOBALS)) {
-		$GLOBALS['tweetPreparedStatement'] = $mysqli->prepare($insertSQL);	
-	}
+	$statement = QueryHolder::prepareAndHoldQuery($mysqli, $insertSQL);
 	$retweetedBy = NULL;
 	$retweetedById = NULL;
 	$id = $tweet->id_str; //store id of status, not the retweeted_status.
@@ -47,7 +46,7 @@ function storeTweet($tweet, $mysqli) {
 	}
 	$entities = json_encode($entities);
 
-	$GLOBALS['tweetPreparedStatement']->bind_param('sssssssssss',
+	$statement->bind_param('sssssssssss',
 		$id,
 		$createdat,
 		$tweet->source,
@@ -60,52 +59,50 @@ function storeTweet($tweet, $mysqli) {
 		$tweet->user->id_str,
 		$entities
 	);
-	$GLOBALS['tweetPreparedStatement']->execute();
+	$statement->execute();
 
 	return $mysqli->affected_rows == 1;
 }
 
 function addOrUpdateUser($user, $mysqli) {
-	if(!array_key_exists('userPreparedStatement', $GLOBALS)) {
-		$GLOBALS['userPreparedStatement'] = $mysqli->prepare("
-			INSERT into user (
-				user_id,
-				description,
-				location,
-				screen_name,
-				name,
-				followers_count,
-				friends_count,
-				statuses_count,
-				url,
-				profile_image_url,
-				user_created_at,
-				verified,
-				protected
-			) VALUES
-			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-			ON DUPLICATE KEY UPDATE
-			description = VALUES(description),
-			location = VALUES(location),
-			screen_name = VALUES(screen_name),
-			name = VALUES(name),
-			followers_count = VALUES(followers_count),
-			friends_count = VALUES(friends_count),
-			statuses_count = VALUES(statuses_count),
-			url = VALUES(url),
-			profile_image_url = VALUES(profile_image_url),
-			user_created_at = VALUES(user_created_at),
-			verified = VALUES(verified),
-			protected = VALUES(protected)"
-		);
-	}
+	$statement = QueryHolder::prepareAndHoldQuery($mysqli, "
+		INSERT into user (
+			user_id,
+			description,
+			location,
+			screen_name,
+			name,
+			followers_count,
+			friends_count,
+			statuses_count,
+			url,
+			profile_image_url,
+			user_created_at,
+			verified,
+			protected
+		) VALUES
+		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		ON DUPLICATE KEY UPDATE
+		description = VALUES(description),
+		location = VALUES(location),
+		screen_name = VALUES(screen_name),
+		name = VALUES(name),
+		followers_count = VALUES(followers_count),
+		friends_count = VALUES(friends_count),
+		statuses_count = VALUES(statuses_count),
+		url = VALUES(url),
+		profile_image_url = VALUES(profile_image_url),
+		user_created_at = VALUES(user_created_at),
+		verified = VALUES(verified),
+		protected = VALUES(protected)"
+	);
 
 	$createdAt = null;
 	if (property_exists($user, "created_at")) {
 		$createdAt = new DateTime($user->created_at);
 		$createdAt = $createdAt->format('Y-m-d H:i:s');
 	}
-	$GLOBALS['userPreparedStatement']->bind_param('sssssssssssss',
+	$statement->bind_param('sssssssssssss',
 		$user->id_str,
 		$user->description,
 		$user->location,
@@ -120,7 +117,7 @@ function addOrUpdateUser($user, $mysqli) {
 		$user->verified,
 		$user->protected
 	);
-	$GLOBALS['userPreparedStatement']->execute();
+	$statement->execute();
 	
 }
 ?>
