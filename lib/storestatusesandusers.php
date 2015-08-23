@@ -44,11 +44,6 @@ function storeTweet($tweet, $mysqli) {
 
 	$entities = $tweet->entities;
 
-	//needs to happen before the merge with extended entities, otherwise entities is an array
-	foreach($entities->hashtags as $hashtag) {
-		HashtagUtil::storeHashtag($hashtag, $createdat, $mysqli);
-	}
-
 	if(property_exists($tweet, 'extended_entities')) {
 		$entities = array_merge((array)$entities, (array)$tweet->extended_entities);
 	}
@@ -69,7 +64,16 @@ function storeTweet($tweet, $mysqli) {
 	);
 	$statement->execute();
 
-	return $mysqli->affected_rows == 1;
+	$addedRow = $mysqli->affected_rows == 1;
+
+	//if tweet was new to the DB, process the hashtags it contained
+	if($addedRow) {
+		foreach($tweet->entities->hashtags as $hashtag) {
+			HashtagUtil::storeHashtag($hashtag, $createdat, $mysqli);
+		}
+	}
+
+	return $addedRow;
 }
 
 function addOrUpdateUser($user, $mysqli) {
