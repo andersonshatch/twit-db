@@ -29,6 +29,27 @@ class HashtagUtil {
 		self::$insertQuery->bind_param('sssss', $hashtag->text, $seenAtDate, $seenAtDate, $hashtag->text, $seenAtDate);
 		self::$insertQuery->execute();
 	}
+
+	/**
+	 * Search for a hashtag by name
+	 *
+	 * @param $term to search for (wildcard will be added to end)
+	 * @param mysqli $mysqli database handle
+	 * @return array array of results
+	 */
+	public static function search($term, mysqli $mysqli) {
+		self::$mysqli = $mysqli;
+		$sql = "SELECT name, first_seen AS firstSeen, last_seen AS lastSeen, usage_count AS usageCount
+				  FROM hashtag
+				  WHERE name LIKE '".$mysqli->real_escape_string($term)."%'
+				  ORDER BY usage_count DESC, last_seen DESC
+				  LIMIT 8";
+
+		$query = $mysqli->query($sql);
+
+		return $query->fetch_all(MYSQLI_ASSOC);
+	}
+
 	/**
 	 * Populate the hashtag table with values from any existing tweets
 	 *
