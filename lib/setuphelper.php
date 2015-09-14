@@ -118,8 +118,15 @@ function createConfigFile() {
 	require_once 'additional_users.php';
     $otherUsers = create_users_string(create_users_array($_POST['other-users']));
 	$mentions = "";
-	if(array_key_exists('mentions-timeline', $_POST) && $_POST['mentions-timeline'] == 'on')
+	if(array_key_exists('mentions-timeline', $_POST) && $_POST['mentions-timeline'] == 'on') {
 		$mentions = "define('MENTIONS_TIMELINE', 'true');";
+	}
+
+	$favorites = "";
+	if(array_key_exists('favorites-timeline', $_POST) && $_POST['favorites-timeline'] == 'on') {
+		$favorites = "define('FAVORITES_TIMELINE', 'true');";
+	}
+
 	$timezone = "";
 	if(array_key_exists('timezone', $_POST) && $_POST['timezone'] != '')
 		$timezone = "\n\tdate_default_timezone_set('{$_POST['timezone']}');\n";
@@ -139,6 +146,7 @@ function createConfigFile() {
 	
 	define('ADDITIONAL_USERS', '$otherUsers');
 	$mentions
+	$favorites
 
 ?>
 

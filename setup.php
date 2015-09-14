@@ -165,6 +165,10 @@ chdir(dirname(__FILE__));
 									<input type="checkbox" name="mentions-timeline" id="mentions-timeline">
 									Mentions
 								</label>
+								<label>
+									<input type="checkbox" name="favorites-timeline" id="favorites-timeline">
+									Favo(u)rites
+								</label>
 							</div>
 						</div>
 						<div class="">
