@@ -28,16 +28,20 @@ class Timeline {
 	public function save() {
 		$lastUpdatedSQLValue = $this->lastUpdatedAt == null ? null : $this->lastUpdatedAt->format(self::SQL_DATE_TIME_FORMAT);
 
+		//don't persist the lastSeenId when this is a favorite timeline -- have to lookup all favorites to ensure nothing was missed
+		//...on startup, favorite table is truncated so we start from the earliest available favorite next time around
+		$lastSeenId = $this->getTimelineType() == TimelineType::FavoriteTimeline ? null : $this->lastSeenId;
+
 		if(!$this->id) {
 			$insertSQL = "INSERT INTO timeline(name, last_seen_id, enabled, last_updated_at) VALUES(?, ?, ?, ?)";
 			$statement = QueryHolder::prepareAndHoldQuery($this->mysqli, $insertSQL);
-			$statement->bind_param('ssss', $this->name, $this->lastSeenId, $this->enabled, $lastUpdatedSQLValue);
+			$statement->bind_param('ssss', $this->name, $lastSeenId, $this->enabled, $lastUpdatedSQLValue);
 			$statement->execute();
 			$this->id = $this->mysqli->insert_id;
 		} else {
 			$updateSQL = "UPDATE timeline SET name = ?, last_seen_id = ?, enabled = ?, last_updated_at = ? WHERE timeline_id = ?";
 			$statement = QueryHolder::prepareAndHoldQuery($this->mysqli, $updateSQL);
-			$statement->bind_param('sssss', $this->name, $this->lastSeenId, $this->enabled, $lastUpdatedSQLValue, $this->id);
+			$statement->bind_param('sssss', $this->name, $lastSeenId, $this->enabled, $lastUpdatedSQLValue, $this->id);
 			$statement->execute();
 		}
 	}
@@ -138,6 +142,9 @@ class Timeline {
 			case TimelineType::ListTimeline:
 				return "/lists/statuses.json";
 				break;
+			case TimelineType::FavoriteTimeline:
+				return "/favorites/list.json";
+				break;
 		}
 	}
 
@@ -152,6 +159,7 @@ class Timeline {
 		switch($this->getTimelineType()) {
 			case TimelineType::HomeTimeline:
 			case TimelineType::MentionsTimeline:
+			case TimelineType::FavoriteTimeline:
 				return $baseParams;
 			case TimelineType::UserTimeline:
 				return array_merge($baseParams, ["screen_name" => substr($this->name, 1)]);
@@ -173,6 +181,9 @@ class Timeline {
 				break;
 			case "mentions":
 				$this->timelineType = TimelineType::MentionsTimeline;
+				break;
+			case "favorites":
+				$this->timelineType = TimelineType::FavoriteTimeline;
 				break;
 			case $this->name[0] == "@" && strpos($this->name, "/") === false:
 				$this->timelineType = TimelineType::UserTimeline;

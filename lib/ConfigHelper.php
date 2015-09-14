@@ -93,6 +93,7 @@ class ConfigHelper {
 		self::setupTimelineTable($mysqli);
 		self::setupTimelines($mysqli);
 		self::setupHashtagTable($mysqli);
+		self::setupFavoriteTable($mysqli);
 	}
 
 	/**
@@ -207,6 +208,26 @@ class ConfigHelper {
 	}
 
 	/**
+	 * Create (if non-existant) the `favorite` table; truncate it if it does exist...
+	 * ...Since favorites can be added in a non-linear fashion, we have to page through them all each time to ensure nothing's missed
+	 * @param mysqli $mysqli database handle
+	 */
+	private static function setupFavoriteTable(mysqli $mysqli) {
+		if(self::tableExists("favorite", $mysqli)) {
+			$mysqli->query("TRUNCATE TABLE `favorite`");
+		} else {
+			$create = $mysqli->query("
+			CREATE TABLE IF NOT EXISTS `favorite` (
+				`id` bigint(30) unsigned NOT NULL DEFAULT '0',
+				PRIMARY KEY (`id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+			if(!$create) {
+				self::exitWithTableCreationError("favorite", $mysqli);
+			}
+		}
+	}
+
+	/**
 	 * Configure timeline rows from config values
 	 * @param mysqli $mysqli database handle
 	 */
@@ -223,8 +244,13 @@ class ConfigHelper {
 
 		//make an array of timelines we expect based on the config
 		$expectedTimelines = ["home"]; //home is never optional
+
 		if(defined("MENTIONS_TIMELINE") && MENTIONS_TIMELINE == "true") {
 			$expectedTimelines[] = "mentions";
+		}
+
+		if(defined("FAVORITES_TIMELINE") && FAVORITES_TIMELINE == "true") {
+			$expectedTimelines[] = "favorites";
 		}
 
 		$additionalUsers = self::getAdditionalUsers(true);

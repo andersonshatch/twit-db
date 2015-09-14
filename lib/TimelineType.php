@@ -5,6 +5,7 @@ abstract class TimelineType {
 	const MentionsTimeline = 1;
 	const UserTimeline = 2;
 	const ListTimeline = 3;
+	const FavoriteTimeline = 4;
 }
 
 ?>

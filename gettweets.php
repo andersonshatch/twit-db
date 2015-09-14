@@ -27,9 +27,13 @@ output("Used {$GLOBALS['requestCount']} ".getSingularOrPlural("request", $GLOBAL
 
 function getTimelineAndStore(EpiTwitter $twitterObj, mysqli $mysqli, Timeline $timeline) {
 	require_once 'lib/storestatusesandusers.php';
+	require_once 'lib/FavoriteUtil.php';
 	$failCount = 0;
 	$maxRetries = 10;
 	$tweetsAdded = 0;
+
+	$favoriteTimeline = $timeline->getTimelineType() == TimelineType::FavoriteTimeline;
+
 	while(true) {
 		try {
 			$statuses = $twitterObj->get($timeline->getRequestEndpoint(), $timeline->getRequestParameters());
@@ -37,6 +41,9 @@ function getTimelineAndStore(EpiTwitter $twitterObj, mysqli $mysqli, Timeline $t
 			$maxId = null;
 			foreach($statuses as $tweet) {
 				storeTweet($tweet, $mysqli);
+				if($favoriteTimeline) {
+					FavoriteUtil::storeFavorite($tweet, $mysqli);
+				}
 				if($tweet->id > $timeline->getLastSeenId()) {
 					$timeline->setLastSeenId($tweet->id);
 					$timeline->setLastUpdatedAt(new DateTime());
