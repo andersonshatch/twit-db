@@ -1,261 +1,310 @@
 <?php
 
 chdir(dirname(__FILE__));
-require_once '../lib/buildQuery.php';
+require_once '../lib/SearchQueryBuilder.php';
 /**
   * @requires extension mysqli
   */
 class QueryBuilderTest extends PHPUnit_Framework_TestCase {
-	private static $mysqli;
 	private static $defaultSelectFields = "id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url";
+	private static $textMatch = "MATCH(`text`) AGAINST(? IN BOOLEAN MODE)";
+	private static $userSubquery = "(SELECT user_id FROM user WHERE MATCH(`screen_name`) AGAINST(?))";
 
 	public static function setUpBeforeClass() {
-		self::$mysqli = false;
-		if(extension_loaded('mysqli'))
-			@self::$mysqli = new mysqli('127.0.0.1', 'test', 'password', 'twitdb_test');
-
 		define('ADDITIONAL_USERS', 'lavamunky');
-	}
-
-	public function assertPreConditions() {
-		if(!self::$mysqli) {
-			$this->markTestSkipped('No mysqli extension');
-		}
-
-		if(self::$mysqli->connect_error) {
-			echo self::$mysqli->connect_error."\n";
-			$this->markTestSkipped('Could not connect to MySQL, skipping build query tests');
-		}
-	}
-
-	public static function tearDownAfterClass() {
-		if(self::$mysqli)
-			@self::$mysqli->close();
-	}
-
-	private static function textMatch($string) {
-		return "MATCH(`text`) AGAINST('$string' IN BOOLEAN MODE)";
-	}
-
-	private static function userMatch($string) {
-		return "MATCH(`screen_name`) AGAINST('$string')";
 	}
 
 	private static function sortAsc($string) {
 		return str_replace("DESC", "ASC", $string);
 	}
 
+	/**
+	 * Format of tests below:
+	 *  1. Check SQL matches expected
+	 *  2. Check parameters match expectation
+	 *  3. Check reverse sort SQL matches expected
+	 *  (4). (no need to check parameters for reversed sort query)
+	 */
+
 	public function testBasicQueryBuild() {
-		$expected = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user ORDER BY id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user ORDER BY id DESC LIMIT 40";
 		$inputArray = [];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals([], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testBasicCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM tweet";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet";
 		$inputArray = [];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals([], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testBasicContinueStreamQueryBuild() {
-		$expected = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE id < 187996142913585152 ORDER BY id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE id < ? ORDER BY id DESC LIMIT 40";
 		$inputArray = ["max_id" => "187996142913585152"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$expectedParams = ["187996142913585152"];
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals($expectedParams, $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
+	}
+
+	public function testBasicRefreshStreamQueryBuild() {
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE id > ? ORDER BY id DESC LIMIT 40";
+		$inputArray = ["since_id" => "187996142913585152"];
+		$expectedParams = ["187996142913585152"];
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals($expectedParams, $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testTextQueryQueryBuild() {
-		$textMatch = self::textMatch("bazinga");
-		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM tweet NATURAL JOIN user WHERE $textMatch ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["text" => "bazinga"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["bazinga", "bazinga"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testTextQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM tweet WHERE ".self::textMatch("bazinga")."";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE ".self::$textMatch;
 		$inputArray = ["text" => "bazinga"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["bazinga"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testTextQueryContinueStreamWithRelevanceSortQueryBuild() {
-		$textMatch = self::textMatch("dudes");
-		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM tweet NATURAL JOIN user WHERE $textMatch AND (($textMatch = 5 AND id < 29044670385) OR $textMatch < 5) ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." AND ((".self::$textMatch." = ? AND id < ?) OR ".self::$textMatch." < ?) ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["text" => "dudes", "max_id" => "29044670385", "relevance" => "5"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["dudes", "dudes", "dudes", "5", "29044670385", "dudes", "5"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
+	}
+
+	public function testTextQueryRefreshStreamWithRelevanceSortQueryBuild() {
+		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." AND ((".self::$textMatch." = ? AND id > ?) OR ".self::$textMatch." > ?) ORDER BY relevance DESC, id DESC LIMIT 40";
+		$inputArray = ["text" => "dudes", "since_id" => "29044670385", "relevance" => "5"];
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["dudes", "dudes", "dudes", "5", "29044670385", "dudes", 5], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testUsernameWithRetweetsQueryQueryBuild() {
-		$userMatch = self::userMatch("andersonshatch");
-		$expected = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE (user_id = (SELECT user_id FROM user WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM user WHERE $userMatch)) ORDER BY id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "andersonshatch", "retweets" => "on"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["andersonshatch", "andersonshatch"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testUsernameWithRetweetsQueryCountQueryBuild() {
-		$userMatch = self::userMatch("andersonshatch");
-		$expected = "SELECT COUNT(1) FROM tweet WHERE (user_id = (SELECT user_id FROM user WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM user WHERE $userMatch))";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.")";
 		$inputArray = ["username" => "andersonshatch", "retweets" => "on"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["andersonshatch", "andersonshatch"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testUsernameWithRetweetsContinueQueryQueryBuild() {
-		$userMatch = self::userMatch("kklaven");
-		$expected = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE (user_id = (SELECT user_id FROM user WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM user WHERE $userMatch)) AND id < 123456789 ORDER BY id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND id < ? ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "kklaven", "retweets" => "on", "max_id" => 123456789];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["kklaven", "kklaven", "123456789"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
+	}
+
+	public function testUsernameWithRetweetsRefreshQueryQueryBuild() {
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND id > ? ORDER BY id DESC LIMIT 40";
+		$inputArray = ["username" => "kklaven", "retweets" => "on", "since_id" => 123456789];
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["kklaven", "kklaven", "123456789"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
+
 	}
 
 	public function testUsernameWithRetweetsInAdditionalUsersCountQueryBuild() {
-		$userMatch = self::userMatch("lavamunky");
-		$expected = "SELECT COUNT(1) FROM tweet WHERE (user_id = (SELECT user_id FROM user WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM user WHERE $userMatch))";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.")";
 		$inputArray = ["username" => "Lavamunky", "retweets" => "on"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["lavamunky", "lavamunky"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testUsernameOnlyQueryQueryBuild() {
-		$userMatch = self::userMatch("babbanator");
-		$expected = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = (SELECT user_id FROM user WHERE $userMatch) ORDER BY id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "BABBanator"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["babbanator"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testUsernameOnlyQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM tweet WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("clarkykestrel").")";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery;
 		$inputArray = ["username" => "clarkykestrel"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["clarkykestrel"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testUsernameOnlyQueryInAdditionalUsersQueryBuild() {
-		$expected = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("lavamunky").") ORDER BY id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "lavamunky"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["lavamunky"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testUsernameOnlyQueryInAdditionalUsersCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM tweet WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("lavamunky").")";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery;
 		$inputArray = ["username" => "lavamunky"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["lavamunky"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testTextAndUsernameQueryQueryBuild() {
-		$textMatch = self::textMatch("homeland");
-		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM tweet NATURAL JOIN user WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("crittweets").") AND $textMatch ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["username" => "crittweets", "text" => "homeland"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["homeland", "crittweets", "homeland"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testTextAndUsernameQueryCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM tweet WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("crittweets").") AND ".self::textMatch("homeland")."";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch;
 		$inputArray = ["username" => "crittweets", "text" => "homeland"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["crittweets", "homeland"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testTextAndUsernameQueryInAdditionalUsersQueryBuild() {
-		$textMatch = self::textMatch("ncis");
-		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM tweet NATURAL JOIN user WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("lavamunky").") AND $textMatch ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["username" => "lavamunky", "text" => "ncis"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["ncis", "lavamunky", "ncis"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testTextAndUsernameQueryInAdditionalUsersCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM tweet WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("lavamunky").") AND ".self::textMatch("ncis")."";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch;
 		$inputArray = ["username" => "lavamunky", "text" => "ncis"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["lavamunky", "ncis"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testTextAndUsernameWithRetweetsQueryQueryBuild() {
-		$textMatch = self::textMatch("dharma");
-		$userMatch = self::userMatch("fuckyeahlost");
-		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM tweet NATURAL JOIN user WHERE (user_id = (SELECT user_id FROM user WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM user WHERE $userMatch)) AND $textMatch ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["username" => "fuckyeahlost", "text" => "dharma", "retweets" => "on"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["dharma", "fuckyeahlost", "fuckyeahlost", "dharma"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testTextAndUsernameWithRetweetsQueryCountQueryBuild() {
-		$userMatch = self::userMatch("fuckyeahlost");
-		$expected = "SELECT COUNT(1) FROM tweet WHERE (user_id = (SELECT user_id FROM user WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM user WHERE $userMatch)) AND MATCH(`text`) AGAINST('we have to go back' IN BOOLEAN MODE)";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch;
 		$inputArray = ["username" => "fuckyeahlost", "text" => "we have to go back", "retweets" => "on"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["fuckyeahlost", "fuckyeahlost", "we have to go back"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testTextAndUsernameInAdditionalUsersWithRetweetsQueryQueryBuild() {
-		$textMatch = self::textMatch("linux");
-		$userMatch = self::userMatch("lavamunky");
-		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM tweet NATURAL JOIN user WHERE (user_id = (SELECT user_id FROM user WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM user WHERE $userMatch)) AND $textMatch ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["username" => "lavamunky", "text" => "linux", "retweets" => "on"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery(array("username" => "lavamunky", "text" => "linux", "retweets" => "on"), self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["linux", "lavamunky", "lavamunky", "linux"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery(array("username" => "lavamunky", "text" => "linux", "retweets" => "on"), false, true)[0]);
 	}
 
 	public function testTextAndUsernameInAdditionalUsersWithRetweetsQueryCountQueryBuild() {
-		$userMatch = self::userMatch("lavamunky");
-		$expected = "SELECT COUNT(1) FROM tweet WHERE (user_id = (SELECT user_id FROM user WHERE $userMatch) OR retweeted_by_user_id = (SELECT user_id FROM user WHERE $userMatch)) AND ".self::textMatch("twitter")."";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch;
 		$inputArray = ["username" => "lavamunky", "text" => "twitter", "retweets" => "on"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["lavamunky", "lavamunky", "twitter"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testAtMentionsQueryWithMentionsDisabledQueryBuild() {
-		$expected = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("@me").") ORDER BY id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "@me"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testAtMentionsQueryWithMentionsDisabledCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM tweet WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("@me").")";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery;
 		$inputArray = ["username" => "@me"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery(array("username" => "@me"), self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testAtMentionsQueryWithMentionsEnabledQueryBuild() {
 		define('MENTIONS_TIMELINE', true);
-		$expected = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("@me").") ORDER BY id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "@me"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["@me"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testAtMentionsQueryWithMentionsEnabledCountQueryBuild() {
-		$expected = "SELECT COUNT(1) FROM tweet WHERE user_id = (SELECT user_id FROM user WHERE ".self::userMatch("@me").")";
+		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery;
 		$inputArray = ["username" => "@me"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli, true));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, true, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray, true);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["@me"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, true, true)[0]);
 	}
 
 	public function testExcludeRepliesQueryBuild() {
-		$expected = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE text NOT LIKE '@%' ORDER BY id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE text NOT LIKE '@%' ORDER BY id DESC LIMIT 40";
 		$inputArray = ["exclude_replies" => "on"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals([], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 
 	public function testExcludeRepliesWithTextSearchQueryBuild() {
-		$textMatch = self::textMatch("Fringe");
-		$expected = "SELECT ".self::$defaultSelectFields.", $textMatch as relevance FROM tweet NATURAL JOIN user WHERE $textMatch AND text NOT LIKE '@%' ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." AND text NOT LIKE '@%' ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["text" => "Fringe", "exclude_replies" => "on"];
-		$this->assertEquals($expected, buildQuery($inputArray, self::$mysqli));
-		$this->assertEquals(self::sortAsc($expected), buildQuery($inputArray, self::$mysqli, false, true));
+		$result = SearchQueryBuilder::buildQuery($inputArray);
+		$this->assertEquals($expectedQuery, $result[0]);
+		$this->assertEquals(["Fringe", "Fringe"], $result[1]);
+		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, false, true)[0]);
 	}
 }
 
