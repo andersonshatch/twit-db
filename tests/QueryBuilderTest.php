@@ -6,7 +6,8 @@ require_once '../lib/SearchQueryBuilder.php';
   * @requires extension mysqli
   */
 class QueryBuilderTest extends PHPUnit_Framework_TestCase {
-	private static $defaultSelectFields = "id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url";
+	private static $countSelect = "SELECT COUNT(1) FROM tweet";
+	private static $defaultSelect = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url";
 	private static $textMatch = "MATCH(`text`) AGAINST(? IN BOOLEAN MODE)";
 	private static $userSubquery = "(SELECT user_id FROM user WHERE MATCH(`screen_name`) AGAINST(?))";
 
@@ -52,115 +53,126 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	 */
 	private function assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, $isCountQuery = false) {
 		$result = SearchQueryBuilder::buildQuery($inputArray, $isCountQuery);
-		$this->assertEquals($expectedQuery, $result[0]);
-		$this->assertEquals($result[1], $expectedParams);
-		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, $isCountQuery, true)[0]);
+		$this->assertEquals($expectedQuery, $result[0]);                                    //SQL match
+		$this->assertEquals($result[1], $expectedParams);                                   //parameter match
+
+		$result = SearchQueryBuilder::buildQuery($inputArray, $isCountQuery, true);
+		$this->assertEquals(self::sortAsc($expectedQuery), $result[0]);                     //reverse sort SQL match
+		$this->assertEquals($result[1], $expectedParams);                                   //reverse sort parameter match
+
+		//favorites setup
 		$inputArray["favorites_only"] = "on";
 		$expectedQuery = self::addFavoriteJoin($expectedQuery);
-		$this->assertEquals($expectedQuery, SearchQueryBuilder::buildQuery($inputArray, $isCountQuery)[0]);
-		$this->assertEquals(self::sortAsc($expectedQuery), SearchQueryBuilder::buildQuery($inputArray, $isCountQuery, true)[0]);
+		$result = SearchQueryBuilder::buildQuery($inputArray, $isCountQuery);
+
+		$this->assertEquals($expectedQuery, $result[0]);                                    //favorites SQL match
+		$this->assertEquals($result[1], $expectedParams);                                   //favorites parameter match
+
+		$result = SearchQueryBuilder::buildQuery($inputArray, $isCountQuery, true);
+		$this->assertEquals(self::sortAsc($expectedQuery), $result[0]);                     //favorites reverse sort SQL match
+		$this->assertEquals($result[1], $expectedParams);                                   //favorites reverse sort parameter match
 	}
 
 	public function testBasicQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user ORDER BY id DESC LIMIT 40";
 		$inputArray = [];
 		$expectedParams = [];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testBasicCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet";
+		$expectedQuery = self::$countSelect."";
 		$inputArray = [];
 		$expectedParams = [];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
 	}
 
 	public function testBasicContinueStreamQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE id < ? ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user WHERE id < ? ORDER BY id DESC LIMIT 40";
 		$inputArray = ["max_id" => "187996142913585152"];
 		$expectedParams = ["187996142913585152"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testBasicRefreshStreamQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE id > ? ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user WHERE id > ? ORDER BY id DESC LIMIT 40";
 		$inputArray = ["since_id" => "187996142913585152"];
 		$expectedParams = ["187996142913585152"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testTextQueryQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["text" => "bazinga"];
 		$expectedParams = ["bazinga", "bazinga"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testTextQueryCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE ".self::$textMatch;
+		$expectedQuery = self::$countSelect." WHERE ".self::$textMatch;
 		$inputArray = ["text" => "bazinga"];
 		$expectedParams = ["bazinga"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
 	}
 
 	public function testTextQueryContinueStreamWithRelevanceSortQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." AND ((".self::$textMatch." = ? AND id < ?) OR ".self::$textMatch." < ?) ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." AND ((".self::$textMatch." = ? AND id < ?) OR ".self::$textMatch." < ?) ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["text" => "dudes", "max_id" => "29044670385", "relevance" => "5"];
 		$expectedParams = ["dudes", "dudes", "dudes", "5", "29044670385", "dudes", "5"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testTextQueryRefreshStreamWithRelevanceSortQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." AND ((".self::$textMatch." = ? AND id > ?) OR ".self::$textMatch." > ?) ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." AND ((".self::$textMatch." = ? AND id > ?) OR ".self::$textMatch." > ?) ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["text" => "dudes", "since_id" => "29044670385", "relevance" => "5"];
 		$expectedParams = ["dudes", "dudes", "dudes", "5", "29044670385", "dudes", 5];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testUsernameWithRetweetsQueryQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "andersonshatch", "retweets" => "on"];
 		$expectedParams = ["andersonshatch", "andersonshatch"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testUsernameWithRetweetsQueryCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.")";
+		$expectedQuery = self::$countSelect." WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.")";
 		$inputArray = ["username" => "andersonshatch", "retweets" => "on"];
 		$expectedParams = ["andersonshatch", "andersonshatch"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
 	}
 
 	public function testUsernameWithRetweetsContinueQueryQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND id < ? ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND id < ? ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "kklaven", "retweets" => "on", "max_id" => 123456789];
 		$expectedParams = ["kklaven", "kklaven", "123456789"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testUsernameWithRetweetsRefreshQueryQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND id > ? ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND id > ? ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "kklaven", "retweets" => "on", "since_id" => 123456789];
 		$expectedParams = ["kklaven", "kklaven", "123456789"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testUsernameWithRetweetsInAdditionalUsersCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.")";
+		$expectedQuery = self::$countSelect." WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.")";
 		$inputArray = ["username" => "Lavamunky", "retweets" => "on"];
 		$expectedParams = ["lavamunky", "lavamunky"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
 	}
 
 	public function testUsernameOnlyQueryQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "BABBanator"];
 		$expectedParams = ["babbanator"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testUsernameOnlyQueryCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery;
+		$expectedQuery = self::$countSelect." WHERE user_id = ".self::$userSubquery;
 		$inputArray = ["username" => "clarkykestrel"];
 		$result = SearchQueryBuilder::buildQuery($inputArray, true);
 		$expectedParams = ["clarkykestrel"];
@@ -168,84 +180,84 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testUsernameOnlyQueryInAdditionalUsersQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "lavamunky"];
 		$expectedParams = ["lavamunky"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testUsernameOnlyQueryInAdditionalUsersCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery;
+		$expectedQuery = self::$countSelect." WHERE user_id = ".self::$userSubquery;
 		$inputArray = ["username" => "lavamunky"];
 		$expectedParams = ["lavamunky"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
 	}
 
 	public function testTextAndUsernameQueryQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["username" => "crittweets", "text" => "homeland"];
 		$expectedParams = ["homeland", "crittweets", "homeland"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testTextAndUsernameQueryCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch;
+		$expectedQuery = self::$countSelect." WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch;
 		$inputArray = ["username" => "crittweets", "text" => "homeland"];
 		$expectedParams = ["crittweets", "homeland"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
 	}
 
 	public function testTextAndUsernameQueryInAdditionalUsersQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["username" => "lavamunky", "text" => "ncis"];
 		$expectedParams = ["ncis", "lavamunky", "ncis"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testTextAndUsernameQueryInAdditionalUsersCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch;
+		$expectedQuery = self::$countSelect." WHERE user_id = ".self::$userSubquery." AND ".self::$textMatch;
 		$inputArray = ["username" => "lavamunky", "text" => "ncis"];
 		$expectedParams = ["lavamunky", "ncis"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
 	}
 
 	public function testTextAndUsernameWithRetweetsQueryQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["username" => "fuckyeahlost", "text" => "dharma", "retweets" => "on"];
 		$expectedParams = ["dharma", "fuckyeahlost", "fuckyeahlost", "dharma"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testTextAndUsernameWithRetweetsQueryCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch;
+		$expectedQuery = self::$countSelect." WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch;
 		$inputArray = ["username" => "fuckyeahlost", "text" => "we have to go back", "retweets" => "on"];
 		$expectedParams = ["fuckyeahlost", "fuckyeahlost", "we have to go back"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
 	}
 
 	public function testTextAndUsernameInAdditionalUsersWithRetweetsQueryQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch." ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["username" => "lavamunky", "text" => "linux", "retweets" => "on"];
 		$expectedParams = ["linux", "lavamunky", "lavamunky", "linux"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testTextAndUsernameInAdditionalUsersWithRetweetsQueryCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch;
+		$expectedQuery = self::$countSelect." WHERE (user_id = ".self::$userSubquery." OR retweeted_by_user_id = ".self::$userSubquery.") AND ".self::$textMatch;
 		$inputArray = ["username" => "lavamunky", "text" => "twitter", "retweets" => "on"];
 		$expectedParams = ["lavamunky", "lavamunky", "twitter"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
 	}
 
 	public function testAtMentionsQueryWithMentionsDisabledQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "@me"];
 		$expectedParams = ["@me"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testAtMentionsQueryWithMentionsDisabledCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery;
+		$expectedQuery = self::$countSelect." WHERE user_id = ".self::$userSubquery;
 		$inputArray = ["username" => "@me"];
 		$expectedParams = ["@me"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
@@ -253,28 +265,28 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 
 	public function testAtMentionsQueryWithMentionsEnabledQueryBuild() {
 		define('MENTIONS_TIMELINE', true);
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user WHERE user_id = ".self::$userSubquery." ORDER BY id DESC LIMIT 40";
 		$inputArray = ["username" => "@me"];
 		$expectedParams = ["@me"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testAtMentionsQueryWithMentionsEnabledCountQueryBuild() {
-		$expectedQuery = "SELECT COUNT(1) FROM tweet WHERE user_id = ".self::$userSubquery;
+		$expectedQuery = self::$countSelect." WHERE user_id = ".self::$userSubquery;
 		$inputArray = ["username" => "@me"];
 		$expectedParams = ["@me"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray, true);
 	}
 
 	public function testExcludeRepliesQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields." FROM tweet NATURAL JOIN user WHERE text NOT LIKE '@%' ORDER BY id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect." FROM tweet NATURAL JOIN user WHERE text NOT LIKE '@%' ORDER BY id DESC LIMIT 40";
 		$inputArray = ["exclude_replies" => "on"];
 		$expectedParams = [];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
 	}
 
 	public function testExcludeRepliesWithTextSearchQueryBuild() {
-		$expectedQuery = "SELECT ".self::$defaultSelectFields.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." AND text NOT LIKE '@%' ORDER BY relevance DESC, id DESC LIMIT 40";
+		$expectedQuery = self::$defaultSelect.", ".self::$textMatch." as relevance FROM tweet NATURAL JOIN user WHERE ".self::$textMatch." AND text NOT LIKE '@%' ORDER BY relevance DESC, id DESC LIMIT 40";
 		$inputArray = ["text" => "Fringe", "exclude_replies" => "on"];
 		$expectedParams = ["Fringe", "Fringe"];
 		$this->assertQueryPermutations($expectedQuery, $expectedParams, $inputArray);
