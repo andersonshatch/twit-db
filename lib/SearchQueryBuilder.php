@@ -21,6 +21,10 @@ class SearchQueryBuilder {
 
 		$queryString .= $count ? ' FROM tweet' : ' FROM tweet NATURAL JOIN user';
 
+		if(self::existsAndNotBlank('favorites_only', $array) && $array['favorites_only'] == 'on') {
+			$queryString .= ' NATURAL JOIN favorite';
+		}
+
 		$conditionals = [];
 
 		if(!empty($array)) {
