@@ -21,17 +21,23 @@ class TweetFormatter {
 			self::$utcDateTimeZone = new DateTimeZone('utc');
 		}
 
+		$tweet['id'] = (string) $tweet['id'];
+		$tweet['user_id'] = (string) $tweet['user_id'];
+		if($tweet['retweeted_by_user_id'] !== null) {
+			$tweet['retweeted_by_user_id'] = (string) $tweet['retweeted_by_user_id'];
+		}
+
 		$createdAt = DateTime::createFromFormat('Y-m-d H:i:s', $tweet['created_at'], self::$utcDateTimeZone);
 		$createdAt->setTimezone(self::$localDateTimeZone);
 		$tweet['datetime'] = $createdAt->format('c');
 		$tweet['timestamp_title'] = $createdAt->format('G:i M jS \'y');
 		if($linkify) {
 			$tweet['text'] = linkify_tweet($tweet['text'], $tweet['entities_json']);
-			unset($tweet['entities_json']);
 		} else {
 			$tweet['entities'] = json_decode($tweet['entities_json']);
-			unset($tweet['entities_json']);
 		}
+
+		unset($tweet['entities_json']);
 
 		return $tweet;
 	}
