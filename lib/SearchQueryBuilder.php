@@ -86,7 +86,16 @@ class SearchQueryBuilder {
 
 	public static function prepareQuery(mysqli_stmt $query, array $params) {
 		if(!empty($params)) {
-			$query->bind_param(str_repeat('s', count($params)), ...$params);
+			$types = str_repeat('s', count($params));
+			$paramRefs = [$types];
+
+			foreach($params as &$param) {
+				$paramRefs[] = &$param;
+			}
+
+			call_user_func_array([$query, 'bind_param'], $paramRefs);
+			//When supporting only PHP 5.6 and above, replace above with below:
+			//$query->bind_param(str_repeat('s', count($params)), ...$params);
 		}
 	}
 
