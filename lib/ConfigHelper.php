@@ -332,7 +332,7 @@ class ConfigHelper {
 			//no old-convention table to migrate
 			return null;
 		}
-		echo "Copying tweets from `$tableName` to `tweet`\n";
+		echo "Copying tweets from `$tableName` to `tweet`...\n";
 		$migrateSQL = "INSERT IGNORE INTO `tweet`
 					   SELECT id, created_at, source, in_reply_to_status_id, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, place_url, user_id, entities_json, NULL
 					   FROM `$tableName`";
