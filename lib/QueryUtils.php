@@ -25,4 +25,13 @@ class QueryUtils {
 		}
 	}
 
+	/**
+	 * Generate a parameter placeholder string for use in IN queries. E.g. (?, ?, ?)
+	 * @param $numberOfPlaceholders required number of ? placeholders
+	 * @return string placeholder string with $numberOfPlaceholders
+	 */
+	public static function parameterPlaceholderString($numberOfPlaceholders) {
+		$str = str_repeat('?, ', $numberOfPlaceholders);
+		return "(".substr($str, 0, -2).")";
+	}
 }
