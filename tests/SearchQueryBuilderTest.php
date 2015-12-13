@@ -5,7 +5,7 @@ require_once '../lib/SearchQueryBuilder.php';
 /**
   * @requires extension mysqli
   */
-class QueryBuilderTest extends PHPUnit_Framework_TestCase {
+class SearchQueryBuilderTest extends PHPUnit_Framework_TestCase {
 	private static $countSelect = "SELECT COUNT(1) FROM tweet";
 	private static $defaultSelect = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url";
 	private static $textMatch = "MATCH(`text`) AGAINST(? IN BOOLEAN MODE)";

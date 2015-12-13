@@ -3,7 +3,7 @@
 chdir(dirname(__FILE__));
 require_once 'AdditionalUserTest.php';
 require_once 'LinkifyTest.php';
-require_once 'QueryBuilderTest.php';
+require_once 'SearchQueryBuilderTest.php';
 
 class AllTests extends PHPUnit_Framework_TestCase {
 	public static function suite() {
@@ -11,7 +11,7 @@ class AllTests extends PHPUnit_Framework_TestCase {
 
 		$suite->addTestSuite('AdditionalUserTest');
 		$suite->addTestSuite('LinkifyTest');
-		$suite->addTestSuite('QueryBuilderTest');
+		$suite->addTestSuite('SearchQueryBuilderTest');
 
 		return $suite;
 	}
