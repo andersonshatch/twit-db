@@ -1,13 +1,16 @@
 <?php
 
+require_once dirname(__FILE__)."/QueryUtils.php";
+
 class SearchQueryBuilder {
+
 	static function buildQuery(array $array, $count = false, $sortAscending = false) {
 		$queryParameters = [];
 		$queryString = 'SELECT ';
 		if($count) {
 			$queryString .= 'COUNT(1)';
 		} else {
-			$queryString .= 'id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url';
+			$queryString .= QueryUtils::QUERY_FIELDS;
 		}
 
 		$textCondition = "";

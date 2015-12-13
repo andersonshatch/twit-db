@@ -7,6 +7,7 @@ ConfigHelper::requireConfig("../config.php");
 $mysqli = ConfigHelper::getDatabaseConnection();
 
 require_once('../lib/QueryHolder.php');
+require_once('../lib/QueryUtils.php');
 require_once('../lib/SearchQueryBuilder.php');
 require_once('../lib/TweetFormatter.php');
 
@@ -20,7 +21,7 @@ $sortAscending = array_key_exists('since_id', $_GET) && !array_key_exists('max_i
 if(array_key_exists("count-only", $_GET)) {
 	list($queryString, $queryParams) = SearchQueryBuilder::buildQuery($_GET, true, $sortAscending);
 	$rowCountQuery = QueryHolder::prepareAndHoldQuery($mysqli, $queryString);
-	SearchQueryBuilder::prepareQuery($rowCountQuery, $queryParams);
+	QueryUtils::bindQueryWithParams($rowCountQuery, $queryParams);
 	$rowCountQuery->execute();
 	$rowCountRow = $rowCountQuery->get_result()->fetch_array();
 	$results["matchingTweets"] = number_format($rowCountRow[0]);
@@ -29,7 +30,7 @@ if(array_key_exists("count-only", $_GET)) {
 } else {
 	list($queryString, $queryParams) = SearchQueryBuilder::buildQuery($_GET, false, $sortAscending);
 	$query = QueryHolder::prepareAndHoldQuery($mysqli, $queryString);
-	SearchQueryBuilder::prepareQuery($query, $queryParams);
+	QueryUtils::bindQueryWithParams($query, $queryParams);
 	$query->execute();
 	$tweets = $query->get_result()->fetch_all(MYSQLI_ASSOC);
 
