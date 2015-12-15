@@ -18,7 +18,7 @@ function linkify_tweet($text, $entitiesJSON = null) {
 		//no entities available, and twitter-text-php isn't present, return just the text.
 		return $text;
 	}
-	$entities = json_decode($entitiesJSON);
+	$entities = is_object($entitiesJSON) ? $entitiesJSON : json_decode($entitiesJSON);
 	$replacements = array();
 	$keys = array();
 	
