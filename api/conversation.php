@@ -16,10 +16,15 @@ if(!array_key_exists('id', $_GET)) {
 }
 
 $conversation = new Conversation($_GET['id']);
-$results = $conversation->getConversation();
+$tweets = $conversation->getConversation();
 
-TweetFormatter::formatTweets($results, !(array_key_exists('disable-linkification', $_GET) && $_GET['disable-linkification'] == "true") );
+$tweets = TweetFormatter::formatTweets($tweets, !(array_key_exists('disable-linkification', $_GET) && $_GET['disable-linkification'] == "true") );
 
-echo json_encode(array("tweets" => $results, "queries" => $conversation->getQueries()));
+$results = [
+	"tweets"    => $tweets,
+	"debug"     => ["queries" => $conversation->getQueries()]
+];
+
+echo json_encode($results);
 
 ?>
