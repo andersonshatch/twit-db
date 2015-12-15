@@ -55,19 +55,19 @@ if(is_readable('config.php')) {
 	<div class="row span12 columns">
 		<div class="span1 columns tweet-image">
 			<br />
-			<a class="user-profile-link" href="https://twitter.com/{{screen_name}}">
-				<img width="48" height="48" class="user-profile-link" alt="{{screen_name}}'s avatar" src="{{profile_image_url}}">
+			<a class="user-profile-link" href="https://twitter.com/{{user.screenName}}">
+				<img width="48" height="48" class="user-profile-link" alt="{{user.screenName}}'s avatar" src="{{user.profileImageUrl}}">
 			</a>
 		</div>
 		<div class="span10 columns tweet-content">
 			<div class="tweet-names">
 				<h4>
-					<a class="tweet-full-name user-profile-link" href="https://twitter.com/{{screen_name}}" data-screen-name="{{screen_name}}">{{name}}</a>
+					<a class="tweet-full-name user-profile-link" href="https://twitter.com/{{user.screenName}}" data-screen-name="{{user.screenName}}">{{user.name}}</a>
 					<small class="tweet-screen-name">
-						<a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{screen_name}}">@{{screen_name}}</a>
-						{{#retweeted_by_user_id}}
-							<span class="retweet-icon"></span>by <a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{retweeted_by_screen_name}}">@{{retweeted_by_screen_name}}</a>
-						{{/retweeted_by_user_id}}
+						<a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{user.screenName}}">@{{user.screenName}}</a>
+						{{#retweetedByUserId}}
+							<span class="retweet-icon"></span>by <a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{retweetedByScreenName}}">@{{retweetedByScreenName}}</a>
+						{{/retweetedByUserId}}
 					</small>
 				</h4>
 			</div>
@@ -77,11 +77,11 @@ if(is_readable('config.php')) {
 
 			<blockquote class="tweet-metadata">
 				<small>
-					<a href="https://twitter.com/{{screen_name}}/status/{{id}}" class="tweet-timestamp" target="_blank" title="{{timestamp_title}}" data-timestamp="{{datetime}}">
-						{{created_at}}
+					<a href="https://twitter.com/{{user.screenName}}/status/{{id}}" class="tweet-timestamp" target="_blank" title="{{timestampTitle}}" data-timestamp="{{dateTime}}">
+						{{createdAt}}
 					</a>
 					<span class="tweet-source">
-						via {{{source}}}{{#place_full_name}} from {{place_full_name}}{{/place_full_name}}
+						via {{{source}}}{{#placeFullName}} from {{placeFullName}}{{/placeFullName}}
 					</span>
 					<span class="tweet-actions" style="visibility: hidden;">
 						<a href="https://twitter.com/intent/favorite/?tweet_id={{id}}" class="favorite-action" title="Favorite">
