@@ -15,6 +15,7 @@ class Tweet implements \JsonSerializable {
 	private $retweetedByScreenName;
 	private $retweetedByUserId;
 	private $placeFullName;
+	private $quotedTweet;
 	private $timestampTitle;
 	private $user;
 
@@ -42,6 +43,7 @@ class Tweet implements \JsonSerializable {
 			'retweetedByScreenName' => $this->retweetedByScreenName,
 			'retweetedByUserId'     => $this->retweetedByUserId,
 			'placeFullName'         => $this->placeFullName,
+			'quotedTweet'           => $this->quotedTweet,
 			'timestampTitle'        => $this->timestampTitle,
 			'user'                  => $this->user
 		];
@@ -117,6 +119,14 @@ class Tweet implements \JsonSerializable {
 
 	public function setRetweetedByUserId($retweetedByUserId) {
 		$this->retweetedByUserId = $retweetedByUserId;
+	}
+
+	public function getQuotedTweet() {
+		return $this->quotedTweet;
+	}
+
+	public function setQuotedTweet(Tweet $quotedTweet = null) {
+		$this->quotedTweet = $quotedTweet;
 	}
 
 	public function getPlaceFullName() {
