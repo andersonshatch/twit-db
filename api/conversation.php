@@ -18,7 +18,11 @@ if(!array_key_exists('id', $_GET)) {
 $conversation = new Conversation($_GET['id']);
 $tweets = $conversation->getConversation();
 
-$tweets = TweetFormatter::formatTweets($tweets, !(array_key_exists('disable-linkification', $_GET) && $_GET['disable-linkification'] == "true") );
+$mysqli = ConfigHelper::getDatabaseConnection();
+
+$tweets = TweetFormatter::formatTweets($tweets, !(array_key_exists('disable-linkification', $_GET) && $_GET['disable-linkification'] == "true"), $mysqli);
+
+$mysqli->close();
 
 $results = [
 	"tweets"    => $tweets,
