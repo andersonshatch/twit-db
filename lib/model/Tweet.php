@@ -75,7 +75,7 @@ class Tweet implements \JsonSerializable {
 		return $this->entities;
 	}
 
-	public function setEntities(\stdClass $entities) {
+	public function setEntities(\stdClass $entities = null) {
 		$this->entities = $entities;
 	}
 
