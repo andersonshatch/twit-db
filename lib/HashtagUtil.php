@@ -27,7 +27,7 @@ class HashtagUtil {
 			self::$mysqli = $mysqli;
 		}
 
-		self::$insertQuery->bind_param('sssss', $hashtag->text, $seenAtDate, $seenAtDate, $hashtag->text, $seenAtDate);
+		QueryUtils::bindQueryWithParams(self::$insertQuery, [$hashtag->text, $seenAtDate, $seenAtDate, $hashtag->text, $seenAtDate]);
 		self::$insertQuery->execute();
 	}
 
@@ -72,7 +72,7 @@ class HashtagUtil {
 		$id = 0;
 
 		while(true) {
-			$hashtagTweetsQuery->bind_param('s', $id);
+			QueryUtils::bindQueryWithParams($hashtagTweetsQuery, [$id]);
 			$hashtagTweetsQuery->execute();
 			$chunk = $hashtagTweetsQuery->get_result()->fetch_all(MYSQLI_ASSOC);
 
