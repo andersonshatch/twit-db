@@ -45,10 +45,13 @@ class Conversation {
 	}
 
 	private function getInReplyToStatusId() {
-		$inReplyToQueryString = "SELECT in_reply_to_status_id FROM tweet WHERE id = {$this->id}";
+		$inReplyToQueryString = "SELECT in_reply_to_status_id FROM tweet WHERE id = ?";
+		$query = QueryHolder::prepareAndHoldQuery($this->mysqli, $inReplyToQueryString);
 		$this->queries[] = $inReplyToQueryString;
-		$query = $this->mysqli->query($inReplyToQueryString);
-		$result = $query ? $query->fetch_row() : null;
+		QueryUtils::bindQueryWithParams($query, [$this->id]);
+		$query->execute();
+		$result = $query->get_result();
+		$result = $result ? $result->fetch_row() : null;
 
 		return $result ? $result[0] : null;
 	}
@@ -58,13 +61,16 @@ class Conversation {
 			return;
 		}
 
-		$idsCsv = implode($ids, ", ");
-		$qs = "SELECT id FROM tweet WHERE in_reply_to_status_id IN ($idsCsv)";
-		$this->queries[] = $qs;
-		$query = $this->mysqli->query($qs);
-		$result = $query ? $query->fetch_all() : null;
-		$results = array();
+		$repliesQueryString = "SELECT id FROM tweet WHERE in_reply_to_status_id IN ".QueryUtils::parameterPlaceholderString(count($ids));
+
+		$this->queries[] = $repliesQueryString;
+		$query = QueryHolder::prepareAndHoldQuery($this->mysqli, $repliesQueryString);
+		QueryUtils::bindQueryWithParams($query, $ids);
+		$query->execute();
+		$result = $query->get_result()->fetch_all();
+
 		if ($result) {
+			$results = [];
 			foreach ($result as $row) {
 				if (!in_array($row[0], $this->idsToLookup)) {
 					$this->idsToLookup[] = $row[0];
