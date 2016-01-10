@@ -70,6 +70,25 @@ class UserUtil {
 		self::$insertQuery->execute();
 	}
 
+	/**
+	 * Search for a user by screename and full name
+	 *
+	 * @param $term to search for (wildcard will be added to end)
+	 * @param mysqli $mysqli database handle
+	 * @return array array of results
+	 */
+	public static function search($term, mysqli $mysqli) {
+		$searchQuery = QueryHolder::prepareAndHoldQuery($mysqli, "
+			SELECT screen_name AS screenName, name, profile_image_url AS imageUrl
+			FROM user
+			WHERE screen_name LIKE ?
+			OR name LIKE ?
+			LIMIT 8");
 
+		$termWithWildcard = $term.'%';
+		QueryUtils::bindQueryWithParams($searchQuery, [$termWithWildcard, $termWithWildcard]);
+		$searchQuery->execute();
 
+		return $searchQuery->get_result()->fetch_all(MYSQLI_ASSOC);
+	}
 }
