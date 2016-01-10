@@ -1,6 +1,7 @@
 <?php
 
 require_once 'QueryHolder.php';
+require_once 'QueryUtils.php';
 
 class HashtagUtil {
 	private static $insertQuery;
@@ -41,13 +42,15 @@ class HashtagUtil {
 		self::$mysqli = $mysqli;
 		$sql = "SELECT name, first_seen AS firstSeen, last_seen AS lastSeen, usage_count AS usageCount
 				  FROM hashtag
-				  WHERE name LIKE '".$mysqli->real_escape_string($term)."%'
+				  WHERE name LIKE ?
 				  ORDER BY usage_count DESC, last_seen DESC
 				  LIMIT 8";
 
-		$query = $mysqli->query($sql);
+		$query = QueryHolder::prepareAndHoldQuery($mysqli, $sql);
+		QueryUtils::bindQueryWithParams($query, [$term.'%']);
+		$query->execute();
 
-		return $query->fetch_all(MYSQLI_ASSOC);
+		return $query->get_result()->fetch_all(MYSQLI_ASSOC);
 	}
 
 	/**
