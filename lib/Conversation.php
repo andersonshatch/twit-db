@@ -2,6 +2,9 @@
 
 chdir(dirname(__FILE__));
 require_once 'ConfigHelper.php';
+require_once 'IDQueryBuilder.php';
+require_once 'QueryHolder.php';
+require_once 'QueryUtils.php';
 
 class Conversation {
 	private $id;
@@ -22,16 +25,17 @@ class Conversation {
 		} while(!is_null($this->id));
 
 		if (!empty($this->idsToLookup)) {
-			$idsCsv = implode($this->idsToLookup, ", ");
-			$queryString = "SELECT id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url, in_reply_to_status_id FROM tweet NATURAL JOIN user WHERE id IN ($idsCsv) ORDER BY id";
+			list($queryString, $queryParams) = IDQueryBuilder::buildQuery($this->idsToLookup);
 			$this->queries[] = $queryString;
 
-			$query = $this->mysqli->query($queryString);
+			$query = QueryHolder::prepareAndHoldQuery($this->mysqli, $queryString);
+			QueryUtils::bindQueryWithParams($query, $queryParams);
 
-			$this->mysqli->close();
-			return $query->fetch_all(MYSQLI_ASSOC);
+			$query->execute();
+			$results = $query->get_result();
+
+			return $results->fetch_all(MYSQLI_ASSOC);
 		} else {
-			$this->mysqli->close();
 			return array();
 		}
 	}
