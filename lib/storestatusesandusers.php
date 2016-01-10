@@ -1,7 +1,8 @@
 <?php
 
-require_once dirname(__file__).'/HashtagUtil.php';
-require_once dirname(__file__).'/QueryHolder.php';
+require_once dirname(__FILE__).'/HashtagUtil.php';
+require_once dirname(__FILE__).'/QueryHolder.php';
+require_once dirname(__FILE__).'/UserUtil.php';
 
 function storeTweet($tweet, $mysqli) {
 	$insertSQL = "
@@ -26,7 +27,7 @@ function storeTweet($tweet, $mysqli) {
 	if(property_exists($tweet, 'retweeted_status')) {
 		//if tweet is a retweet,
 		//store the retweeter's information, then replace $tweet with the retweeted_status
-		addOrUpdateUser($tweet->user, $mysqli);
+		UserUtil::upsertUser($tweet->user, $mysqli);
 		//set retweet fields
 		$retweetedBy = $tweet->user->screen_name;
 		$retweetedByID = $tweet->user->id_str;
@@ -38,7 +39,7 @@ function storeTweet($tweet, $mysqli) {
 	}
 
 	//store the author information
-	addOrUpdateUser($tweet->user, $mysqli);
+	UserUtil::upsertUser($tweet->user, $mysqli);
 	$createdat = new DateTime($tweet->created_at);
 	$createdat = $createdat->format('Y-m-d H:i:s');
 
@@ -76,60 +77,4 @@ function storeTweet($tweet, $mysqli) {
 	return $addedRow;
 }
 
-function addOrUpdateUser($user, $mysqli) {
-	$statement = QueryHolder::prepareAndHoldQuery($mysqli, "
-		INSERT into user (
-			user_id,
-			description,
-			location,
-			screen_name,
-			name,
-			followers_count,
-			friends_count,
-			statuses_count,
-			url,
-			profile_image_url,
-			user_created_at,
-			verified,
-			protected
-		) VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		ON DUPLICATE KEY UPDATE
-		description = VALUES(description),
-		location = VALUES(location),
-		screen_name = VALUES(screen_name),
-		name = VALUES(name),
-		followers_count = VALUES(followers_count),
-		friends_count = VALUES(friends_count),
-		statuses_count = VALUES(statuses_count),
-		url = VALUES(url),
-		profile_image_url = VALUES(profile_image_url),
-		user_created_at = VALUES(user_created_at),
-		verified = VALUES(verified),
-		protected = VALUES(protected)"
-	);
-
-	$createdAt = null;
-	if (property_exists($user, "created_at")) {
-		$createdAt = new DateTime($user->created_at);
-		$createdAt = $createdAt->format('Y-m-d H:i:s');
-	}
-	$statement->bind_param('sssssssssssss',
-		$user->id_str,
-		$user->description,
-		$user->location,
-		$user->screen_name,
-		$user->name,
-		$user->followers_count,
-		$user->friends_count,
-		$user->statuses_count,
-		$user->url,
-		$user->profile_image_url_https,
-		$createdAt,
-		$user->verified,
-		$user->protected
-	);
-	$statement->execute();
-	
-}
 ?>

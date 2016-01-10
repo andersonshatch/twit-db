@@ -6,6 +6,7 @@ ConfigHelper::requireConfig("config.php");
 $mysqli = ConfigHelper::getDatabaseConnection();
 
 require_once('lib/storestatusesandusers.php');
+require_once('lib/UserUtil.php');
 
 $zip = openZip($argc, $argv);
 
@@ -64,7 +65,7 @@ function lookupUsers($ids, $mysqli) {
 
 	foreach($chunks as $chunk) {
 		foreach($twitterObj->post('/users/lookup.json', array("user_id" => implode(",", $chunk))) as $user) {
-			addOrUpdateUser($user, $mysqli);
+			UserUtil::upsertUser($user, $mysqli);
 		}
 
 		$usersUpdated += count($chunk);
