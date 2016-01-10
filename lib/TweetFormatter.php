@@ -11,17 +11,17 @@ class TweetFormatter {
 	private static $localDateTimeZone;
 	private static $utcDateTimeZone;
 
-	public static function formatTweets(array $tweets, $linkify = true, mysqli $mysqli = null) {
+	public static function formatTweets(array $tweets, $linkify = true) {
 		$formattedTweets = [];
 		foreach($tweets as $tweetDictionary) {
-			$tweet = TweetFormatter::formatTweet($tweetDictionary, $linkify, $mysqli);
+			$tweet = TweetFormatter::formatTweet($tweetDictionary, $linkify);
 			$formattedTweets[] = $tweet;
 		}
 
 		return $formattedTweets;
 	}
 
-	public static function formatTweet(array $tweetDictionary, $linkify = true, mysqli $mysqli = null) {
+	public static function formatTweet(array $tweetDictionary, $linkify = true, $lookupQuoteTweet = true) {
 		if(self::$localDateTimeZone == null || self::$utcDateTimeZone == null) {
 			self::$localDateTimeZone = new DateTimeZone(date_default_timezone_get());
 			self::$utcDateTimeZone = new DateTimeZone('utc');
@@ -44,10 +44,10 @@ class TweetFormatter {
 		unset($tweetDictionary['entities_json']);
 
 		$quotedTweetModel = null;
-		if($mysqli !== null) {
-			$quotedTweet = TweetFormatter::lookupQuotedTweet($tweetDictionary, $mysqli);
+		if($lookupQuoteTweet) {
+			$quotedTweet = TweetFormatter::lookupQuotedTweet($tweetDictionary);
 			if($quotedTweet !== null) {
-				$quotedTweetModel = TweetFormatter::formatTweet($quotedTweet, $linkify);
+				$quotedTweetModel = TweetFormatter::formatTweet($quotedTweet, $linkify, false);
 			}
 		}
 
@@ -66,7 +66,7 @@ class TweetFormatter {
 		return $tweet;
 	}
 
-	private static function lookupQuotedTweet(array $tweetDictionary, mysqli $mysqli) {
+	private static function lookupQuotedTweet(array $tweetDictionary) {
 		$urls = $tweetDictionary['entities']->urls;
 
 		//iterate through the links backwards and pick the last matching quote link
@@ -90,7 +90,7 @@ class TweetFormatter {
 
 		list($queryString, $queryParams) = IDQueryBuilder::buildQuery([$id]);
 
-		$query = QueryHolder::prepareAndHoldQuery($mysqli, $queryString);
+		$query = QueryHolder::prepareAndHoldQuery(ConfigHelper::getDatabaseConnection(), $queryString);
 		QueryUtils::bindQueryWithParams($query, $queryParams);
 		$query->execute();
 

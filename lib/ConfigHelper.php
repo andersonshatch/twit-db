@@ -1,6 +1,10 @@
 <?php
 
+require_once dirname(__FILE__).'/QueryHolder.php';
+
 class ConfigHelper {
+
+	private static $mysqli;
 
 	/**
 	 * Require the config file; will exit upon failure
@@ -22,6 +26,10 @@ class ConfigHelper {
 	 * @return mysqli $mysqli database handle
 	 */
 	public static function getDatabaseConnection($allowSetup = false) {
+		if(self::$mysqli !== null) {
+			return self::$mysqli;
+		}
+
 		if(!extension_loaded("mysqli")) {
 			self::exitWithError("Mysqli extension not loaded. Cannot proceed.");
 		}
@@ -40,7 +48,19 @@ class ConfigHelper {
 			self::setupTables($mysqli);
 		}
 
+		self::$mysqli = $mysqli;
+		register_shutdown_function('ConfigHelper::shutdown');
+
 		return $mysqli;
+	}
+
+	/**
+	 * Prepare for shutdown by closing queries and database connection
+	 */
+	public static function shutdown() {
+		QueryHolder::closeQueries();
+		self::$mysqli->close();
+		self::$mysqli = null;
 	}
 
 	/**

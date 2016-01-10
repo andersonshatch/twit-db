@@ -48,7 +48,6 @@ output("\nAdded $tweetsAdded new tweet".(($tweetsAdded == 1) ? "" : "s")."\n");
 if($tweetsAdded > 0)
 	$usersUpdated = lookupUsers(array_keys(array_flip($userIds)), $mysqli);
 
-$mysqli->close();
 $zip->close();
 
 if (!isCli()) {

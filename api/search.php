@@ -39,7 +39,7 @@ if(array_key_exists("count-only", $_GET)) {
 		$tweets = array_reverse($tweets);
 	}
 
-	$tweetModels = TweetFormatter::formatTweets($tweets, !(array_key_exists('disable-linkification', $_GET) && $_GET['disable-linkification'] == "true"), $mysqli);
+	$tweetModels = TweetFormatter::formatTweets($tweets, !(array_key_exists('disable-linkification', $_GET) && $_GET['disable-linkification'] == "true"));
 
 	$previousPage = null;
 	$nextPage = null;
@@ -71,8 +71,6 @@ if(array_key_exists("count-only", $_GET)) {
 	$results["previousPage"] = $previousPage;
 }
 
-$mysqli->close();
-
 $output = json_encode($results);
 
 if(array_key_exists('callback', $_GET) && $_GET['callback'] != '') {
@@ -80,7 +78,5 @@ if(array_key_exists('callback', $_GET) && $_GET['callback'] != '') {
 } else {
 	echo $output;
 }
-
-exit;
 
 ?>

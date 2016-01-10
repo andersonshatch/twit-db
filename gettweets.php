@@ -21,7 +21,6 @@ foreach($timelines as $timeline) {
 	output("Added $tweetsAdded ".getSingularOrPlural("tweet", $tweetsAdded)." from {$timeline->getName()}\n");
 }
 
-$mysqli->close();
 output("In total added {$GLOBALS['totalTweetsAdded']} ".getSingularOrPlural("tweet", $GLOBALS['totalTweetsAdded']).".\n");
 output("Used {$GLOBALS['requestCount']} ".getSingularOrPlural("request", $GLOBALS['requestCount']).".\n");
 

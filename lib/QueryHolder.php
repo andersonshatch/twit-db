@@ -6,7 +6,6 @@
 class QueryHolder
 {
 	private static $queries = [];
-	private static $registeredShutdownHook = false;
 
 	/**
 	 * Prepare a SQL statement and cache it
@@ -17,11 +16,6 @@ class QueryHolder
 	 * @return mysqli_stmt prepared statement
 	 */
 	public static function prepareAndHoldQuery(mysqli $mysqli, $querySQL) {
-		if(!self::$registeredShutdownHook) {
-			register_shutdown_function("QueryHolder::closeQueries");
-			self::$registeredShutdownHook = true;
-		}
-
 		if(array_key_exists($querySQL, self::$queries)) {
 			$statement = self::$queries[$querySQL];
 			$statement->reset();

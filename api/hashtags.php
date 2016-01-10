@@ -18,6 +18,4 @@ $results = HashtagUtil::search($_GET['q'], $mysqli);
 
 echo json_encode($results);
 
-$mysqli->close();
-
 ?>
