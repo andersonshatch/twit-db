@@ -5,7 +5,7 @@ require_once "lib/ConfigHelper.php";
 ConfigHelper::requireConfig("config.php");
 $mysqli = ConfigHelper::getDatabaseConnection();
 
-require_once('lib/storestatusesandusers.php');
+require_once('lib/TweetStorer.php');
 require_once('lib/UserUtil.php');
 
 $zip = openZip($argc, $argv);
@@ -28,7 +28,7 @@ foreach($archivePaths as $path) {
 	$tweets = decodeFile($zip, $path);
 
 	foreach($tweets as $tweet) {
-		if(storeTweet($tweet, $mysqli)) {
+		if(TweetStorer::storeTweet($tweet, $mysqli)) {
 			$tweetsAdded++;
 
 			if(property_exists($tweet, "retweeted_status")) {

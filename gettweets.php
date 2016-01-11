@@ -25,7 +25,7 @@ output("In total added {$GLOBALS['totalTweetsAdded']} ".getSingularOrPlural("twe
 output("Used {$GLOBALS['requestCount']} ".getSingularOrPlural("request", $GLOBALS['requestCount']).".\n");
 
 function getTimelineAndStore(EpiTwitter $twitterObj, mysqli $mysqli, Timeline $timeline) {
-	require_once 'lib/storestatusesandusers.php';
+	require_once 'lib/TweetStorer.php';
 	require_once 'lib/FavoriteUtil.php';
 	$failCount = 0;
 	$maxRetries = 10;
@@ -39,7 +39,7 @@ function getTimelineAndStore(EpiTwitter $twitterObj, mysqli $mysqli, Timeline $t
 			$GLOBALS['requestCount']++;
 			$maxId = null;
 			foreach($statuses as $tweet) {
-				storeTweet($tweet, $mysqli);
+				TweetStorer::storeTweet($tweet, $mysqli);
 				if($favoriteTimeline) {
 					FavoriteUtil::storeFavorite($tweet, $mysqli);
 				}
