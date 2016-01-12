@@ -3,10 +3,6 @@
 if(in_array('--quiet', $argv))
 	define('QUIET', true);
 
-$GLOBALS['totalTweetsAdded'] = 0;
-$GLOBALS['responseTweetsAdded'] = 0;
-$GLOBALS['requestCount'] = 0;
-
 chdir(dirname(__FILE__));
 require_once("lib/ConfigHelper.php");
 ConfigHelper::requireConfig("config.php");
@@ -14,15 +10,17 @@ $mysqli = ConfigHelper::getDatabaseConnection(true);
 $timelines = Timeline::all($mysqli);
 $twitterObj = ConfigHelper::getTwitterObject();
 
+$stats = Stats::instance();
+
 foreach($timelines as $timeline) {
-	$tweetsAdded = $GLOBALS['totalTweetsAdded'];
+	$tweetsAddedBefore = $stats->totalTweetsAdded;
 	getTimelineAndStore($twitterObj, $mysqli, $timeline);
-	$tweetsAdded = $GLOBALS['totalTweetsAdded'] - $tweetsAdded;
+	$tweetsAdded = $stats->totalTweetsAdded - $tweetsAddedBefore;
 	output("Added $tweetsAdded ".getSingularOrPlural("tweet", $tweetsAdded)." from {$timeline->getName()}\n");
 }
 
-output("In total added {$GLOBALS['totalTweetsAdded']} ".getSingularOrPlural("tweet", $GLOBALS['totalTweetsAdded']).".\n");
-output("Used {$GLOBALS['requestCount']} ".getSingularOrPlural("request", $GLOBALS['requestCount']).".\n");
+output("In total added $stats->totalTweetsAdded ".getSingularOrPlural("tweet", $stats->totalTweetsAdded).".\n");
+output("Used $stats->requestCount ".getSingularOrPlural("request", $stats->requestCount).".\n");
 
 function getTimelineAndStore(EpiTwitter $twitterObj, mysqli $mysqli, Timeline $timeline) {
 	require_once 'lib/TweetStorer.php';
@@ -31,12 +29,14 @@ function getTimelineAndStore(EpiTwitter $twitterObj, mysqli $mysqli, Timeline $t
 	$maxRetries = 10;
 	$tweetsAdded = 0;
 
+	$stats = Stats::instance();
+
 	$favoriteTimeline = $timeline->getTimelineType() == TimelineType::FavoriteTimeline;
 
 	while(true) {
 		try {
 			$statuses = $twitterObj->get($timeline->getRequestEndpoint(), $timeline->getRequestParameters());
-			$GLOBALS['requestCount']++;
+			$stats->requestCount++;
 			$maxId = null;
 			foreach($statuses as $tweet) {
 				TweetStorer::storeTweet($tweet, $mysqli);
@@ -69,23 +69,44 @@ function getTimelineAndStore(EpiTwitter $twitterObj, mysqli $mysqli, Timeline $t
 				echo "FAILED getting tweets for {$timeline->getName()}, $failCount times. Moving on.\n";
 				return;
 			}
-			output("WARNING: got ".get_class($e)." whilst updating {$timeline->getName()}. ({$e->getMessage()})\n");
+			output("WARNING: got " . get_class($e) . " whilst updating {$timeline->getName()}. ({$e->getMessage()})\n");
 			sleep(2 * $failCount - 1);
 		}
 	}
-	$GLOBALS['totalTweetsAdded'] += $tweetsAdded;
+	$stats->totalTweetsAdded += $tweetsAdded;
 }
 
+
 function getSingularOrPlural($string, $number) {
-	if($number == 1)
+	if($number == 1) {
 		return $string;
-	else
+	} else {
 		return $string."s";
+	}
 }
 
 function output($text) {
-    if(!defined('QUIET') || QUIET === false)
-		echo $text;
+    if(!defined('QUIET') || QUIET === false) {
+	    echo $text;
+    }
+}
+
+class Stats {
+	private static $instance;
+
+	private function __construct() {
+	}
+
+	public $totalTweetsAdded = 0;
+	public $requestCount = 0;
+
+	public static function instance() {
+		if(self::$instance === null) {
+			self::$instance = new Stats();
+		}
+
+		return self::$instance;
+	}
 }
 
 ?>
