@@ -51,6 +51,8 @@ class UserUtil {
 			$createdAt = $createdAt->format('Y-m-d H:i:s');
 		}
 
+		$verified = $user->verified ? 1 : 0;
+		$protected = $user->protected ? 1 : 0;
 		QueryUtils::bindQueryWithParams(self::$insertQuery, [
 			&$user->id_str,
 			&$user->description,
@@ -63,8 +65,8 @@ class UserUtil {
 			&$user->url,
 			&$user->profile_image_url_https,
 			&$createdAt,
-			&$user->verified,
-			&$user->protected
+			$verified,
+			$protected
 		]);
 
 		self::$insertQuery->execute();
