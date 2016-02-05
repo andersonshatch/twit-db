@@ -32,16 +32,17 @@ class Timeline {
 		//...on startup, favorite table is truncated so we start from the earliest available favorite next time around
 		$lastSeenId = $this->getTimelineType() == TimelineType::FavoriteTimeline ? null : $this->lastSeenId;
 
+		$enabled = $this->enabled ? 1 : 0;
 		if(!$this->id) {
 			$insertSQL = "INSERT INTO timeline(name, last_seen_id, enabled, last_updated_at) VALUES(?, ?, ?, ?)";
 			$statement = QueryHolder::prepareAndHoldQuery($this->mysqli, $insertSQL);
-			$statement->bind_param('ssss', $this->name, $lastSeenId, $this->enabled, $lastUpdatedSQLValue);
+			$statement->bind_param('ssss', $this->name, $lastSeenId, $enabled, $lastUpdatedSQLValue);
 			$statement->execute();
 			$this->id = $this->mysqli->insert_id;
 		} else {
 			$updateSQL = "UPDATE timeline SET name = ?, last_seen_id = ?, enabled = ?, last_updated_at = ? WHERE timeline_id = ?";
 			$statement = QueryHolder::prepareAndHoldQuery($this->mysqli, $updateSQL);
-			$statement->bind_param('sssss', $this->name, $lastSeenId, $this->enabled, $lastUpdatedSQLValue, $this->id);
+			$statement->bind_param('sssss', $this->name, $lastSeenId, $enabled, $lastUpdatedSQLValue, $this->id);
 			$statement->execute();
 		}
 	}
