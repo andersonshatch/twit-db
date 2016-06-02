@@ -146,11 +146,14 @@ class Timeline {
 			case TimelineType::FavoriteTimeline:
 				return "/favorites/list.json";
 				break;
+			case TimelineType::SearchTimeline:
+				return "/search/tweets.json";
+				break;
 		}
 	}
 
 	public function getRequestParameters() {
-		$baseParams = ["count" => 180, "include_rts" => "true", "page" => 1, "include_entities" => "true"];
+		$baseParams = ["count" => 180, "include_rts" => "true", "include_entities" => "true"];
 		if($this->sinceId) {
 			$baseParams["since_id"] = $this->sinceId;
 		}
@@ -168,6 +171,9 @@ class Timeline {
 			case TimelineType::ListTimeline:
 				$listIdentifierComponents = explode("/", substr($this->name, 1));
 				return array_merge($baseParams, ["owner_screen_name" => $listIdentifierComponents[0], "slug" => $listIdentifierComponents[1]]);
+				break;
+			case TimelineType::SearchTimeline:
+				return array_merge($baseParams, ["q" => substr($this->name, strlen("search: "))." -filter:retweets", "result_type" => "recent"]);
 				break;
 		}
 	}
@@ -188,6 +194,9 @@ class Timeline {
 				break;
 			case $this->name[0] == "@" && strpos($this->name, "/") === false:
 				$this->timelineType = TimelineType::UserTimeline;
+				break;
+			case strpos($this->name, "search: ") !== false:
+				$this->timelineType = TimelineType::SearchTimeline;
 				break;
 			default:
 				$this->timelineType = TimelineType::ListTimeline;
