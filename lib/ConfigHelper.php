@@ -104,6 +104,18 @@ class ConfigHelper {
 	}
 
 	/**
+	 * Get an array of the search terms to poll from config (SEARCH_TERMS named constant)
+	 * @return array of additional search terms
+	 */
+	public static function getSearchTerms() {
+		if (defined('SEARCH_TERMS')) {
+			return explode(',', SEARCH_TERMS);
+		}
+
+		return [];
+	}
+
+	/**
 	 * Entry point for database provisioning
 	 * @param mysqli $mysqli database handle
 	 */
@@ -276,6 +288,11 @@ class ConfigHelper {
 		$additionalUsers = self::getAdditionalUsers(true);
 		foreach($additionalUsers as $user) {
 			$expectedTimelines[] = "@$user";
+		}
+
+		$searchTerms = self::getSearchTerms();
+		foreach($searchTerms as $term) {
+			$expectedTimelines[] = "search: $term";
 		}
 
 		$readOnlyAdditionalUsers = array_diff($additionalUsers, self::getAdditionalUsers()); //array of users only in ADDITIONAL_READ_ONLY_USERS
