@@ -39,9 +39,12 @@ class TweetStorer {
 			$retweetedBy = $tweet->user->screen_name;
 			$retweetedByID = $tweet->user->id_str;
 			//replace the tweet with the retweeted_status, and store (mostly) that.
-			$tweet = $tweet->retweeted_status;
+			$tweet = (object)$tweet->retweeted_status;
+			$tweet->user = (object)$tweet->user;
 		}
 		if(property_exists($tweet, 'quoted_status')) {
+			$tweet->quoted_status = (object)$tweet->quoted_status;
+			$tweet->quoted_status->user = (object)$tweet->quoted_status->user;
 			TweetStorer::storeTweet($tweet->quoted_status, $mysqli);
 		}
 
@@ -56,6 +59,8 @@ class TweetStorer {
 			$entities = array_merge((array)$entities, (array)$tweet->extended_entities);
 		}
 		$entities = json_encode($entities);
+
+		$tweet->place = (object)$tweet->place;
 
 		$statement->bind_param('sssssssssss',
 			$id,
@@ -76,8 +81,10 @@ class TweetStorer {
 
 		//if tweet was new to the DB, process the hashtags it contained
 		if($addedRow) {
-			foreach($tweet->entities->hashtags as $hashtag) {
-				HashtagUtil::storeHashtag($hashtag, $createdat, $mysqli);
+			$entities = (object)$tweet->entities;
+			$hashtags = (object)$entities->hashtags;
+			foreach($hashtags as $hashtag) {
+				HashtagUtil::storeHashtag((object)$hashtag, $createdat, $mysqli);
 			}
 		}
 

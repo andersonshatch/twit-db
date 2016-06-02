@@ -38,7 +38,12 @@ function getTimelineAndStore(EpiTwitter $twitterObj, mysqli $mysqli, Timeline $t
 			$statuses = $twitterObj->get($timeline->getRequestEndpoint(), $timeline->getRequestParameters());
 			$stats->requestCount++;
 			$maxId = null;
+			if($timeline->getTimelineType() == TimelineType::SearchTimeline) {
+				$statuses = $statuses["statuses"];
+			}
 			foreach($statuses as $tweet) {
+				$tweet = (object)$tweet;
+				$tweet->user = (object)$tweet->user;
 				TweetStorer::storeTweet($tweet, $mysqli);
 				if($favoriteTimeline) {
 					FavoriteUtil::storeFavorite($tweet, $mysqli);
