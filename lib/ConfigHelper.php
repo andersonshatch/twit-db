@@ -1,5 +1,6 @@
 <?php
 
+require_once dirname(__FILE__).'/DatabaseUtils.php';
 require_once dirname(__FILE__).'/QueryHolder.php';
 
 class ConfigHelper {
@@ -164,8 +165,8 @@ class ConfigHelper {
 	 * @param mysqli $mysqli database handle
 	 */
 	private static function setupUserTable(mysqli $mysqli) {
-		if(self::tableExists("users", $mysqli)) {
-			self::renameTable("users", "user", $mysqli);
+		if(DatabaseUtils::tableExists("users", $mysqli)) {
+			DatabaseUtils::renameTable("users", "user", $mysqli);
 			return;
 		}
 
@@ -217,7 +218,7 @@ class ConfigHelper {
 	 * @param mysqli $mysqli database handle
 	 */
 	private static function setupHashtagTable(mysqli $mysqli) {
-		if(self::tableExists("hashtag", $mysqli)) {
+		if(DatabaseUtils::tableExists("hashtag", $mysqli)) {
 			return;
 		}
 
@@ -245,7 +246,7 @@ class ConfigHelper {
 	 * @param mysqli $mysqli database handle
 	 */
 	private static function setupFavoriteTable(mysqli $mysqli) {
-		if(self::tableExists("favorite", $mysqli)) {
+		if(DatabaseUtils::tableExists("favorite", $mysqli)) {
 			$mysqli->query("TRUNCATE TABLE `favorite`");
 		} else {
 			$create = $mysqli->query("
@@ -341,22 +342,6 @@ class ConfigHelper {
 		return $timeline;
 	}
 
-	/**
-	 * See if a table exists in this database
-	 * @param string $tableName name of the table to check for
-	 * @param mysqli $mysqli database handle
-	 * @return true if a table with $tableName exists in this database
-	 */
-	private static function tableExists($tableName, mysqli $mysqli) {
-		$tableExistsSQL = "SELECT 1 FROM information_schema.tables
-						   WHERE table_schema = '".DB_NAME."'
-						   AND table_name = '".$tableName."'";
-		if(!$mysqli->query($tableExistsSQL)->fetch_all()) {
-			return false;
-		}
-
-		return true;
-	}
 
 	/**
 	 * Copy tweets from old-convention table to the tweets table (if one exists)
@@ -365,7 +350,7 @@ class ConfigHelper {
 	 * @return highest ID from the migrated table
 	 */
 	private static function copyTweetsFromTable($tableName, mysqli $mysqli) {
-		if(!self::tableExists($tableName, $mysqli)) {
+		if(!DatabaseUtils::tableExists($tableName, $mysqli)) {
 			//no old-convention table to migrate
 			return null;
 		}
@@ -384,21 +369,12 @@ class ConfigHelper {
 		$maxIdFromTable = $mysqli->query("SELECT MAX(id) FROM `$tableName`")->fetch_row()[0];
 
 		$newTableName = "deletable_$tableName";
-		self::renameTable($tableName, $newTableName, $mysqli);
+		DatabaseUtils::renameTable($tableName, $newTableName, $mysqli);
 		echo " Renamed `$tableName` to `$newTableName`\n";
 
 		return $maxIdFromTable;
 	}
 
-	/**
-	 * Rename a table
-	 * @param string $currentTableName name of the table to be renamed
-	 * @param string $newTableName name to rename the table to
-	 * @param mysqli $mysqli database handle
-	 */
-	private static function renameTable($currentTableName, $newTableName, mysqli $mysqli) {
-		$mysqli->query("RENAME TABLE `$currentTableName` TO `$newTableName`");
-	}
 
 	/**
 	 * Exit indicating a table could not be successfully created; message will include last MySQL error
