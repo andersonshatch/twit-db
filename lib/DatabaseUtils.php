@@ -46,6 +46,25 @@ class DatabaseUtils {
 	public static function renameTable($currentTableName, $newTableName, mysqli $mysqli) {
 		$mysqli->query("RENAME TABLE `$currentTableName` TO `$newTableName`");
 	}
+
+	/**
+	 * Find the varchar max length of a column in this database
+	 * @param $tableName name of the table to check
+	 * @param $columnName name of the column to check
+	 * @param mysqli $mysqli database handle
+	 * @return int|null if the column exists and is a varchar column, then its length will be returned as an int, else null
+	 */
+	public static function varcharColumnLength($tableName, $columnName, mysqli $mysqli) {
+		$lengthSQL = "SELECT character_maximum_length
+					  FROM information_schema.columns
+					  WHERE table_schema = '".DB_NAME."'
+					  AND table_name = '".$tableName."'
+					  AND column_name = '".$columnName."'";
+
+		$row = $mysqli->query($lengthSQL)->fetch_row();
+		$result = is_array($row) ? $row[0] : null;
+		return $result === null ? null : intval($result);
+	}
 }
 
 ?>
