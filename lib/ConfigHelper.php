@@ -134,6 +134,10 @@ class ConfigHelper {
 	 * @param mysqli $mysqli database handle
 	 */
 	private static function setupTweetTable(mysqli $mysqli) {
+		if(DatabaseUtils::tableExists("tweet", $mysqli)) {
+			self::checkTweetDisplayRangeColumns($mysqli);
+			return;
+		}
 		$create = $mysqli->query("
 			CREATE TABLE IF NOT EXISTS `tweet` (
 				`id` bigint(30) unsigned NOT NULL DEFAULT '0',
@@ -148,6 +152,8 @@ class ConfigHelper {
 				`user_id` bigint(30) unsigned NOT NULL,
 				`entities_json` mediumtext CHARACTER SET utf8mb4,
 				`added_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+				`display_range_start` smallint NULL,
+				`display_range_end` smallint NULL,
 				PRIMARY KEY (`id`),
 				KEY `user_id_index` (`user_id`),
 				KEY `in_reply_to_status_id_index` (`in_reply_to_status_id`),
@@ -157,6 +163,38 @@ class ConfigHelper {
 		if(!$create) {
 			self::exitWithTableCreationError("tweet", $mysqli);
 		}
+	}
+
+	/**
+	 * Check for and create if necessary the `tweet`.`display_range_start` and `tweet`.`display_range_end` columns
+	 * @param mysqli $mysqli database handle
+	 */
+	private static function checkTweetDisplayRangeColumns(mysqli $mysqli) {
+		$displayRangeStartExists = DatabaseUtils::columnExists("tweet", "display_range_start", $mysqli);
+		$displayRangeEndExists = DatabaseUtils::columnExists("tweet", "display_range_end", $mysqli);
+
+		if($displayRangeStartExists && $displayRangeEndExists) {
+			//nothing to do
+			return;
+		}
+
+		if(!$displayRangeStartExists && !$displayRangeEndExists) {
+			//both columns need adding
+			echo "Adding display_range_{start,end} columns to tweet table...\n";
+			$alter = $mysqli->query("ALTER TABLE `tweet`
+									 ADD display_range_start smallint unsigned NULL,
+									 ADD display_range_end smallint unsigned NULL");
+			if(!$alter) {
+				$mysqliError = $mysqli->error;
+				$mysqli->close();
+				self::exitWithError("Couldn't add tweet.display_range_start + tweet.display_range_end. $mysqliError");
+			}
+			return;
+		}
+
+		//inconsistent state
+		$message = $displayRangeStartExists ? "tweet.display_range_start exists, but tweet.display_range_end does not" : "tweet.display_range_end exists, but tweet.display_range_start does not";
+		self::exitWithError("Inconsistent state: $message");
 	}
 
 	/**
