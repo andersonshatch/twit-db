@@ -135,7 +135,7 @@ class ConfigHelper {
 	 */
 	private static function setupTweetTable(mysqli $mysqli) {
 		if(DatabaseUtils::tableExists("tweet", $mysqli)) {
-			self::checkTweetDisplayRangeColumns($mysqli);
+			self::assertTweetTableLongTweetReadiness($mysqli);
 			return;
 		}
 		$create = $mysqli->query("
@@ -144,7 +144,7 @@ class ConfigHelper {
 				`created_at` datetime NOT NULL,
 				`source` varchar(255) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
 				`in_reply_to_status_id` bigint(30) unsigned DEFAULT NULL,
-				`text` varchar(255) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
+				`text` varchar(3000) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
 				`retweeted_by_screen_name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
 				`retweeted_by_user_id` bigint(30) unsigned DEFAULT NULL,
 				`place_full_name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
@@ -166,22 +166,28 @@ class ConfigHelper {
 	}
 
 	/**
-	 * Check for and create if necessary the `tweet`.`display_range_start` and `tweet`.`display_range_end` columns
+	 * Modify (if necessary) the `tweet` table to allow for larger tweets
+	 *
+	 * - Check that `tweet`.`text` is varchar(3000)
+	 * - Check that `tweet`.`display_range_start` exists
+	 * - Check that `tweet`.display_range_end` exists
 	 * @param mysqli $mysqli database handle
 	 */
-	private static function checkTweetDisplayRangeColumns(mysqli $mysqli) {
+	private static function assertTweetTableLongTweetReadiness(mysqli $mysqli) {
+		$textColumnLengthExpanded = DatabaseUtils::varcharColumnLength("tweet", "text", $mysqli) == 3000;
 		$displayRangeStartExists = DatabaseUtils::columnExists("tweet", "display_range_start", $mysqli);
 		$displayRangeEndExists = DatabaseUtils::columnExists("tweet", "display_range_end", $mysqli);
 
-		if($displayRangeStartExists && $displayRangeEndExists) {
+		if($textColumnLengthExpanded && $displayRangeStartExists && $displayRangeEndExists) {
 			//nothing to do
 			return;
 		}
 
-		if(!$displayRangeStartExists && !$displayRangeEndExists) {
-			//both columns need adding
-			echo "Adding display_range_{start,end} columns to tweet table...\n";
+		if(!$textColumnLengthExpanded && !$displayRangeStartExists && !$displayRangeEndExists) {
+			//tweet table needs modification for longer tweets
+			echo "Altering tweet table for longer tweets...\n";
 			$alter = $mysqli->query("ALTER TABLE `tweet`
+									 MODIFY text VARCHAR(3000) NOT NULL,
 									 ADD display_range_start smallint unsigned NULL,
 									 ADD display_range_end smallint unsigned NULL");
 			if(!$alter) {
@@ -193,7 +199,9 @@ class ConfigHelper {
 		}
 
 		//inconsistent state
-		$message = $displayRangeStartExists ? "tweet.display_range_start exists, but tweet.display_range_end does not" : "tweet.display_range_end exists, but tweet.display_range_start does not";
+		$message = $textColumnLengthExpanded ?
+			"tweet.text column expanded to varchar(3000) but tweet.display_range_start(/+)tweet.display_range_end columns missing"
+			: "tweet.display_range_start(/+)tweet.display_range_end columns exist but tweet.text column is not varchar(3000)";
 		self::exitWithError("Inconsistent state: $message");
 	}
 
