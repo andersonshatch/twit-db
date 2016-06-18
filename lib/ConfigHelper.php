@@ -198,6 +198,7 @@ class ConfigHelper {
 			return;
 		}
 
+		$mysqli->close();
 		//inconsistent state
 		$message = $textColumnLengthExpanded ?
 			"tweet.text column expanded to varchar(3000) but tweet.display_range_start(/+)tweet.display_range_end columns missing"
