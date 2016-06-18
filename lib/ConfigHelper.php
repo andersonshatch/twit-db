@@ -402,14 +402,14 @@ class ConfigHelper {
 		}
 		echo "Copying tweets from `$tableName` to `tweet`...\n";
 		$migrateSQL = "INSERT IGNORE INTO `tweet`
-					   SELECT id, created_at, source, in_reply_to_status_id, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, place_url, user_id, entities_json, NULL
+					   SELECT id, created_at, source, in_reply_to_status_id, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, place_url, user_id, entities_json, NULL, NULL, NULL
 					   FROM `$tableName`";
 		$mysqli->query($migrateSQL);
 		if($mysqli->error) {
 			$error = $mysqli->error;
 			$mysqli->close();
 			self::exitWithError($error);
-		}
+		}g
 
 		echo " -> Tweets copied: {$mysqli->affected_rows}.";
 		$maxIdFromTable = $mysqli->query("SELECT MAX(id) FROM `$tableName`")->fetch_row()[0];
