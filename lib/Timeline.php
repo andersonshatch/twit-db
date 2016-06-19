@@ -153,7 +153,7 @@ class Timeline {
 	}
 
 	public function getRequestParameters() {
-		$baseParams = ["count" => 180, "include_rts" => "true", "include_entities" => "true"];
+		$baseParams = ["count" => 180, "include_rts" => "true", "include_entities" => "true", "tweet_mode" => "extended"];
 		if($this->sinceId) {
 			$baseParams["since_id"] = $this->sinceId;
 		}
