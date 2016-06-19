@@ -24,9 +24,11 @@ class TweetStorer {
 				place_full_name,
 				place_url,
 				user_id,
-				entities_json
+				entities_json,
+				display_range_start,
+				display_range_end
 			) VALUES
-			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		$statement = QueryHolder::prepareAndHoldQuery($mysqli, $insertSQL);
 		$retweetedBy = NULL;
 		$retweetedById = NULL;
@@ -59,21 +61,27 @@ class TweetStorer {
 			$entities = array_merge((array)$entities, (array)$tweet->extended_entities);
 		}
 		$entities = json_encode($entities);
+		$text = property_exists($tweet, "full_text") ? $tweet->full_text : $tweet->text;
 
 		$tweet->place = (object)$tweet->place;
+		$displayRange = property_exists($tweet, "display_text_range") ? $tweet->display_text_range : null;
+		$displayRangeStart = $displayRange === null ? null : $displayRange[0];
+		$displayRangeEnd = $displayRange === null ? null : $displayRange[1];
 
-		$statement->bind_param('sssssssssss',
+		$statement->bind_param('sssssssssssss',
 			$id,
 			$createdat,
 			$tweet->source,
 			$tweet->in_reply_to_status_id_str,
-			$tweet->text,
+			$text,
 			$retweetedBy,
 			$retweetedByID,
 			$tweet->place->full_name,
 			$tweet->place->url,
 			$tweet->user->id_str,
-			$entities
+			$entities,
+			$displayRangeStart,
+			$displayRangeEnd
 		);
 		$statement->execute();
 
