@@ -1,7 +1,7 @@
 <?php
 
 class QueryUtils {
-	const QUERY_FIELDS = 'id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url';
+	const QUERY_FIELDS = 'id, created_at, source, text, retweeted_by_screen_name, retweeted_by_user_id, place_full_name, user_id, entities_json, screen_name, name, profile_image_url, display_range_start, display_range_end';
 
 	/**
 	 * Bind parameters to a mysqli query
