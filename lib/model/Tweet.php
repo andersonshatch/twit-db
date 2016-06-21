@@ -8,6 +8,7 @@ class Tweet implements \JsonSerializable {
 	private $id;
 	private $createdAt;
 	private $dateTime;
+	private $displayTextRange;
 	private $entities;
 	private $source;
 	private $text;
@@ -22,6 +23,9 @@ class Tweet implements \JsonSerializable {
 	public function __construct(array $array) {
 		$this->id = $array['id'];
 		$this->createdAt = $array['created_at'];
+		if($array['display_range_start'] !== null && $array['display_range_end'] !== null) {
+			$this->displayTextRange = [$array['display_range_start'], $array['display_range_end']];
+		}
 		$this->source = $array['source'];
 		$this->text = $array['text'];
 		$this->relevance = array_key_exists('relevance', $array) ? $array['relevance'] : null;
@@ -36,6 +40,7 @@ class Tweet implements \JsonSerializable {
 			'id'                    => $this->id,
 			'createdAt'             => $this->createdAt,
 			'dateTime'              => $this->dateTime,
+			'displayTextRange'		=> $this->displayTextRange,
 			'entities'              => $this->entities,
 			'source'                => $this->source,
 			'text'                  => $this->text,
@@ -71,6 +76,14 @@ class Tweet implements \JsonSerializable {
 
 	public function setDateTime($dateTime) {
 		$this->dateTime = $dateTime;
+	}
+
+	public function getDisplayTextRange() {
+		return $this->displayTextRange;
+	}
+
+	public function setDisplayTextRange(array $displayTextRange) {
+		$this->displayTextRange = $displayTextRange;
 	}
 
 	public function getEntities() {
