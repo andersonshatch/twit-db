@@ -180,6 +180,16 @@ chdir(dirname(__FILE__));
 							As many tweets as possible will be retrieved for each user/list. (Only most recent ~3200 tweets for users, ~800 for lists)
 						</p>
 						</div>
+						<div class="">
+							<label for="search-terms">Search Terms</label>
+							<input type="text" name="search-terms" id="search-terms">
+							<p>
+							Enter a comma seperated list of search terms to save in addition to the selected timelines. (Optional)<br/>
+							e.g. <code><i>atpfm,funeral for a friend,#lastchancetodance,hodor</i></code><br />
+							As many tweets as initially possible will be retrieved for each search term.
+							</p>
+						</div>
+
 						<input type="submit" class="btn btn-primary pull-right" id="submit-all" value="Save">
 					</fieldset>
 				</form>

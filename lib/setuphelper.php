@@ -117,6 +117,7 @@ function createConfigFile() {
 	}
 	require_once 'additional_users.php';
     $otherUsers = create_users_string(create_users_array($_POST['other-users']));
+	$searchTerms = $_POST['search-terms'];
 	$mentions = "";
 	if(array_key_exists('mentions-timeline', $_POST) && $_POST['mentions-timeline'] == 'on') {
 		$mentions = "define('MENTIONS_TIMELINE', 'true');";
@@ -145,6 +146,7 @@ function createConfigFile() {
 	define('TWITTER_USER_SECRET', '{$_POST['user-secret']}');
 	
 	define('ADDITIONAL_USERS', '$otherUsers');
+	define('SEARCH_TERMS', '$searchTerms');
 	$mentions
 	$favorites
 
