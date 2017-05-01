@@ -16,7 +16,7 @@ if(is_readable('config.php')) {
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Twit-DB search</title>
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap-tooltip.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap-typeahead.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
