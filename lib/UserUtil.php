@@ -81,7 +81,7 @@ class UserUtil {
 	 */
 	public static function search($term, mysqli $mysqli) {
 		$searchQuery = QueryHolder::prepareAndHoldQuery($mysqli, "
-			SELECT screen_name AS screenName, name, profile_image_url AS imageUrl
+			SELECT screen_name AS screenName, name, REPLACE(profile_image_url, 'http://', 'https://') AS imageUrl
 			FROM user
 			WHERE screen_name LIKE ?
 			OR name LIKE ?

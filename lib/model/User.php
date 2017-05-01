@@ -11,7 +11,7 @@ class User implements \JsonSerializable {
 	public function __construct(array $array) {
 		$this->id = $array['user_id'];
 		$this->name = $array['name'];
-		$this->profileImageUrl = $array['profile_image_url'];
+		$this->profileImageUrl = str_replace('http://', 'https://', $array['profile_image_url']);
 		$this->screenName = $array['screen_name'];
 	}
 
@@ -45,7 +45,7 @@ class User implements \JsonSerializable {
 	}
 
 	public function setProfileImageUrl($profileImageUrl) {
-		$this->profileImageUrl = $profileImageUrl;
+		$this->profileImageUrl = str_replace('http://', 'https://', $profileImageUrl);
 	}
 
 	public function getScreenName() {
