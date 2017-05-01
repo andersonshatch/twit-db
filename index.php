@@ -46,7 +46,7 @@ if(is_readable('config.php')) {
 </div>
 <div id="stream">
 </div>
-<a href="#" id="loadMore" class="btn large span12" style="display: none">Load More</a>
+<a href="#" id="loadMore" class="btn large span12">Load More</a>
 </div><!--content-->
 </div><!--container-->
 <script type="text/mustache-template" id="tweet-template">
@@ -83,7 +83,7 @@ if(is_readable('config.php')) {
 					<span class="tweet-source">
 						via {{{source}}}{{#placeFullName}} from {{placeFullName}}{{/placeFullName}}
 					</span>
-					<span class="tweet-actions" style="visibility: hidden;">
+					<span class="tweet-actions hidden">
 						<a href="https://twitter.com/intent/favorite/?tweet_id={{id}}" class="favorite-action" title="Favorite">
 							<i></i>Favorite
 						</a>

@@ -2,10 +2,10 @@ $(document).ready(function() {
 	$("body").on(
 		{
 			mouseenter: function() {
-				$(this).children().find(".tweet-actions").css("visibility", "visible");
+				$(this).children().find(".tweet-actions").removeClass("hidden");
 			},
 			mouseleave: function() {
-				$(this).children().find(".tweet-actions").css("visibility", "hidden");
+				$(this).children().find(".tweet-actions").addClass("hidden");
 			}
 		}, '.tweet'
 	);
