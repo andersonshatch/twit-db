@@ -3,7 +3,7 @@
 chdir(dirname(__FILE__));
 require_once '../lib/additional_users.php';
 
-class AdditionalUserTest extends PHPUnit_Framework_TestCase {
+class AdditionalUserTest extends \PHPUnit\Framework\TestCase {
 	
 	public function testEmptyUserList() {
 		$input = '';

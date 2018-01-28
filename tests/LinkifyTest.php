@@ -3,7 +3,7 @@
 chdir(dirname(__FILE__));
 require_once '../lib/linkify_tweet.php';
 
-class LinkifyTest extends PHPUnit_Framework_TestCase {
+class LinkifyTest extends \PHPUnit\Framework\TestCase {
 
 	public function testTweetWithJustText() {
 		$testText = 'blah blah tweet without any usernames or hashtags or links';
