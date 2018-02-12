@@ -1,4 +1,4 @@
-### A Tool to retrieve Twitter timelines & store in MySQL [![Build Status](https://secure.travis-ci.org/andersonshatch/twit-db.png)](http://travis-ci.org/andersonshatch/twit-db)
+### A Tool to retrieve Twitter timelines & store in MySQL [![Build Status](https://travis-ci.org/andersonshatch/twit-db.svg?branch=master)](https://travis-ci.org/andersonshatch/twit-db)
 
 #### Requirements
 - PHP version 7.0 and above
