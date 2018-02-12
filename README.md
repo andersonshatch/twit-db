@@ -1,12 +1,12 @@
-###A Tool to retrieve Twitter timelines & store in MySQL
-[![Build Status](https://secure.travis-ci.org/andersonshatch/twit-db.png)](http://travis-ci.org/andersonshatch/twit-db)
-####Requirements
+### A Tool to retrieve Twitter timelines & store in MySQL [![Build Status](https://secure.travis-ci.org/andersonshatch/twit-db.png)](http://travis-ci.org/andersonshatch/twit-db)
+
+#### Requirements
 - PHP version 7.0 and above
 - MySQL version 5.5.3 and above  
 
 (Automatically determined, only tested on the current PHP & MySQL versions)
 
-####Installation
+#### Installation
 Clone the repository into a web server directory and run ```git submodule update --init``` to retrieve the submodules.
 Visit the directory you cloned into in a web-browser. You should be redirected to setup.php.
 
@@ -15,5 +15,5 @@ Once you have completed the setup process, create a task to run <i>gettweets.php
 
 Then, visit the directory again where you can search through the stored tweets using index.php.
 
-####Search Tips
+#### Search Tips
 You can surround words with quotes to search for that exact combination and prefix them with ```+``` or ```-``` to ensure those words are included, or excluded as necessary.
