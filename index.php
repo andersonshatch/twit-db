@@ -75,7 +75,21 @@ if(is_readable('config.php')) {
 			<div class="tweet-text">
 				{{{text}}}
 			</div>
-
+			{{#quotedTweet}}
+				<div class="span10 quoted-tweet-row">
+					<div class="span6 columns quoted-tweet">
+						<h4>
+							<a class="tweet-full-name user-profile-link" href="https://twitter.com/{{user.screenName}}" data-screen-name="{{user.screenName}}">{{user.name}}</a>
+							<small class="tweet-screen-name">
+								<a class="tweet-screen-name user-profile-link" href="https://twitter.com/{{user.screenName}}">@{{user.screenName}}</a>
+							</small>
+						</h4>
+						<div class="tweet-text">
+							{{{text}}}
+						</div>
+					</div>
+				</div>
+			{{/quotedTweet}}
 			<blockquote class="tweet-metadata">
 				<small>
 					<a href="https://twitter.com/{{user.screenName}}/status/{{id}}" class="tweet-timestamp" target="_blank" title="{{timestampTitle}}" data-timestamp="{{dateTime}}">

@@ -1,7 +1,7 @@
 div.navbar div.navbar-inner div.container{
 	color: #e6e6e6;
 }
-h4 a.tweet-full-name{
+a.tweet-full-name{
 	color: black;
 }
 div.tweet-text{
@@ -11,13 +11,20 @@ div.tweet-text{
 blockquote small{
 	font-size: 13px;
 }
-h4 small a.tweet-screen-name,
-h4 small a.tweetscreen-name:hover,
+small a.tweet-screen-name,
+small a.tweetscreen-name:hover,
 a.tweet-timestamp,
 a.tweet-timestamp:hover,
 span.tweet-source a,
 span.tweet-source a:hover{
 	color: #BFBFBF;
+}
+.quoted-tweet-row{
+	padding-top: 5px;
+}
+.quoted-tweet{
+	border: 1px solid #ddd;
+	padding: 0px 15px 10px;
 }
 span.retweet-icon{
     	background: url(icons.png) no-repeat -81px 0;
