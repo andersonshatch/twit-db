@@ -67,20 +67,25 @@ class TweetFormatter {
 	}
 
 	private static function lookupQuotedTweet(array $tweetDictionary) {
-		$urls = $tweetDictionary['entities']->urls;
-
-		//iterate through the links backwards and pick the last matching quote link
-		//this matches behaviour observed by the api results
-		$urls = array_reverse($urls);
-
+		$entities = $tweetDictionary['entities'];
 		$id = null;
 
-		foreach($urls as $url) {
-			$expandedUrl = $url->expanded_url;
-			if(preg_match('/https:\/\/twitter.com\/.*\/status\/[0-9]+/', $expandedUrl)) {
-				$linkComponents = explode('/', $expandedUrl);
-				$id = end($linkComponents);
-				break;
+		if(property_exists($entities, 'quotedStatusId') && $entities->quotedStatusId !== null) {
+			$id = $entities->quotedStatusId;
+		} else {
+			$urls = $entities->urls;
+
+			//iterate through the links backwards and pick the last matching quote link
+			//this matches behaviour observed by the api results
+			$urls = array_reverse($urls);
+
+			foreach($urls as $url) {
+				$expandedUrl = $url->expanded_url;
+				if(preg_match('/https:\/\/twitter.com\/.*\/status\/[0-9]+/', $expandedUrl)) {
+					$linkComponents = explode('/', $expandedUrl);
+					$id = end($linkComponents);
+					break;
+				}
 			}
 		}
 

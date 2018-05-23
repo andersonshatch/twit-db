@@ -60,6 +60,10 @@ class TweetStorer {
 		if(property_exists($tweet, 'extended_entities')) {
 			$entities = array_merge((array)$entities, (array)$tweet->extended_entities);
 		}
+		if(property_exists($tweet, 'quoted_status_id_str') && $tweet->quoted_status_id_str !== null) {
+			$entitiesObj = (object)$entities;
+			$entitiesObj->quotedStatusId = $tweet->quoted_status_id_str;
+		}
 		$entities = json_encode($entities);
 		$text = property_exists($tweet, "full_text") ? $tweet->full_text : $tweet->text;
 
