@@ -31,6 +31,9 @@ function linkify_tweet($text, $entitiesJSON = null) {
 	$urlClass = "";
 	
 	foreach($entities as $type => $things) {
+		if(!is_array($things)) {
+			continue;
+		}
 		foreach($things as $value) {
 
 			$media_url = "";
