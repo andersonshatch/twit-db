@@ -68,6 +68,9 @@ class TweetFormatter {
 
 	private static function lookupQuotedTweet(array $tweetDictionary) {
 		$entities = $tweetDictionary['entities'];
+		if ($entities === null) {
+			return null;
+		}
 		$id = null;
 
 		if(property_exists($entities, 'quotedStatusId') && $entities->quotedStatusId !== null) {
