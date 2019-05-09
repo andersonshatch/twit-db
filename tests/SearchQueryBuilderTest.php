@@ -11,7 +11,7 @@ class SearchQueryBuilderTest extends \PHPUnit\Framework\TestCase {
 	private static $textMatch = "MATCH(`text`) AGAINST(? IN BOOLEAN MODE)";
 	private static $userSubquery = "(SELECT user_id FROM user WHERE MATCH(`screen_name`) AGAINST(?))";
 
-	public static function setUpBeforeClass() {
+	public static function setUpBeforeClass() : void {
 		define('ADDITIONAL_USERS', 'lavamunky');
 	}
 
