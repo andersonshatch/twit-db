@@ -35,7 +35,7 @@ class Tweet implements \JsonSerializable {
 		$this->user = new User($array);
 	}
 
-	function jsonSerialize() {
+	function jsonSerialize(): array {
 		return [
 			'id'                    => $this->id,
 			'createdAt'             => $this->createdAt,

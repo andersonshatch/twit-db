@@ -15,7 +15,7 @@ class User implements \JsonSerializable {
 		$this->screenName = $array['screen_name'];
 	}
 
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return [
 			'id'                => $this->id,
 			'name'              => $this->name,
