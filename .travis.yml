@@ -2,7 +2,6 @@ before_install:
   - git submodule update --init --recursive
 language: php
 php:
-  - 7.1
-  - 7.2
-  - 7.3
+  - 7.x
+  - 8.x
 script: phpunit tests/AllTests.php
